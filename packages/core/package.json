@@ -1,6 +1,6 @@
 {
   "name": "@rpxl/riffle",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A framework-agnostic carousel card stack, with React and Vue entries. Cards, cascading.",
   "license": "MIT",
   "type": "module",
