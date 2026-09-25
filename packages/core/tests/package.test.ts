@@ -1,9 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import pkg from '../package.json' with { type: 'json' }
 
+// Read through a wider type: `pnpm add` (as CI's framework version matrix
+// runs) drops the empty `dependencies` object from package.json, and the
+// test must still typecheck and pass without it.
+const dependencies: Record<string, string> =
+  (pkg as { dependencies?: Record<string, string> }).dependencies ?? {}
+
 describe('package contract', () => {
   it('has zero runtime dependencies', () => {
-    expect(Object.keys(pkg.dependencies ?? {})).toEqual([])
+    expect(Object.keys(dependencies)).toEqual([])
   })
 
   it('keeps react and vue as peer dependencies, not runtime dependencies', () => {
@@ -14,8 +20,8 @@ describe('package contract', () => {
       react: '^18.0.0 || ^19.0.0',
       vue: '^3.4.20',
     })
-    expect(pkg.dependencies).not.toHaveProperty('react')
-    expect(pkg.dependencies).not.toHaveProperty('vue')
+    expect(dependencies).not.toHaveProperty('react')
+    expect(dependencies).not.toHaveProperty('vue')
   })
 
   it('marks both peer dependencies optional, since a consumer imports at most one framework entry', () => {
