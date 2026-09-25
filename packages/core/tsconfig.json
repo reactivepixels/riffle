@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "jsx": "react-jsx",
+    "paths": { "@rpxl/riffle": ["./src/index.ts"] }
+  },
+  "include": ["src", "tests", "*.config.ts"]
+}

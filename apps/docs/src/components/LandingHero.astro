@@ -1,0 +1,132 @@
+---
+/**
+ * Overrides Starlight's own Hero (see astro.config.mjs) so the landing
+ * page's right column can host a real, hydrated live demo instead of a
+ * static image: Starlight's `hero.image` frontmatter only ever accepts an
+ * `<img>` (a built asset) or raw HTML (`image.html`, injected with
+ * `set:html`), and a script inside HTML injected that way never runs, so
+ * VanillaRiffle.astro's own mount script (see that file) would never start
+ * the engine. Rendering the component for real, as this file does, is the
+ * only way to keep it a genuine drag-and-drop demo rather than a picture of
+ * one.
+ *
+ * Structure otherwise mirrors Starlight's own Hero.astro, with one
+ * deliberate difference in the markup order: Starlight's own hero puts its
+ * image before the copy in the DOM (so a desktop `order: 2` is needed to
+ * move it visually to the right column), but this hero puts the copy
+ * (title, tagline, actions) first and the demo second. That single DOM
+ * order does the right thing at both breakpoints without any `order`
+ * override: on a narrow screen, where `.hero`'s grid stays a single column,
+ * the demo naturally falls below the copy (never above it, so a visitor
+ * reads what Riffle is before meeting the live drag demo); at 50rem and up,
+ * the same two elements are simply the grid's first and second column, so
+ * the demo lands on the right without extra CSS.
+ */
+import { LinkButton } from '@astrojs/starlight/components'
+import VanillaRiffle from './VanillaRiffle.astro'
+
+// Starlight's own Hero.astro (@astrojs/starlight/dist/components/Hero.astro)
+// uses this same id, `_top`, for the page title, as the target for its
+// "skip to content" and table-of-contents links; it is not part of any
+// public export, so it is repeated here rather than imported.
+const PAGE_TITLE_ID = '_top'
+
+const { data } = Astro.locals.starlightRoute.entry
+const { title = data.title, tagline, actions = [] } = data.hero || {}
+---
+
+<div class="hero">
+  <div class="sl-flex stack">
+    <div class="sl-flex copy">
+      <h1 id={PAGE_TITLE_ID} data-page-title set:html={title} />
+      {tagline && <div class="tagline" set:html={tagline} />}
+    </div>
+    {
+      actions.length > 0 && (
+        <div class="sl-flex actions">
+          {actions.map(
+            ({ attrs: { class: className, ...attrs } = {}, icon, link: href, text, variant }) => (
+              <LinkButton {href} {variant} icon={icon?.name} class:list={[className]} {...attrs}>
+                {text}
+              </LinkButton>
+            ),
+          )}
+        </div>
+      )
+    }
+  </div>
+  <div class="hero-demo not-content">
+    <VanillaRiffle />
+  </div>
+</div>
+
+<style>
+  @layer starlight.core {
+    .hero {
+      display: grid;
+      grid-template-columns: 100%;
+      align-items: center;
+      gap: 1.5rem;
+      padding-bottom: 1rem;
+    }
+
+    .hero-demo {
+      display: flex;
+      justify-content: center;
+    }
+
+    .stack {
+      flex-direction: column;
+      gap: clamp(1.5rem, calc(1.5rem + 1vw), 2rem);
+      text-align: center;
+    }
+
+    .copy {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .copy > * {
+      max-width: 50ch;
+    }
+
+    h1 {
+      font-size: clamp(var(--sl-text-3xl), calc(0.25rem + 5vw), var(--sl-text-6xl));
+      line-height: var(--sl-line-height-headings);
+      font-weight: 600;
+      color: var(--sl-color-white);
+    }
+
+    .tagline {
+      font-size: clamp(var(--sl-text-base), calc(0.0625rem + 2vw), var(--sl-text-xl));
+      color: var(--sl-color-gray-2);
+    }
+
+    .actions {
+      gap: 1rem 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    @media (min-width: 50rem) {
+      .hero {
+        grid-template-columns: 7fr 4fr;
+        gap: 3%;
+        padding-block: clamp(2.5rem, calc(1rem + 10vmin), 6rem);
+      }
+
+      .stack {
+        text-align: start;
+      }
+
+      .copy {
+        align-items: flex-start;
+      }
+
+      .actions {
+        justify-content: flex-start;
+      }
+    }
+  }
+</style>

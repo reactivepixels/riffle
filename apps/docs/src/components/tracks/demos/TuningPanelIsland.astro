@@ -1,0 +1,11 @@
+---
+// The Gestures guide's tuning panel, on every track. It is a docs tool
+// rather than framework code, so it is the same React island everywhere;
+// only the config it copies changes, to the page's own framework.
+import TuningPanel from '../../TuningPanel'
+import { pageFramework } from '../framework'
+
+const framework = pageFramework('Demo', Astro.locals.starlightRoute.entry.data)
+---
+
+<TuningPanel client:load framework={framework} />

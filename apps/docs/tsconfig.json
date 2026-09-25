@@ -1,0 +1,11 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    // Track templates (src/tracks/) are copied two directories deeper by
+    // scripts/generate-tracks.mjs, so they import through this alias rather
+    // than a relative path that would only resolve from one of the two places.
+    "paths": { "@docs/*": ["./src/*"] }
+  },
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"]
+}

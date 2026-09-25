@@ -1,0 +1,93 @@
+/*
+ * The vanilla track's custom-layout demo styling
+ * (tracks/demos/custom-layout-vanilla.ts), adapted from
+ * examples/custom-layout/src/app.css so the docs demo reads as the same
+ * arc-fan layout, not a differently themed one. Card sizing (200x280),
+ * shadow and typography match the example exactly so this page's contrast
+ * profile matches the one a11y.spec.ts already scans at
+ * examples/custom-layout.
+ */
+
+.custom-layout-demo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 1.5rem 0 2rem;
+  /*
+   * Clips at this element, which spans the full content column width
+   * (this island is always used solo), rather than at
+   * .custom-layout-demo__stack further down: a drag can pull a card
+   * further than the stack's own measured arc reach before it springs
+   * back, and that overshoot needs the real content width to play out
+   * across, not to be cut a few pixels past the stack's edge. `clip`, not
+   * `hidden`: it contains the overflow without creating a scroll
+   * container, so the page's own vertical scroll is unaffected.
+   */
+  overflow-x: clip;
+}
+
+.custom-layout-demo__stack {
+  position: relative;
+  /* isolate: contains every card's z-index inside this box's own stacking
+     context, the same reason examples/custom-layout/src/app.css's .stage
+     does, so nothing here can paint above the controls below it. */
+  isolation: isolate;
+}
+
+.custom-layout-demo__card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  border: 1px solid rgb(255 255 255 / 8%);
+  box-shadow:
+    0 20px 44px -18px rgb(0 0 0 / 60%),
+    0 2px 6px rgb(0 0 0 / 35%);
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: grab;
+  user-select: none;
+}
+
+.custom-layout-demo__card:active {
+  cursor: grabbing;
+}
+
+.custom-layout-demo__card:focus-visible {
+  outline: 2px solid var(--sl-color-accent, #8b5cf6);
+  outline-offset: 4px;
+}
+
+.custom-layout-demo__controls {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.custom-layout-demo__controls button {
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--sl-color-gray-5, #ccc);
+  background: var(--sl-color-bg, #fff);
+  color: var(--sl-color-text, #111);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.custom-layout-demo__controls button:hover {
+  background: var(--sl-color-gray-6, #f4f4f4);
+}
+
+.custom-layout-demo__readout {
+  min-width: 4.5rem;
+  text-align: center;
+  color: var(--sl-color-gray-2, #333);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}

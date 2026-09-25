@@ -1,0 +1,51 @@
+name: Docs
+
+on:
+  push: { branches: [main] }
+  # Lets a maintainer re-run a deploy by hand (a docs-only content change
+  # merged without a code change still needs a fresh Pages deploy) without
+  # waiting for the next push to main.
+  workflow_dispatch:
+
+# Both inert until GitHub Pages is switched to the "GitHub Actions" source
+# for this repository (see RELEASING.md's first-release section): with no
+# Pages environment configured, `actions/deploy-pages` fails the run rather
+# than silently doing nothing, so this workflow does nothing destructive
+# either way before that switch, it just does not succeed until then.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      # The docs site's own live islands and API reference import the built
+      # packages, the same way CI's own `verify` job builds before building
+      # the docs (see .github/workflows/ci.yml).
+      - run: pnpm build
+      - run: pnpm --filter @rpxl/docs build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/docs/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,53 @@
+:root {
+  --bg: #121218;
+  --ink: #f3efe8;
+  --muted: #9c988e;
+  --accent: #5fae5c;
+  --control-bg: rgb(255 255 255 / 6%);
+  --control-border: rgb(255 255 255 / 16%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/*
+ * The card animating out toward the exit slot, and the fanned cards
+ * behind the front one, legitimately extend past the stack's own box
+ * while a drag or a settle is in progress: that is what the stack is
+ * meant to look like mid-motion, not a bug. Clipping here, on the root
+ * element, rather than on the stack's own narrow box, lets that motion
+ * play out across the real screen width instead of being cut off a few
+ * pixels past the front card's own edge. `clip`, not `hidden`: it
+ * contains the overflow without creating a scroll container of its own,
+ * so the page's own vertical scroll is unaffected.
+ *
+ * Both `html` and `body` need it (confirmed directly: either alone leaves
+ * `document.documentElement.scrollWidth` growing past `clientWidth` while
+ * the exit animation is mid-flight). A `<body>` with a non-`visible`
+ * overflow alone propagates that value to the viewport and is itself
+ * treated as `visible` again (the same quirk that lets a `<body>` with
+ * `overflow: hidden` suppress the page's scrollbar), so `html` on its own
+ * still measures the pre-clip extent; `html` alone, in turn, does not stop
+ * `body`'s own box, the one that actually contains the overflowing
+ * content, from still being measured as wider than the viewport. Setting
+ * it on both closes that gap.
+ */
+html {
+  overflow-x: clip;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse at 50% 20%, #1c1c26, var(--bg) 70%);
+  color: var(--ink);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  overflow-x: clip;
+}

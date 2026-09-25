@@ -1,0 +1,23 @@
+{
+  "name": "nuxt-example",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A page server rendered by Nuxt, proving no window or document access at render time, built with the Vue Riffle adapter's useRiffle composable and directives.",
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "start": "PORT=4320 node .output/server/index.mjs",
+    "typecheck": "nuxi typecheck",
+    "check:ssr": "node scripts/check-ssr.mjs"
+  },
+  "dependencies": {
+    "@rpxl/riffle": "workspace:*",
+    "nuxt": "^4.5.2",
+    "vue": "^3.5.43"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vue-tsc": "^3.3.11"
+  }
+}

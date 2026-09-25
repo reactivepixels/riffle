@@ -1,0 +1,18 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "../../packages/core/src/index.ts",
+    "../../packages/core/src/react/index.ts",
+    "../../packages/core/src/vue/index.ts"
+  ],
+  "tsconfig": "./typedoc.tsconfig.json",
+  "excludeExternals": true,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "plugin": ["typedoc-plugin-markdown"],
+  "readme": "none",
+  "hideBreadcrumbs": true,
+  "hidePageHeader": true,
+  "hideGenerator": true,
+  "githubPages": false
+}

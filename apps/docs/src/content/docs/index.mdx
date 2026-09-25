@@ -1,0 +1,73 @@
+---
+title: Riffle
+description: A framework-agnostic cycling card stack. Cards, cascading.
+template: splash
+head:
+  - tag: title
+    content: 'Riffle: a cycling card stack for Vanilla JS, React and Vue'
+hero:
+  title: Riffle
+  tagline: A cycling card stack, physics based and framework agnostic. Cards fan out behind the front one and cycle in place, nothing is ever swiped away or discarded.
+  actions:
+    - text: Choose your framework
+      link: '#choose-your-framework'
+      icon: right-arrow
+      variant: primary
+    - text: GitHub
+      link: https://github.com/reactivepixels/riffle
+      icon: github
+      variant: secondary
+      attrs:
+        title: Resolves once the repository is public
+---
+
+import BundleSizes from '../../components/BundleSizes.astro'
+import TrackCards from '../../components/TrackCards.astro'
+import ReactStack from '../../components/ReactStack'
+import VueStack from '../../components/VueStack'
+
+## Choose your framework
+
+<TrackCards />
+
+<BundleSizes />
+
+## One engine, three frameworks
+
+One engine driving two frameworks at once: drag either stack below and it advances
+independently of the other.
+
+<div class="demo-row not-content">
+  <ReactStack client:visible />
+  <VueStack client:visible />
+</div>
+
+## Why Riffle
+
+- **A cycling stack, not a deck.** Cards fan out behind the front one at decreasing
+  scale, and dragging the front card away brings the next one forward. There is no
+  like/nope state, nothing is discarded, and nothing runs out: reach the last card and
+  the next drag brings back the first, or clamp it to stop at the ends.
+- **One engine, three ways to hold it.** The core has zero runtime dependencies and
+  never imports React, Vue or any other framework. `@rpxl/riffle/react` and
+  `@rpxl/riffle/vue` are thin adapter entries over the same engine, proven live above:
+  the React and Vue stacks run side by side, driven by the same engine as the drag
+  demo at the top of the page, but the feel never changes between them.
+- **Real physics, not a canned transition.** A spring drives every settle, drag
+  velocity carries into a fling, and a release short of the threshold eases back rather
+  than snapping. [Gestures](/riffle/choose/?next=guides/gestures) has a live tuning panel for the exact
+  numbers.
+- **Accessible by construction.** Roving tabindex, genuine `inert` on background cards,
+  a debounced live region, and keyboard support out of the box. See
+  [Accessibility](/riffle/choose/?next=guides/accessibility) for what Riffle does and what you still have
+  to do.
+
+## Next
+
+Each link below opens that page in the framework you chose above, or asks you to pick one first.
+
+- [Getting Started](/riffle/choose/?next=getting-started) walks through your first stack, step by step.
+- [Concepts](/riffle/choose/?next=guides/concepts) explains the `position` scalar the whole engine is built on.
+- [Examples](/riffle/choose/?next=examples) is the gallery of runnable apps for your framework, each with its source.
+- [Recipes](/riffle/choose/?next=recipes/infinite-feed) covers infinite feeds, clamped controls,
+  programmatic control, and forms inside cards.

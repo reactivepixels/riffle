@@ -1,0 +1,37 @@
+---
+title: Clamp with controls
+description: A stack that stops at both ends instead of wrapping, with previous and next buttons that go genuinely disabled.
+sidebar:
+  order: 2
+---
+
+import Demo from '@docs/components/tracks/Demo.astro'
+import Snippet from '@docs/components/tracks/Snippet.astro'
+
+`bounds: 'loop'` is the default: drag past the last card and the first one comes back around. Set
+`bounds: 'clamp'` instead for a stack that stops dead at both ends, the right choice for a fixed,
+ordered sequence like a trail of waypoints or a numbered set of steps, where "after the last one"
+should mean nothing rather than wrapping back to the start.
+
+## Live
+
+<Demo name="clamp-with-controls" />
+
+## The data
+
+Invented trail waypoints, each with a two-stop gradient standing in for a photo.
+
+<Snippet name="waypoints" />
+
+## Genuinely disabled controls
+
+The snapshot carries `canPrev` and `canNext`, `false` exactly when `bounds: 'clamp'` has nothing
+further in that direction. Bind those straight to the native `disabled` attribute, not to a CSS class
+that only looks disabled: a real `disabled` button drops out of the tab order's activation entirely,
+so a keyboard or screen reader user hits a control that does nothing to click, never a click that
+silently fails.
+
+<Snippet name="disabled-controls" />
+
+Next: [Programmatic control](/riffle/_track_/recipes/programmatic-control/) covers driving the stack
+from further outside than a pair of adjacent buttons.

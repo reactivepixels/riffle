@@ -1,0 +1,164 @@
+{
+  "name": "@rpxl/riffle",
+  "version": "0.0.0",
+  "description": "A framework-agnostic carousel card stack, with React and Vue entries. Cards, cascading.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./react": {
+      "import": {
+        "types": "./dist/react/index.d.ts",
+        "default": "./dist/react/index.js"
+      },
+      "require": {
+        "types": "./dist/react/index.d.cts",
+        "default": "./dist/react/index.cjs"
+      }
+    },
+    "./vue": {
+      "import": {
+        "types": "./dist/vue/index.d.ts",
+        "default": "./dist/vue/index.js"
+      },
+      "require": {
+        "types": "./dist/vue/index.d.cts",
+        "default": "./dist/vue/index.cjs"
+      }
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "react": [
+        "./dist/react/index.d.ts"
+      ],
+      "vue": [
+        "./dist/vue/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/reactivepixels/riffle.git",
+    "directory": "packages/core"
+  },
+  "keywords": [
+    "carousel",
+    "card-stack",
+    "swipe",
+    "gesture",
+    "headless",
+    "typescript",
+    "animation",
+    "react",
+    "hooks",
+    "vue",
+    "composables"
+  ],
+  "dependencies": {},
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "vue": "^3.4.20"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run --workspace vitest.all.config.ts",
+    "test:watch": "vitest --workspace vitest.all.config.ts",
+    "test:bench": "vitest run --config vitest.bench.config.ts",
+    "bench": "vitest bench --config vitest.bench.config.ts",
+    "test:gc": "vitest run --config vitest.gc.config.ts",
+    "typecheck": "vue-tsc --noEmit",
+    "check-exports": "attw --pack . && publint",
+    "update-readme-size": "node scripts/update-readme-size.mjs"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.2",
+    "@size-limit/preset-small-lib": "^11.1.6",
+    "@stryker-mutator/core": "^10.0.0",
+    "@stryker-mutator/typescript-checker": "^10.0.0",
+    "@stryker-mutator/vitest-runner": "^10.0.0",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^22.12.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vue/test-utils": "^2.5.1",
+    "fast-check": "^3.23.2",
+    "happy-dom": "^15.11.7",
+    "publint": "^0.3.2",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "size-limit": "^11.1.6",
+    "tsup": "^8.3.5",
+    "typescript": "^5.8.3",
+    "vitest": "^2.1.9",
+    "vue": "^3.5.43",
+    "vue-tsc": "^3.3.11"
+  },
+  "size-limit": [
+    {
+      "name": "engine",
+      "path": "dist/index.js",
+      "import": "{ createRiffle }",
+      "gzip": true,
+      "limit": "6972 B"
+    },
+    {
+      "name": "engine + adapter handle",
+      "path": "dist/index.js",
+      "import": "{ createRiffle, createAdapterHandle }",
+      "gzip": true,
+      "limit": "7809 B"
+    },
+    {
+      "name": "react entry",
+      "path": "dist/react/index.js",
+      "gzip": true,
+      "limit": "1272 B",
+      "ignore": [
+        "@rpxl/riffle",
+        "react",
+        "react-dom"
+      ]
+    },
+    {
+      "name": "vue entry",
+      "path": "dist/vue/index.js",
+      "gzip": true,
+      "limit": "1342 B",
+      "ignore": [
+        "@rpxl/riffle",
+        "vue"
+      ]
+    }
+  ]
+}

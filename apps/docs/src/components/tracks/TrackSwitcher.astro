@@ -1,0 +1,124 @@
+---
+/**
+ * Starlight's Sidebar, overridden (see astro.config.mjs) to put a framework
+ * switcher above the current topic's sidebar.
+ *
+ * starlight-sidebar-topics renders its own topic list, but every entry in it
+ * links to that topic's fixed `link`: the plugin has no notion of "the same
+ * page in another topic". This renders the same list, from the plugin's
+ * route data (`Astro.locals.starlightSidebarTopics`), with one change: on a
+ * framework track page, each track links to the page you are on in that
+ * track (`/react/guides/concepts/` to `/vue/guides/concepts/`), falling back
+ * to that track's overview when the page does not exist there (a page with
+ * `only: [...]` in its template). Every other topic, and every topic on a
+ * page outside the tracks, keeps the plugin's own link.
+ *
+ * Choosing a track here also writes it to `FRAMEWORK_STORAGE_KEY`
+ * (localStorage), the same key the landing page's TrackCards.astro reads to
+ * highlight "Continue with <X>", so a choice made from inside a track is
+ * remembered exactly like one made from the landing page.
+ */
+import { getCollection } from 'astro:content'
+import Default from '@astrojs/starlight/components/Sidebar.astro'
+import { FRAMEWORKS, switchTarget, trackPath } from '../../../scripts/lib/tracks.mjs'
+
+const { id, hasSidebar } = Astro.locals.starlightRoute
+const { isPageWithTopic, topics } = Astro.locals.starlightSidebarTopics
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+const ids = new Set((await getCollection('docs')).map((doc) => doc.id))
+
+/** The framework a topic's own (fixed) link points at, or undefined for a non-track topic. */
+function frameworkFor(topicLink: string) {
+  return FRAMEWORKS.find((name) => topicLink === `${base}${trackPath(name, '')}`)
+}
+
+/** A track topic's link becomes the same page in that track; any other topic keeps its own. */
+function hrefFor(topicLink: string, fw: (typeof FRAMEWORKS)[number] | undefined): string {
+  return fw === undefined ? topicLink : `${base}${switchTarget(id, fw, ids)}`
+}
+
+const links = topics.map((topic) => {
+  const fw = frameworkFor(topic.link)
+  return { ...topic, fw, href: hrefFor(topic.link, fw) }
+})
+---
+
+{
+  hasSidebar && isPageWithTopic && (
+    <ul class="track-switcher" aria-label="Framework">
+      {links.map((topic) => (
+        <li>
+          <a
+            href={topic.href}
+            data-track-switcher={topic.fw}
+            class:list={{ 'track-switcher-current': topic.isCurrent }}
+            aria-current={topic.isCurrent ? 'page' : undefined}
+          >
+            {topic.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}
+<Default><slot /></Default>
+
+<script>
+  import { FRAMEWORK_STORAGE_KEY } from '../../../scripts/lib/tracks.mjs'
+
+  for (const link of document.querySelectorAll('.track-switcher a[data-track-switcher]')) {
+    link.addEventListener('click', () => {
+      const fw = link.getAttribute('data-track-switcher')
+      if (!fw) return
+      // Every localStorage access is wrapped in try/catch: a private-browsing
+      // tab or a blocked storage policy must never break navigation.
+      try {
+        localStorage.setItem(FRAMEWORK_STORAGE_KEY, fw)
+      } catch {
+        // ignore: storage may be blocked or unavailable
+      }
+    })
+  }
+</script>
+
+<style>
+  /* Mirrors starlight-sidebar-topics' own topic list, which this replaces. */
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  ul::after {
+    content: '';
+    display: block;
+    margin-top: 1rem;
+    height: 1px;
+    border-top: 1px solid var(--sl-color-hairline-light);
+  }
+
+  li {
+    overflow-wrap: anywhere;
+  }
+
+  li + li {
+    margin-top: 0.25rem;
+  }
+
+  a {
+    display: flex;
+    color: var(--sl-color-white);
+    font-size: var(--sl-text-base);
+    font-weight: 600;
+    line-height: 1.5;
+    padding: 0.3em 0.5rem;
+    text-decoration: none;
+  }
+
+  a:is(.track-switcher-current, :hover, :focus-visible) {
+    color: var(--sl-color-accent-high);
+  }
+
+  :global([data-theme='light']) a.track-switcher-current {
+    color: var(--sl-color-accent);
+  }
+</style>

@@ -1,0 +1,158 @@
+---
+title: Getting Started
+description: Install Riffle and have a working card stack in a minute.
+---
+
+import Demo from '@docs/components/tracks/Demo.astro'
+import Only from '@docs/components/tracks/Only.astro'
+import Snippet from '@docs/components/tracks/Snippet.astro'
+
+## Install
+
+<Snippet name="install" />
+
+<Only fw="vue">
+
+Riffle for Vue needs Vue 3.4.20 or later.
+
+</Only>
+
+## Your first stack
+
+<Only fw="vanilla">
+
+Give your page an empty container, `<div id="stack"></div>`, then run this script:
+
+</Only>
+
+<Only fw="react">
+
+A complete component. Pass it any array of objects with a `title`:
+
+</Only>
+
+<Only fw="vue">
+
+A complete single-file component. Pass it any array of objects with a `title`:
+
+</Only>
+
+<Snippet name="first-stack" />
+
+That exact file, running. Drag the front card:
+
+<Demo name="first-stack" />
+
+## What just happened
+
+<Only fw="vanilla">
+
+- The container is a single grid cell. Every card sits in it (`grid-area: 1 / 1`), and the engine
+  moves each one from there with transforms.
+- `createRiffle(stack, { count, cardWidth, cardHeight })` creates the engine and marks the
+  container up as a carousel, with a live region and keyboard support.
+- `registerNode(i, card)` tells the engine which element is card `i`.
+
+</Only>
+
+<Only fw="react">
+
+- `<Riffle>` renders one card per item in `cards`, from your render function, and stacks them in a
+  single grid cell for the engine to move.
+- Every Riffle option is a prop: `cardWidth` and `cardHeight` here. Any other prop, such as
+  `aria-label` or `style`, goes to the root element.
+
+</Only>
+
+<Only fw="vue">
+
+- `<Riffle>` renders one card per item in `cards`, from your `#card` slot, and stacks them in a
+  single grid cell for the engine to move. The slot's `card` is typed from `cards`.
+- Every Riffle option is a prop: `card-width` and `card-height` here. Other attributes, such as
+  `aria-label` or `style`, fall through to the root element.
+
+</Only>
+
+- `cardWidth` and `cardHeight` describe each card's geometry to the engine (how far a drag
+  travels, how the fan is laid out) and do not size or style any element: the cards' own styles
+  give them their size, background and radius.
+- The engine marks the stack as a carousel but cannot name it: give it an accessible name with
+  `aria-label`, as in `aria-label="Films"`.
+
+<Only fw="vanilla">
+
+## Controls, events and cleanup
+
+Buttons call `riffle.next()` and `riffle.prev()` (or `riffle.goTo(index)`), `riffle.on('change')`
+reports the active card and returns an unsubscribe, and `riffle.destroy()` undoes everything the
+engine did to your markup. From the full movie-stack example:
+
+</Only>
+
+<Only fw="react">
+
+## Headless: `useRiffle` and `useRiffleState`
+
+For your own markup instead of `<Riffle>`, `useRiffle` returns prop getters for the root and each
+card, plus `next`, `prev` and `goTo`. `useRiffleState` subscribes to one slice of the state, so
+this component re-renders when the active card changes, never on a drag frame:
+
+</Only>
+
+<Only fw="vue">
+
+## The directives: `useRiffle`
+
+For your own markup instead of `<Riffle>`, `useRiffle` returns two directives, plus `activeIndex`,
+`next`, `prev` and `goTo`. Destructure the directives at the top level of `<script setup>` under
+exactly these names, so the template can see them, then put `v-riffle-root` on the container and
+`v-riffle-card="index"` on each card:
+
+</Only>
+
+<Snippet name="essentials" />
+
+## Next steps
+
+- **Guides:** [Concepts](/riffle/_track_/guides/concepts/), [Gestures](/riffle/_track_/guides/gestures/)
+  (with a live tuning panel), [Layouts](/riffle/_track_/guides/layouts/),
+  [Layout and overflow](/riffle/_track_/guides/layout-and-overflow/) and
+  [Accessibility](/riffle/_track_/guides/accessibility/).
+- **Recipes:** four worked patterns, [Infinite feed](/riffle/_track_/recipes/infinite-feed/),
+  [Clamp with controls](/riffle/_track_/recipes/clamp-with-controls/),
+  [Programmatic control](/riffle/_track_/recipes/programmatic-control/) and
+  [Forms inside cards](/riffle/_track_/recipes/forms-in-cards/).
+- **Examples:** [the gallery](/riffle/_track_/examples/) of runnable apps for this framework, each
+  with its source.
+
+<Only fw="react, vue">
+
+- **[Adapter details](/riffle/_track_/guides/adapter-details/):** how options update between
+  renders, refs, the imperative handle, and server rendering.
+
+</Only>
+
+<Only fw="vanilla">
+
+- **The full example:** [`examples/vanilla-movie-stack`](https://github.com/reactivepixels/riffle/tree/main/examples/vanilla-movie-stack),
+  with posters, prev and next buttons, and a phone-width resize. For a page with no build step at
+  all, see [`examples/vanilla-basic`](https://github.com/reactivepixels/riffle/blob/main/examples/vanilla-basic/index.html).
+- **API:** [`@rpxl/riffle`](/riffle/_track_/api/).
+
+</Only>
+
+<Only fw="react">
+
+- **The full example:** [`examples/react-movie-stack`](https://github.com/reactivepixels/riffle/tree/main/examples/react-movie-stack),
+  with posters, prev and next buttons, and a phone-width resize.
+- **API:** [`@rpxl/riffle/react`](/riffle/_track_/api/).
+
+</Only>
+
+<Only fw="vue">
+
+- **The full example:** [`examples/vue-movie-stack`](https://github.com/reactivepixels/riffle/tree/main/examples/vue-movie-stack),
+  with posters, prev and next buttons, and a phone-width resize.
+- **API:** [`@rpxl/riffle/vue`](/riffle/_track_/api/).
+
+</Only>

@@ -1,0 +1,729 @@
+/*
+ * One file, five sections, one per recipe: .recipe-vertical, .recipe-clamp,
+ * .recipe-feed, .recipe-programmatic, .recipe-forms. Every rule is nested
+ * under its own root class rather than under `:root`, `html`, `body` or a
+ * bare `*`: each recipe module's mount() is imported and called from
+ * elsewhere (a docs live demo, for instance), and a module that exports
+ * `mount(el)` must not reach outside `el` to change how the rest of that
+ * page looks. Each recipe's own HTML page carries its own page-level chrome
+ * (the html/body reset and background) separately.
+ *
+ * The four docs-facing recipes (clamp, feed, programmatic, forms) also
+ * carry `overflow-x: clip` and their own dark background directly on their
+ * root, unlike the page-level `html`/`body` reset this file's own comment
+ * above describes: when mounted as a docs live demo, a recipe's own
+ * `html`/`body` reset never runs (the docs page has its own), so without a
+ * background here the `--muted`/`--ink` text colours below, chosen for a
+ * dark page, fail contrast against Starlight's own light theme, and without
+ * the clip, the exit-slot card's mid-drag motion (see the Layout and
+ * overflow guide) briefly widens the docs page itself.
+ */
+
+/* --- Shared control affordance, repeated per scope rather than factored
+   into a bare selector, so each section stays self-contained. --- */
+
+/* --- vertical.ts: examples/vertical-stack/src/App.tsx, ported --- */
+
+.recipe-vertical,
+.recipe-vertical *,
+.recipe-vertical *::before,
+.recipe-vertical *::after {
+  box-sizing: border-box;
+}
+
+.recipe-vertical {
+  --ink: #eef1f0;
+  --muted: #8d9490;
+  --accent: #4fb0ae;
+  --control-bg: rgb(255 255 255 / 6%);
+  --control-border: rgb(255 255 255 / 16%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 3rem 1.5rem;
+  color: var(--ink);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+}
+
+.recipe-vertical .stage {
+  padding: 1.5rem 1.5rem 6.5rem;
+}
+
+@media (max-width: 520px) {
+  .recipe-vertical {
+    padding: 2rem 1rem;
+  }
+
+  .recipe-vertical .stage {
+    padding: 1.5rem 1rem 6.5rem;
+  }
+}
+
+.recipe-vertical .row {
+  cursor: grab;
+  border-radius: 14px;
+}
+
+.recipe-vertical .row:active {
+  cursor: grabbing;
+}
+
+.recipe-vertical .row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 14px;
+}
+
+.recipe-vertical .row-face {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  border-radius: 14px;
+  border: 1px solid rgb(255 255 255 / 8%);
+  box-shadow:
+    0 20px 40px -18px rgb(0 0 0 / 60%),
+    0 2px 6px rgb(0 0 0 / 35%);
+}
+
+.recipe-vertical .row-text {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0 1.1rem;
+  color: #fff;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 45%);
+}
+
+/*
+ * Only a sliver of each row behind the front one shows, and without this a
+ * strip of every back row's title and artist peeked out at that seam. The
+ * core sets `inert` on every card except the active one
+ * (packages/core/src/a11y.ts), so this reads that attribute rather than
+ * tracking "is this the active row" a second time here.
+ */
+.recipe-vertical .row[inert] .row-text {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .recipe-vertical .row-text {
+    transition: opacity 0.15s ease;
+  }
+}
+
+.recipe-vertical .row-title {
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.recipe-vertical .row-artist {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+}
+
+.recipe-vertical .meta {
+  text-align: center;
+}
+
+.recipe-vertical .title {
+  margin: 0;
+  font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.recipe-vertical .artist {
+  margin: 0.3rem 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.recipe-vertical .hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-align: center;
+}
+
+.recipe-vertical .hint kbd {
+  display: inline-block;
+  min-width: 1.4rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 5px;
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+  font-family: inherit;
+  font-size: 0.78rem;
+}
+
+.recipe-vertical .controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.recipe-vertical .control {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+  color: var(--ink);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.recipe-vertical .control:hover {
+  background: rgb(255 255 255 / 12%);
+}
+
+.recipe-vertical .control:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.recipe-vertical .readout {
+  min-width: 4rem;
+  text-align: center;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}
+
+/* --- clamp.ts: examples/vue-clamp-controls/src/App.vue, ported --- */
+
+.recipe-clamp,
+.recipe-clamp *,
+.recipe-clamp *::before,
+.recipe-clamp *::after {
+  box-sizing: border-box;
+}
+
+.recipe-clamp {
+  --ink: #f3efe8;
+  --muted: #9c988e;
+  --accent: #5fae5c;
+  --control-bg: rgb(255 255 255 / 6%);
+  --control-border: rgb(255 255 255 / 16%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  padding: 3rem 1.5rem;
+  color: var(--ink);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  overflow-x: clip;
+  border-radius: 16px;
+  background: #121218;
+}
+
+.recipe-clamp .stage {
+  padding: 1.5rem 1.5rem 1.5rem 6.5rem;
+}
+
+@media (max-width: 520px) {
+  .recipe-clamp {
+    padding: 2rem 1rem;
+  }
+
+  .recipe-clamp .stage {
+    padding: 1rem 1rem 1rem 5.5rem;
+  }
+}
+
+.recipe-clamp .card {
+  cursor: grab;
+  border-radius: 18px;
+}
+
+.recipe-clamp .card:active {
+  cursor: grabbing;
+}
+
+.recipe-clamp .card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 18px;
+}
+
+.recipe-clamp .card-face {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgb(255 255 255 / 8%);
+  box-shadow:
+    0 24px 48px -16px rgb(0 0 0 / 60%),
+    0 2px 6px rgb(0 0 0 / 35%);
+}
+
+.recipe-clamp .card-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to top,
+    rgb(0 0 0 / 88%) 0%,
+    rgb(0 0 0 / 88%) 34%,
+    rgb(0 0 0 / 55%) 55%,
+    transparent 82%
+  );
+}
+
+.recipe-clamp .card-text {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 1rem 0.9rem 0.9rem;
+  color: #fff;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 45%);
+}
+
+.recipe-clamp .card-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.recipe-clamp .card-elevation {
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  opacity: 0.8;
+}
+
+.recipe-clamp .controls {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.recipe-clamp .control {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+  color: var(--ink);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.recipe-clamp .control:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.recipe-clamp .control:not(:disabled):hover {
+  background: rgb(255 255 255 / 12%);
+}
+
+.recipe-clamp .control:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.recipe-clamp .readout {
+  min-width: 8rem;
+  text-align: center;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}
+
+/* --- infinite-feed.ts: examples/react-infinite-feed/src/App.tsx, ported --- */
+
+.recipe-feed,
+.recipe-feed *,
+.recipe-feed *::before,
+.recipe-feed *::after {
+  box-sizing: border-box;
+}
+
+.recipe-feed {
+  --ink: #f3efe8;
+  --muted: #9c988e;
+  --accent: #e8896a;
+  --control-bg: rgb(255 255 255 / 6%);
+  --control-border: rgb(255 255 255 / 16%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 3rem 1.5rem;
+  color: var(--ink);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  overflow-x: clip;
+  border-radius: 16px;
+  background: #121218;
+}
+
+.recipe-feed .stage {
+  padding: 1.5rem 1.5rem 1.5rem 6.5rem;
+}
+
+@media (max-width: 520px) {
+  .recipe-feed {
+    padding: 2rem 1rem;
+  }
+
+  .recipe-feed .stage {
+    padding: 1rem 1rem 1rem 5.5rem;
+  }
+}
+
+.recipe-feed .feed-card {
+  cursor: grab;
+  border-radius: 18px;
+}
+
+.recipe-feed .feed-card:active {
+  cursor: grabbing;
+}
+
+.recipe-feed .feed-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 18px;
+}
+
+.recipe-feed .feed-card-face {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgb(255 255 255 / 8%);
+  box-shadow:
+    0 24px 48px -16px rgb(0 0 0 / 60%),
+    0 2px 6px rgb(0 0 0 / 35%);
+}
+
+.recipe-feed .feed-card-id {
+  position: relative;
+  z-index: 1;
+  margin: 0.9rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 35%);
+  color: #fff;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+.recipe-feed .controls {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.recipe-feed .control {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+  color: var(--ink);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.recipe-feed .control:hover {
+  background: rgb(255 255 255 / 12%);
+}
+
+.recipe-feed .control:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.recipe-feed .readout {
+  margin: 0;
+  min-width: 8rem;
+  text-align: center;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}
+
+.recipe-feed .loading {
+  margin: 0;
+  min-height: 1.2em;
+  color: var(--accent);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* --- programmatic-control.ts: ExternalControlStack.tsx, ported, plus
+   prev/next controls so the standalone page is fully drivable --- */
+
+.recipe-programmatic,
+.recipe-programmatic *,
+.recipe-programmatic *::before,
+.recipe-programmatic *::after {
+  box-sizing: border-box;
+}
+
+.recipe-programmatic {
+  --ink: #f3efe8;
+  --muted: #9c988e;
+  --accent: #e8c07a;
+  --control-bg: rgb(255 255 255 / 6%);
+  --control-border: rgb(255 255 255 / 16%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 3rem 1.5rem;
+  color: var(--ink);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  overflow-x: clip;
+  border-radius: 16px;
+  background: #121218;
+}
+
+.recipe-programmatic .stage {
+  padding: 1.5rem 1.5rem 1.5rem 5.5rem;
+}
+
+@media (max-width: 520px) {
+  .recipe-programmatic {
+    padding: 2rem 1rem;
+  }
+
+  .recipe-programmatic .stage {
+    padding: 1rem 1rem 1rem 5.5rem;
+  }
+}
+
+.recipe-programmatic .poster {
+  border-radius: 16px;
+  cursor: grab;
+  box-shadow:
+    0 24px 48px -16px rgb(0 0 0 / 60%),
+    0 2px 6px rgb(0 0 0 / 35%);
+}
+
+.recipe-programmatic .poster:active {
+  cursor: grabbing;
+}
+
+.recipe-programmatic .poster:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 16px;
+}
+
+.recipe-programmatic .rail {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 20rem;
+}
+
+.recipe-programmatic .rail-button {
+  min-width: 32px;
+  min-height: 32px;
+  border-radius: 999px;
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+  color: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.recipe-programmatic .rail-button:hover {
+  background: rgb(255 255 255 / 12%);
+}
+
+.recipe-programmatic .rail-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.recipe-programmatic .rail-button-active {
+  font-weight: 700;
+  outline: 2px solid currentColor;
+}
+
+/* --- forms-in-cards.ts: FormCardsStack.tsx, ported --- */
+
+.recipe-forms,
+.recipe-forms *,
+.recipe-forms *::before,
+.recipe-forms *::after {
+  box-sizing: border-box;
+}
+
+.recipe-forms {
+  --ink: #f3efe8;
+  --muted: #9c988e;
+  --accent: #e8c07a;
+  --control-bg: rgb(255 255 255 / 6%);
+  --control-border: rgb(255 255 255 / 16%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 3rem 1.5rem;
+  color: var(--ink);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  overflow-x: clip;
+  border-radius: 16px;
+  background: #121218;
+}
+
+.recipe-forms .stage {
+  padding: 1.5rem 1.5rem 1.5rem 5.5rem;
+}
+
+@media (max-width: 520px) {
+  .recipe-forms {
+    padding: 2rem 1rem;
+  }
+
+  .recipe-forms .stage {
+    padding: 1rem 1rem 1rem 5.5rem;
+  }
+}
+
+.recipe-forms .card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 16px;
+  background: #1c1c26;
+  color: var(--ink);
+  cursor: grab;
+  /*
+   * 14%, not the 8% every other recipe's card border uses (and the value
+   * react-recipes' and vue-recipes' own FormCardsStack still use): a
+   * review flagged this card's own edge as reading weaker than theirs. A
+   * computed-style check against the built docs pages and both standalone
+   * apps found the three already pixel-identical (same rgba, same
+   * box-shadow, at rest, mid-fan, at 375 and 1440), so the gap is not in
+   * this declaration alone; strengthened here anyway, since a flat card
+   * background (no gradient, unlike ClampStack's or the feed's own cards)
+   * gives this recipe's edge the least help from its own contents.
+   */
+  border: 1px solid rgb(255 255 255 / 14%);
+  box-shadow:
+    0 24px 48px -16px rgb(0 0 0 / 60%),
+    0 2px 6px rgb(0 0 0 / 35%);
+}
+
+.recipe-forms .card:active {
+  cursor: grabbing;
+}
+
+.recipe-forms .card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 16px;
+}
+
+.recipe-forms .card-title {
+  font-size: 1rem;
+}
+
+.recipe-forms .card-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.recipe-forms .card-input {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid rgb(255 255 255 / 24%);
+  background: rgb(255 255 255 / 4%);
+  color: var(--ink);
+  font: inherit;
+}
+
+.recipe-forms .card-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.recipe-forms .controls {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.recipe-forms .control {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+  color: var(--ink);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.recipe-forms .control:hover {
+  background: rgb(255 255 255 / 12%);
+}
+
+.recipe-forms .control:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.recipe-forms .readout {
+  min-width: 4.5rem;
+  text-align: center;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}

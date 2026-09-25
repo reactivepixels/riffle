@@ -1,0 +1,201 @@
+/*
+ * Every rule here is nested under .vms-root, the class main.ts's mount()
+ * puts on its own outermost element (see main.ts). This file carries no
+ * bare `html`, `body` or `*` rule, and defines its own CSS custom
+ * properties on .vms-root rather than on `:root`: mount() is imported and
+ * called from elsewhere (a docs live demo, for instance), and a module that
+ * exports `mount(el)` must not reach outside `el` to change how the rest of
+ * that page looks. index.html carries this example's own page-level chrome
+ * (the html/body reset and background) separately.
+ */
+.vms-root,
+.vms-root *,
+.vms-root *::before,
+.vms-root *::after {
+  box-sizing: border-box;
+}
+
+.vms-root {
+  --bg: #121218;
+  --ink: #f3efe8;
+  --muted: #9c988e;
+  --accent: #e8c07a;
+  --control-bg: rgb(255 255 255 / 6%);
+  --control-border: rgb(255 255 255 / 16%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  padding: 3rem 1.5rem;
+  color: var(--ink);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+}
+
+.vms-root .stage {
+  padding: 1.5rem 1.5rem 1.5rem 6.5rem;
+}
+
+/*
+ * At phone widths, shrink the root's own decorative padding and the
+ * stage's fan reservation (the left padding, which contains the fanned
+ * cards' -32px-per-depth offset without clipping them) so the settled
+ * stack fits without horizontal scroll. The poster's own size shrinks too,
+ * driven from main.ts's posterSize at the same 520px breakpoint: a media
+ * query alone cannot resize it, since it is set inline for the engine to
+ * measure. Desktop (the rules above) is unchanged; this query only ever
+ * narrows them.
+ */
+@media (max-width: 520px) {
+  .vms-root {
+    padding: 2rem 1rem;
+  }
+
+  .vms-root .stage {
+    padding: 1rem 1rem 1rem 5.5rem;
+  }
+}
+
+.vms-root .poster {
+  cursor: grab;
+  border-radius: 18px;
+}
+
+.vms-root .poster:active {
+  cursor: grabbing;
+}
+
+.vms-root .poster:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 18px;
+}
+
+.vms-root .poster-face {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgb(255 255 255 / 8%);
+  box-shadow:
+    0 24px 48px -16px rgb(0 0 0 / 60%),
+    0 2px 6px rgb(0 0 0 / 35%);
+}
+
+.vms-root .poster-face::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(circle at 28% 18%, rgb(255 255 255 / 30%), transparent 60%);
+  mix-blend-mode: overlay;
+}
+
+.vms-root .poster-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to top,
+    rgb(0 0 0 / 88%) 0%,
+    rgb(0 0 0 / 88%) 34%,
+    rgb(0 0 0 / 55%) 55%,
+    transparent 82%
+  );
+}
+
+.vms-root .poster-text {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 1rem 0.9rem 0.9rem;
+  color: #fff;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 45%);
+}
+
+.vms-root .poster-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.vms-root .poster-year {
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  opacity: 0.8;
+}
+
+.vms-root .meta {
+  text-align: center;
+}
+
+.vms-root .title {
+  margin: 0;
+  font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
+  font-size: 1.75rem;
+  font-weight: 500;
+}
+
+.vms-root .year {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.vms-root .controls {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.vms-root .control {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+  color: var(--ink);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .vms-root .control {
+    transition:
+      background-color 0.15s ease,
+      transform 0.1s ease;
+  }
+
+  .vms-root .control:active {
+    transform: scale(0.96);
+  }
+}
+
+.vms-root .control:hover {
+  background: rgb(255 255 255 / 12%);
+}
+
+.vms-root .control:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.vms-root .readout {
+  min-width: 4.5rem;
+  text-align: center;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}

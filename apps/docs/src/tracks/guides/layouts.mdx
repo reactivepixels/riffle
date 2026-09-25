@@ -1,0 +1,146 @@
+---
+title: Layouts
+description: What a LayoutStrategy is, and how to write your own against the public API.
+sidebar:
+  order: 3
+---
+
+import Demo from '@docs/components/tracks/Demo.astro'
+import Only from '@docs/components/tracks/Only.astro'
+import Snippet from '@docs/components/tracks/Snippet.astro'
+
+Everything a card stack looks like, how far back each card sits, how much it has shrunk, whether it
+fades out, comes from one `LayoutStrategy`. The default, `fan()`, stacks cards straight behind one
+another. This page walks through `spread()`, a second, real strategy shipped as
+`examples/custom-layout`, that arcs cards out along a quarter turn instead, using only the public
+`@rpxl/riffle` API a strategy is allowed to depend on.
+
+## What a `LayoutStrategy` is
+
+A `LayoutStrategy` has exactly two members:
+
+- **`pose(depth, geometry, out)`**, called once per visible card on every animation frame the
+  engine renders. `depth` is a continuous number (0 is the front card, `-1` is the off-screen exit
+  slot a card passes through as it leaves), and `pose` must be pure and write its result field by
+  field into `out` rather than returning a new object: the engine allocates each card's `Pose` once
+  and reuses it for that card's whole life, so a strategy that returned a fresh object every frame
+  would allocate steady garbage on the one code path (a drag in progress) that can least afford a
+  GC pause.
+- **`stepTravel(geometry)`**, which returns the pixel distance of one full step of `depth`. The
+  engine divides the pointer's raw drag distance by this number to get `progress` (see
+  [Gestures: the commit rule](/riffle/_track_/guides/gestures/#the-commit-rule)), so a strategy that returns too small
+  a number makes every drag feel like it commits instantly, and too large a number makes the stack
+  feel like it never lets go.
+
+`depth`'s range depends on `bounds`: under the default `'loop'`, it wraps into `[-1, count - 1)`;
+under `'clamp'`, it is `Math.max(index - position, -1)` with no upper bound, so a strategy that
+indexes an array by `depth` rather than computing from it needs its own guard.
+
+<Only fw="vanilla">
+
+See [`wrap()`](/riffle/_track_/api/functions/wrap/) for the exact wrapping arithmetic.
+
+</Only>
+
+A layout is framework agnostic: the same strategy object works with every way of building a stack.
+
+## `spread()`, worked
+
+`spread()` borrows the reference layout's exit slot for `depth <= 0` (a drag past the front must
+still track the pointer 1:1, in `stepTravel()`'s own units), and for `depth > 0` arcs each card out
+by `angleStep` degrees per unit of depth, at a radius close to one card's extent, fading opacity
+linearly over the last unit of depth before `geometry.maxVisible`. Its `stepTravel()` is
+`cardExtent + gap`, the same as `fan()`. This is its `pose`, from the real, tested source:
+
+<Snippet name="spread-layout" />
+
+## Live
+
+<Demo name="custom-layout" />
+
+<Only fw="vanilla">
+
+The demo is that same file, imported directly and driving a real `createRiffle` instance, the way
+`examples/custom-layout/src/main.ts` does. Here is that example's wiring: one layout instance,
+passed to `createRiffle`, and one card element registered per index. The rest of the file measures
+how far the arc reaches and sizes the stack's box to match.
+
+</Only>
+
+<Only fw="react">
+
+The demo is that same file, imported directly, in `examples/react-recipes`. A `LayoutStrategy` is
+core API, so this component wires it to `createRiffle` inside an effect rather than going through
+`<Riffle>`. Here is that wiring: one layout instance, passed to `createRiffle`. The rest of the file
+measures how far the arc reaches, sizes the stack's box to match, and registers one card element per
+index.
+
+</Only>
+
+<Only fw="vue">
+
+The demo is that same file, imported directly, in `examples/vue-recipes`. A `LayoutStrategy` is core
+API, so this component wires it to `createRiffle` in `onMounted` rather than going through
+`<Riffle>`. Here is that wiring: one layout instance, passed to `createRiffle`. The rest of the file
+measures how far the arc reaches, sizes the stack's box to match, and registers one card element per
+index.
+
+</Only>
+
+<Snippet name="custom-layout" />
+
+## Writing your own
+
+A strategy only needs `pose` and `stepTravel`; everything else, measurement, dragging, springs, DOM
+writes, stays the engine's job. Start from the exit-slot branch above (`depth <= 0`) unchanged in
+most strategies, since a custom look rarely has anything useful to say about a card mid-drag past
+the front, only about the cards waiting behind it. Then:
+
+1. Decide what depth `1, 2, 3, ...` should look like: `spread()` answers with an arc and a linear
+   scale/opacity falloff, but a `main`/`cross`/`rotation`/`scale`/`opacity`/`zIndex` pose can
+   encode any shape.
+2. Pick `stepTravel()` to match: `spread()` reuses `cardExtent + gap`, the same distance `fan()`
+   uses, so a drag tracks 1:1 right up to commit. A strategy whose cards travel further per step
+   before settling should return a proportionally larger number.
+
+<Only fw="vanilla">
+
+3. Pass it to `createRiffle` as `layout: spread({ angleStep: 16 })`, or your own strategy's
+   equivalent.
+
+</Only>
+
+<Only fw="react">
+
+3. Pass it to `<Riffle>` or `useRiffle` as the `layout` option, created once at module scope (or in
+   `useMemo`), so its identity is stable across renders: `const layout = spread({ angleStep: 16 })`,
+   then `layout={layout}`.
+
+</Only>
+
+<Only fw="vue">
+
+3. Pass it to `<Riffle>` or `useRiffle` as the `layout` option, created once (module scope, or once
+   in `setup`), so its identity is stable: `const layout = spread({ angleStep: 16 })`, then
+   `:layout="layout"`.
+
+</Only>
+
+A pose with `opacity` 0 is special: the engine parks that card at the neutral pose (no translation,
+rotation or scale), not at the offset the pose describes, so a card nobody can see never widens the
+page's scrollable area. Fade cards through the pose's own `opacity`, as `spread()` does, rather
+than a CSS `opacity` transition on the card: the transform moves to neutral in the same write that
+sets opacity 0, so a transitioned fade would play out at the neutral position, not where the card
+was.
+
+<Only fw="vanilla">
+  See the full [`LayoutStrategy` API reference](/riffle/_track_/api/interfaces/layoutstrategy/) for
+  every field on `Pose` and `LayoutGeometry`.
+</Only>
+<Only fw="react, vue">
+  See the full [`LayoutStrategy` API reference](/riffle/_track_/api/core/interfaces/layoutstrategy/)
+  for every field on `Pose` and `LayoutGeometry`.
+</Only>
+
+Next: [Layout and overflow](/riffle/_track_/guides/layout-and-overflow/) covers the room a stack needs around it, and
+where to clip it.

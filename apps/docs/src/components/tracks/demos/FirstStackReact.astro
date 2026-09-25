@@ -1,0 +1,11 @@
+---
+// The React first-stack demo: the README quickstart itself,
+// examples/react-movie-stack/src/Quickstart.tsx, given the example's films.
+// See src/lib/track-demos.ts for why each island has a wrapper like this one.
+import { Stack } from '../../../../../../examples/react-movie-stack/src/Quickstart'
+import { films } from '../../../../../../examples/react-movie-stack/src/films'
+---
+
+<div class="quickstart-demo not-content">
+  <Stack client:load films={films.map(({ title }) => ({ title }))} />
+</div>

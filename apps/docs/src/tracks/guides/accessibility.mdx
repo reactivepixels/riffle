@@ -1,0 +1,132 @@
+---
+title: Accessibility
+description: What Riffle does for you, what you still have to do, and the browser floor that comes with it.
+sidebar:
+  order: 5
+---
+
+import Only from '@docs/components/tracks/Only.astro'
+
+Riffle targets **WCAG 2.2 AA**, following the
+[APG carousel pattern](https://www.w3.org/WAI/ARIA/apg/patterns/carousel/). This page lists exactly
+what the engine does for you, what your own markup and content still have to supply, and the one
+browser floor that trade-off costs.
+
+## What Riffle does
+
+<Only fw="vanilla">
+
+- **Roles.** The container you pass to `createRiffle` gets `role="group"` and
+  `aria-roledescription="carousel"`. Each registered card gets `role="group"`,
+  `aria-roledescription="slide"`, and an `aria-label` such as `"3 of 12"`, or
+  `"Blade Runner 2049, 3 of 12"` when you configure `getLabel`.
+
+</Only>
+
+<Only fw="react">
+
+- **Roles.** The root `<Riffle>` renders (or the element you spread `getRootProps()` onto) gets
+  `role="group"` and `aria-roledescription="carousel"`. Each card gets `role="group"`,
+  `aria-roledescription="slide"`, and an `aria-label` such as `"3 of 12"`, or
+  `"Blade Runner 2049, 3 of 12"` when you pass `getLabel`.
+
+</Only>
+
+<Only fw="vue">
+
+- **Roles.** The root `<Riffle>` renders (or the element carrying `v-riffle-root`) gets
+  `role="group"` and `aria-roledescription="carousel"`. Each card gets `role="group"`,
+  `aria-roledescription="slide"`, and an `aria-label` such as `"3 of 12"`, or
+  `"Blade Runner 2049, 3 of 12"` when you pass `getLabel`.
+
+</Only>
+
+- **Roving tabindex, and genuine `inert`.** Only the active card carries `tabindex="0"`. Every
+  other card is not just `tabindex="-1"`, it is
+  [`inert`](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/inert): its
+  buttons, links and form fields are unreachable by Tab, by a screen reader's virtual cursor, and
+  by a direct `.focus()` call, not merely visually de-emphasised.
+- **A debounced live region.** A `aria-live="polite" aria-atomic="true"` region, visually hidden
+  but present in the accessibility tree, announces the active card's own label on every change.
+  Announcements are debounced 150ms after the last change, so ten rapid `next()` calls (a fast
+  drag flick, or someone holding down a button) produce one announcement naming wherever the stack
+  actually lands, not ten queued ones.
+- **Keyboard support.** Arrow keys mapped to the configured axis (Right/Left for `axis: 'x'`,
+  Down/Up for `axis: 'y'`), plus `Home` and `End` for the first and last card. A keydown with a
+  modifier key held (Alt, Ctrl, Meta, Shift) is left alone, so browser and OS shortcuts keep
+  working, and a keydown whose target is an `<input>`, `<textarea>`, `<select>`, or a
+  `contenteditable` element is left alone too, so typing into a form inside a card moves the caret
+  instead of the stack.
+- **Focus follows the active card, never past it.** Changing the active card while focus sits
+  inside the card that is becoming inactive moves focus to the new active card. Focus that was
+  already outside the stack (elsewhere on the page) is left exactly where it is; changing cards
+  never steals focus from something you were not already interacting with.
+- **Reduced motion.** `reducedMotion: 'auto'` (the default) honours
+  `prefers-reduced-motion: reduce`: with it set, a change lands on its target instantly instead of
+  animating through the spring. Force it either way with `'respect'` (always reduced) or `'ignore'`
+  (always animated).
+- **Scrolling is never trapped.** The container's `touch-action` is set so the page can still
+  scroll on the cross axis: a horizontal stack never blocks a vertical page scroll, and vice versa
+  for a vertical one.
+- **Nothing is left behind.** When the stack is destroyed, every attribute the engine wrote is
+  restored to exactly what it was before Riffle touched it, including a container you had already
+  authored with its own `role`. It does not assume it owns the element forever.
+
+<Only fw="vanilla">
+
+None of this needs configuration. It is on by default for every card you register, and
+`destroy()` undoes it.
+
+</Only>
+
+<Only fw="react, vue">
+
+None of this needs configuration. It is on by default for every card, and unmounting the stack
+undoes it.
+
+</Only>
+
+## What you still have to do
+
+- **Name the carousel.** Riffle marks the container as a carousel but cannot name it: give it an
+  accessible name with `aria-label` or `aria-labelledby` yourself (every example in the repository
+  does this, typically `aria-label="Films"` or similar).
+- **Give each card meaningful content.** The engine's own `aria-label` only ever carries a position
+  (and a title, if you pass `getLabel`). If a card holds an image, give that image real `alt` text;
+  if it holds a link or a button, give that control its own accessible name. Riffle cannot infer
+  either from pixels.
+- **Name any custom controls you build.** Previous/next buttons, pagination dots, a thumbnail rail:
+  none of that is part of the engine, so none of it gets an automatic label.
+  `aria-label="Previous film"` / `aria-label="Next film"`, as every example in the repository does,
+  not an unlabelled icon button.
+- **Meet the 44 by 44 CSS pixel target size on custom controls.** Riffle does not style your
+  prev/next buttons; if you build them, size them to the WCAG 2.5.8 target, the way every example's
+  `.control` class does.
+- **Never set `transform` on a card yourself.** The engine writes `transform`, `opacity` and
+  `z-index` as inline styles on every registered card, every frame that changes. A `transform` you
+  set in your own CSS on that same element is either immediately overwritten or fights the engine's
+  own writes; style the card's background, border, shadow and content instead.
+- **Do not remove the focus ring.** Riffle never sets `outline: none` anywhere; if your own CSS
+  resets it globally, restore a visible `:focus-visible` style on the stack root. The focus ring on the root must stay
+  visible, and never be removed.
+
+## The Safari floor
+
+`inert` sets Riffle's browser floor at **Safari 15.4**. That is a deliberate trade, made and
+documented rather than discovered later: shipping real inertness, where a background card's
+controls are genuinely unreachable, beats supporting Safari 15.0 through 15.3 with a leaky
+`aria-hidden` imitation that still lets a sighted keyboard user Tab into an invisible card. Chrome,
+Edge and Firefox (last 2 versions of each) are unaffected; iOS Safari carries the same 15.4 floor
+as desktop Safari.
+
+## Verification
+
+Automation (`axe-core`, run in CI against every example in `examples/` and every page of this site)
+catches roughly 40% of real accessibility problems. The other 60% is a manual pass, on VoiceOver on
+iOS and NVDA on Windows, run once per release as a gate, not a formality. The checklist lives in
+the repository, at
+[`docs/accessibility-checklist.md`](https://github.com/reactivepixels/riffle/blob/main/docs/accessibility-checklist.md)
+(live once the repository is public).
+
+Next: [Forms inside cards](/riffle/_track_/recipes/forms-in-cards/) covers what a real form field
+inside a card gets from the keyboard guard and `inert` above, for free.

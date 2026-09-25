@@ -1,0 +1,34 @@
+---
+/**
+ * Mounts the current track's live demo for a demo name, from the typed
+ * registry in src/lib/track-demos.ts: `<Demo name="hero" />`. React and Vue
+ * demos render as hydrated islands; a vanilla demo renders an empty host
+ * that the script below fills in the browser, unless its entry is an
+ * island (a docs tool such as the tuning panel), which renders as one.
+ */
+import { DEMOS, type DemoName } from '../../lib/track-demos'
+import { pageFramework } from './framework'
+
+interface Props {
+  name: DemoName
+}
+
+const { name } = Astro.props
+const entries = DEMOS[name]
+if (!entries) throw new Error(`<Demo name="${name}"> is not in src/lib/track-demos.ts`)
+const fw = pageFramework('Demo', Astro.locals.starlightRoute.entry.data)
+const entry = entries[fw]
+const Island = typeof entry === 'object' ? entry.island : fw === 'vanilla' ? null : entry
+---
+
+{Island ? <Island /> : <div class="not-content" data-vanilla-demo={name} data-demo={name} />}
+
+<script>
+  import { VANILLA_DEMOS } from '../../lib/track-demos-vanilla'
+
+  for (const host of document.querySelectorAll<HTMLElement>('[data-vanilla-demo]')) {
+    const load = VANILLA_DEMOS[host.dataset.vanillaDemo as keyof typeof VANILLA_DEMOS]
+    if (!load) throw new Error(`No vanilla demo named "${host.dataset.vanillaDemo}"`)
+    void load().then(({ mount }) => mount(host))
+  }
+</script>

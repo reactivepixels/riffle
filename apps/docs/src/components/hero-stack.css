@@ -1,0 +1,157 @@
+/*
+ * Shared by VanillaRiffle.astro, HeroStackReact.tsx and HeroStackVue.ts: one
+ * stylesheet so the landing page's three framework tabs render the
+ * identical size and chrome, and only the engine underneath changes. A
+ * plain, unscoped stylesheet (like demo-stack.css) rather than Astro's
+ * per-component scoped <style>, since a scoped style only reaches the one
+ * .astro component that wrote it.
+ */
+
+/*
+ * Each component's root (VanillaRiffle.astro, HeroStackReact.tsx,
+ * HeroStackVue.ts) carries `not-content`: see custom.css's top-of-file
+ * comment for why every custom component root on this site does.
+ */
+.riffle-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 auto;
+  /*
+   * Span the full content column. As a flex item sized to its content this
+   * box would shrink to the front card's width, and the clip below would
+   * then hide every fanned card behind it.
+   */
+  width: 100%;
+  /*
+   * Clip here, across the full content column, not on the stack's own box:
+   * the card animating out toward the exit slot extends past the stack while
+   * a drag or settle plays out, and should slide off at the column edge.
+   * `clip` rather than `hidden` creates no scroll container, so vertical
+   * page scroll is unaffected.
+   */
+  overflow-x: clip;
+}
+
+/*
+ * The default fan() layout offsets each card behind the front one by a
+ * fixed 20px per depth, not a percentage of card width, so the fanned
+ * cards need real margin on both sides of the front card regardless of
+ * viewport. `80vw` left too little of that margin on a narrow phone (the
+ * two or three background cards clipped off the left edge, confirmed by
+ * measuring each card's own bounding box at a 375px viewport: the deepest
+ * visible card landed at a negative x). `58vw` keeps the same 300px
+ * desktop size (min() only reaches for the vw bound once it is smaller
+ * than 300px) while leaving roughly 20px of clearance around the fan at
+ * 375px wide.
+ */
+.riffle-hero__stack {
+  position: relative;
+  width: min(300px, 58vw);
+  height: min(400px, 55vh);
+  touch-action: pan-y;
+  /*
+   * The fan spreads to the left of the front card: three cards behind it at
+   * 32px each, the deepest scaled to 0.76, so it reaches 96px minus 12% of
+   * the card width past the card's left edge. A left margin of that amount
+   * centres the whole fan in the column rather than the front card alone,
+   * which keeps the deepest card inside the column at phone widths.
+   */
+  margin-left: calc(96px - 0.12 * min(300px, 58vw));
+}
+
+/*
+ * The Vanilla tab's card: createRiffle() writes only a transform to a
+ * registered node, never a position, so the consumer's own CSS puts every
+ * card in the same spot with `position: absolute; inset: 0`. Used only by
+ * VanillaRiffle.astro, which registers this element with the engine
+ * directly (no adapter, no wrapper).
+ */
+.riffle-hero__card {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  text-align: center;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+  box-shadow: 0 20px 45px rgb(0 0 0 / 30%);
+  cursor: grab;
+  user-select: none;
+}
+
+.riffle-hero__card:active {
+  cursor: grabbing;
+}
+
+.riffle-hero__card:focus-visible {
+  outline: 3px solid var(--sl-color-accent, #8b5cf6);
+  outline-offset: 4px;
+}
+
+/*
+ * The React and Vue tabs' card wrapper: the adapters already stack every
+ * card in one CSS grid cell (`display: grid` on the root, `grid-area: 1 / 1`
+ * on each card, see packages/core/src/react/useRiffle.ts and its Vue
+ * counterpart), so this class carries only the chrome, no positioning.
+ * `.riffle-hero__card-face` (below) is the sized, gradient-filled content
+ * each adapter's render prop returns.
+ */
+.riffle-hero__adapter-card {
+  border-radius: 20px;
+  box-shadow: 0 20px 45px rgb(0 0 0 / 30%);
+  cursor: grab;
+}
+
+.riffle-hero__adapter-card:active {
+  cursor: grabbing;
+}
+
+.riffle-hero__adapter-card:focus-visible {
+  outline: 3px solid var(--sl-color-accent, #8b5cf6);
+  outline-offset: 4px;
+  border-radius: 20px;
+}
+
+.riffle-hero__card-face {
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  text-align: center;
+  box-sizing: border-box;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+  user-select: none;
+}
+
+.riffle-hero__controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.riffle-hero__controls button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--sl-color-gray-5, #ccc);
+  background: var(--sl-color-bg, white);
+  color: var(--sl-color-text, black);
+  cursor: pointer;
+}
+
+.riffle-hero__controls button:hover {
+  background: var(--sl-color-gray-6, #eee);
+}
+
+.riffle-hero__hint {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--sl-color-gray-3, #666);
+}

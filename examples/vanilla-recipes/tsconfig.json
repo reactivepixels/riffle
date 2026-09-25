@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["vite/client"],
+    "paths": {
+      "@rpxl/riffle": ["../../packages/core/src/index.ts"]
+    }
+  },
+  "include": ["src", "*.config.ts"]
+}

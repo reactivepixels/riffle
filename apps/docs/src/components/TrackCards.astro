@@ -1,0 +1,137 @@
+---
+/**
+ * The landing page's three large entry points, one per framework track.
+ * Each card links straight to that track's Getting Started, with a
+ * one-line install underneath.
+ *
+ * The remembered track (localStorage, `FRAMEWORK_STORAGE_KEY` from
+ * scripts/lib/tracks.mjs) is read client side, to highlight a card
+ * ("Continue with React") rather than redirect: a visitor must always be
+ * able to reach every track from this page, whether or not they have been
+ * here before. Clicking a card also writes that same key, before the
+ * default navigation to its href proceeds, so choosing a track from the
+ * landing page is remembered exactly like choosing one from
+ * TrackSwitcher.astro (inside a track).
+ */
+import { FRAMEWORKS, TRACK_LABELS, trackPath } from '../../scripts/lib/tracks.mjs'
+
+// One package, so the same install command shows on every card.
+const INSTALL_COMMAND = 'npm install @rpxl/riffle'
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+---
+
+<div class="track-cards not-content">
+  {
+    FRAMEWORKS.map((fw) => (
+      <a
+        class="track-card"
+        data-track-card={fw}
+        href={`${base}${trackPath(fw, 'getting-started')}`}
+      >
+        <p class="track-card__eyebrow" data-track-card-label>
+          {`Start with ${TRACK_LABELS[fw]}`}
+        </p>
+        <code class="track-card__install">{INSTALL_COMMAND}</code>
+        <span class="track-card__cta">Get started &rarr;</span>
+      </a>
+    ))
+  }
+</div>
+
+<script>
+  import { FRAMEWORK_STORAGE_KEY, TRACK_LABELS, isFramework } from '../../scripts/lib/tracks.mjs'
+
+  // Every localStorage access is wrapped in try/catch: a private-browsing
+  // tab, a blocked storage policy, or a security-restricted iframe must
+  // never break the landing page.
+  function readStoredFramework() {
+    try {
+      const value = localStorage.getItem(FRAMEWORK_STORAGE_KEY)
+      return isFramework(value) ? value : null
+    } catch {
+      return null
+    }
+  }
+
+  const stored = readStoredFramework()
+  if (stored) {
+    const card = document.querySelector(`[data-track-card="${stored}"]`)
+    const label = card?.querySelector('[data-track-card-label]')
+    if (label) label.textContent = `Continue with ${TRACK_LABELS[stored]}`
+    card?.classList.add('track-card--remembered')
+  }
+
+  for (const card of document.querySelectorAll('[data-track-card]')) {
+    card.addEventListener('click', () => {
+      const fw = card.getAttribute('data-track-card')
+      if (!fw) return
+      // Every localStorage access is wrapped in try/catch: a private-browsing
+      // tab or a blocked storage policy must never break navigation.
+      try {
+        localStorage.setItem(FRAMEWORK_STORAGE_KEY, fw)
+      } catch {
+        // ignore: storage may be blocked or unavailable
+      }
+    })
+  }
+</script>
+
+<style>
+  .track-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 1.25rem;
+    margin: 1.5rem 0 2.5rem;
+  }
+
+  .track-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1.5rem;
+    border: 1px solid var(--sl-color-gray-5, #ccc);
+    border-radius: 12px;
+    background: var(--sl-color-bg-nav, var(--sl-color-black, #111));
+    text-decoration: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .track-card:hover,
+  .track-card:focus-visible {
+    border-color: var(--sl-color-accent, #8b5cf6);
+  }
+
+  .track-card--remembered {
+    border-color: var(--sl-color-accent, #8b5cf6);
+    box-shadow: 0 0 0 1px var(--sl-color-accent, #8b5cf6);
+  }
+
+  .track-card__eyebrow {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--sl-color-white, #fff);
+  }
+
+  .track-card__install {
+    display: block;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    background: var(--sl-color-gray-6, var(--sl-color-black, #000));
+    font-size: 0.8rem;
+    color: var(--sl-color-gray-2, #333);
+    overflow-wrap: anywhere;
+  }
+
+  .track-card__cta {
+    margin-top: auto;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--sl-color-text-accent);
+  }
+
+  .track-card:is(:hover, :focus-visible) .track-card__cta {
+    color: var(--sl-color-white, #fff);
+  }
+</style>

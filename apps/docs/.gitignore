@@ -1,0 +1,42 @@
+# build output
+dist/
+# generated types
+.astro/
+
+# Framework tracks, generated from the templates in src/tracks/ by
+# scripts/generate-tracks.mjs at build time; never committed, always
+# regenerated. Each track's own API reference (scripts/generate-api.mjs,
+# from TSDoc; see apps/docs/typedoc.json) writes into <fw>/api/ inside these
+# same directories, so it is covered here too rather than needing its own
+# entry.
+src/content/docs/vanilla/
+src/content/docs/react/
+src/content/docs/vue/
+
+# scripts/check-examples.mjs's scratch typecheck files.
+.check-examples-tmp/
+
+# scripts/check-readme-examples.mjs's scratch typecheck files.
+.check-readme-examples-tmp/
+
+# Bundle sizes, generated from size-limit by scripts/generate-bundle-sizes.mjs
+# at build time; never committed, always regenerated, so the landing page's
+# numbers can never drift from the packages' actual dist output.
+src/generated/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+# environment variables
+.env
+.env.production
+
+# macOS-specific files
+.DS_Store

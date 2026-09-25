@@ -1,0 +1,30 @@
+---
+/**
+ * Renders the current track's code for a snippet name, from the typed
+ * registry in src/lib/track-snippets.ts: `<Snippet name="install" />`.
+ */
+import { Code } from '@astrojs/starlight/components'
+import { SNIPPETS, type SnippetName } from '../../lib/track-snippets'
+import { pageFramework } from './framework'
+
+interface Props {
+  name: SnippetName
+}
+
+const { name } = Astro.props
+const snippet = SNIPPETS[name]
+if (!snippet) throw new Error(`<Snippet name="${name}"> is not in src/lib/track-snippets.ts`)
+const { code, lang, title } = snippet[pageFramework('Snippet', Astro.locals.starlightRoute.entry.data)]
+
+// A guide's code block stays readable at a glance: a longer file shows a
+// focused #region instead (see `region` in src/lib/snippets.ts).
+const MAX_LINES = 40
+const lines = code.replace(/\n+$/, '').split('\n').length
+if (lines > MAX_LINES) {
+  throw new Error(
+    `<Snippet name="${name}"> is ${lines} lines (${title}); show a #region of at most ${MAX_LINES}`,
+  )
+}
+---
+
+<Code code={code} lang={lang} title={title} />

@@ -1,0 +1,162 @@
+:root {
+  --bg: #101013;
+  --ink: #f0eee9;
+  --muted: #918d85;
+  --accent: #e6913f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/*
+ * A drag can pull a card further out than #stack's own measured resting
+ * reach before it springs back, and that overshoot is meant to be seen,
+ * not clipped away. Clipping here, on the root element, rather than on
+ * the stage's own box, lets that motion play out across the real screen
+ * width. `clip`, not `hidden`: it contains the overflow without creating
+ * a scroll container of its own, so the page's own vertical scroll is
+ * unaffected.
+ *
+ * Both `html` and `body` need it (confirmed directly: either alone leaves
+ * `document.documentElement.scrollWidth` growing past `clientWidth` while
+ * a drag pulls a card past its resting reach). A `<body>` with a
+ * non-`visible` overflow alone propagates that value to the viewport and
+ * is itself treated as `visible` again (the same quirk that lets a
+ * `<body>` with `overflow: hidden` suppress the page's scrollbar), so
+ * `html` on its own still measures the pre-clip extent; `html` alone, in
+ * turn, does not stop `body`'s own box, the one that actually contains
+ * the overflowing content, from still being measured as wider than the
+ * viewport. Setting it on both closes that gap.
+ */
+html {
+  overflow-x: clip;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse at 50% 20%, #191920, var(--bg) 70%);
+  color: var(--ink);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  overflow-x: clip;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  padding: 3rem 1.5rem;
+}
+
+.stage {
+  /* Symmetric: #stack's own box (sized in main.ts from the arc's measured
+     reach) already reserves exactly the room the arc needs, so the stage
+     around it no longer needs an asymmetric right-heavy hack to keep the
+     controls clear. This is also what lets .page's centering treat the
+     whole card-plus-arc shape as one unit, instead of centering only the
+     front card and leaving the arc to spill into one-sided padding. */
+  padding: 1.5rem;
+  /* Contains every .card's z-index inside this box's own stacking context,
+     so nothing in here can ever compare, or paint above, .controls below,
+     regardless of how many cards this stack ever holds. */
+  isolation: isolate;
+}
+
+/*
+ * At phone widths, shrink the page's and stage's own decorative padding so
+ * the settled stack fits without horizontal scroll. The card's own size,
+ * and so the arc #stack measures itself to (main.ts's measureArcOverflow),
+ * shrinks too, at the same 520px breakpoint. Desktop (the rules above) is
+ * unchanged.
+ */
+@media (max-width: 520px) {
+  .page {
+    padding: 2rem 1rem;
+  }
+
+  .stage {
+    padding: 1rem;
+  }
+}
+
+#stack {
+  position: relative;
+}
+
+.card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  border: 1px solid rgb(255 255 255 / 8%);
+  box-shadow:
+    0 20px 44px -18px rgb(0 0 0 / 60%),
+    0 2px 6px rgb(0 0 0 / 35%);
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: grab;
+  user-select: none;
+}
+
+.card:active {
+  cursor: grabbing;
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  /* A flex item's z-index paints it above a sibling flex item whose
+     z-index is auto (.stage, here), the same as if it were positioned:
+     the guarantee that Prev, the readout and Next are never painted
+     under a card, whatever #stack's measured size turns out to be. */
+  position: relative;
+  z-index: 1;
+}
+
+.control {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  background: rgb(255 255 255 / 6%);
+  color: var(--ink);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.control:hover {
+  background: rgb(255 255 255 / 12%);
+}
+
+.control:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.readout {
+  min-width: 4.5rem;
+  text-align: center;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}

@@ -1,0 +1,112 @@
+<!doctype html>
+<!--
+  A standalone, chrome-free page that renders exactly one thing: the
+  1280x640 card e2e/scripts/generate-og-image.mjs screenshots into
+  apps/docs/public/og.png, the image astro.config.mjs wires up as the
+  site's og:image and twitter:image.
+
+  Deliberately outside src/pages: it is a screenshot source, not a page of
+  the site. Astro never builds it, so it never ships, never appears in the
+  sitemap, and is never scanned by the docs accessibility or overflow
+  checks (a fixed 1280px-wide canvas would overflow any phone viewport by
+  design). The generator opens it straight from disk.
+
+  The fanned rectangles below are a static, non-interactive echo of the
+  product itself (three cards fanned at decreasing scale behind a front
+  one), not a live Riffle instance: an OG image is captured once and cached
+  by every site that unfurls it, so it has no need for the real engine, a
+  build step, or any script at all.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Riffle OG card</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #121218;
+      }
+      #og-card {
+        position: relative;
+        width: 1280px;
+        height: 640px;
+        overflow: hidden;
+        background: radial-gradient(ellipse at 30% 20%, #1c1c26, #121218 65%);
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
+        color: #f3efe8;
+      }
+      .card {
+        position: absolute;
+        top: 50%;
+        left: 220px;
+        width: 260px;
+        height: 360px;
+        border-radius: 20px;
+        box-shadow: 0 30px 80px rgb(0 0 0 / 0.45);
+      }
+      .card-1 {
+        transform: translate(-50%, -50%) rotate(-10deg) translateX(-70px) scale(0.86);
+        background: linear-gradient(160deg, #101823, #9fb9c9);
+        opacity: 0.75;
+      }
+      .card-2 {
+        transform: translate(-50%, -50%) rotate(-4deg) translateX(-30px) scale(0.93);
+        background: linear-gradient(160deg, #1c1830, #e8813f);
+        opacity: 0.88;
+      }
+      .card-3 {
+        transform: translate(-50%, -50%) rotate(6deg);
+        background: linear-gradient(160deg, #052b3a, #ff3d7f);
+      }
+      .copy {
+        position: absolute;
+        top: 50%;
+        left: 620px;
+        right: 80px;
+        transform: translateY(-50%);
+      }
+      .wordmark {
+        margin: 0;
+        font-size: 96px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      .tagline {
+        margin: 20px 0 0;
+        font-size: 30px;
+        line-height: 1.4;
+        color: #cfc9bd;
+        max-width: 560px;
+      }
+      .url {
+        position: absolute;
+        left: 620px;
+        bottom: 56px;
+        font-size: 24px;
+        color: #e8c07a;
+        letter-spacing: 0.02em;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="og-card">
+      <div class="card card-1"></div>
+      <div class="card card-2"></div>
+      <div class="card card-3"></div>
+      <div class="copy">
+        <p class="wordmark">Riffle</p>
+        <p class="tagline">
+          A cycling card stack, physics based and framework agnostic. Cards fan out and cycle in
+          place, nothing is ever swiped away.
+        </p>
+      </div>
+      <p class="url">reactivepixels.github.io/riffle</p>
+    </div>
+  </body>
+</html>

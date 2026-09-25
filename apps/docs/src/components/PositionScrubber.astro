@@ -1,0 +1,139 @@
+---
+/**
+ * Not a Riffle instance. This teaches the actual pure pipeline the engine
+ * runs on every frame: a single scalar (`position`), turned into a signed
+ * depth per card by `wrap`, turned into a pose by `fan().pose()`. Dragging
+ * the range input calls nothing but those two pure functions and writes the
+ * result to the DOM itself, the same way `render/transform.ts` does.
+ */
+const cards = [
+  { title: 'Midnight Drift', gradient: 'linear-gradient(160deg, #1c1b3a 0%, #4d3bb0 100%)' },
+  { title: 'Paper Lantern', gradient: 'linear-gradient(160deg, #b3401f 0%, #f2994a 100%)' },
+  { title: 'Glass Orchard', gradient: 'linear-gradient(160deg, #0f5e4c 0%, #4cd9a0 100%)' },
+  { title: 'Low Tide', gradient: 'linear-gradient(160deg, #073b5c 0%, #2bb7c9 100%)' },
+  { title: 'Ember Field', gradient: 'linear-gradient(160deg, #661a3c 0%, #e64980 100%)' },
+]
+---
+
+<div class="scrubber">
+  <div id="scrubber-stack" class="scrubber__stack" aria-hidden="true">
+    {
+      cards.map((card, i) => (
+        <div class="scrubber__card" style={{ background: card.gradient }} data-index={i}>
+          {card.title}
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="scrubber__control">
+    <label for="scrubber-position">
+      position: <output id="scrubber-position-output" for="scrubber-position">0.00</output>
+    </label>
+    <input
+      id="scrubber-position"
+      type="range"
+      min="0"
+      max={cards.length}
+      step="0.01"
+      value="0"
+      aria-valuetext="0.00"
+    />
+  </div>
+</div>
+
+<style>
+  .scrubber {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 2rem 0;
+    /*
+     * A card at depth -1 (the exit slot) sits a full card-width plus gap to
+     * the right of the stack's own narrow box by design, not just mid-drag:
+     * at the scrubber's own default position (0), the last card already
+     * wraps to depth -1 and renders there at rest, wide enough to overflow
+     * a 375px page on its own. Clips at this wrapper, spanning the content
+     * column, not on `.scrubber__stack` itself, the same reasoning every
+     * other live demo island's own clip uses. `clip`, not `hidden`: it
+     * contains the overflow without creating a scroll container, so the
+     * page's own vertical scroll is unaffected.
+     */
+    overflow-x: clip;
+  }
+
+  .scrubber__stack {
+    position: relative;
+    width: min(280px, 80vw);
+    height: min(340px, 50vh);
+  }
+
+  .scrubber__card {
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    text-align: center;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 16px 36px rgb(0 0 0 / 0.28);
+  }
+
+  .scrubber__control {
+    width: min(280px, 80vw);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .scrubber__control label {
+    font-size: 0.9rem;
+    color: var(--sl-color-gray-2, #333);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .scrubber__control input[type='range'] {
+    width: 100%;
+  }
+</style>
+
+<script>
+  import { createPose, fan, wrap } from '@rpxl/riffle'
+
+  const stack = document.getElementById('scrubber-stack')
+  const input = document.getElementById('scrubber-position') as HTMLInputElement | null
+  const output = document.getElementById('scrubber-position-output')
+
+  if (stack && input && output) {
+    const cardEls = Array.from(stack.querySelectorAll<HTMLElement>('.scrubber__card'))
+    const count = cardEls.length
+    const layout = fan()
+    const geometry = { cardExtent: 220, crossExtent: 280, gap: 16, maxVisible: 5, count }
+    const pose = createPose()
+
+    function render(position: number) {
+      for (const el of cardEls) {
+        const index = Number(el.dataset.index)
+        const depth = wrap(index - position, count)
+        layout.pose(depth, geometry, pose)
+        el.style.transform = `translate3d(${pose.main.toFixed(2)}px, 0px, 0) rotate(${pose.rotation.toFixed(2)}deg) scale(${pose.scale.toFixed(3)})`
+        el.style.opacity = String(pose.opacity)
+        el.style.zIndex = String(pose.zIndex)
+      }
+    }
+
+    function syncFromInput() {
+      const position = Number(input!.value)
+      const text = position.toFixed(2)
+      input!.setAttribute('aria-valuetext', text)
+      output!.textContent = text
+      render(position)
+    }
+
+    input.addEventListener('input', syncFromInput)
+    syncFromInput()
+  }
+</script>

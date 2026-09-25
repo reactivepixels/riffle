@@ -1,0 +1,264 @@
+/*
+ * Every custom component root on this site (the landing hero's live demo,
+ * the recipes pages' `.demo-row`, `/gestures`'
+ * tuning panel, `/layouts`' custom-layout demo, and this gallery) carries
+ * Starlight's `not-content` class. Without it, `.sl-markdown-content`'s own
+ * typography rule (markdown.css: any element that is not `a, strong, em,
+ * del, span, input, code, br`, preceded by a sibling that also is not one
+ * of those, gets `margin-top: var(--sl-content-gap-y)`) reaches inside a
+ * live demo or a card grid the same way it reaches a paragraph, and the
+ * result reads as a layout bug: a second button stretched or shifted
+ * relative to its sibling, a second grid card sitting lower than the first.
+ * This bit four separate components before the rule below became standard
+ * practice (`/adapters`'s `.demo-row`, the landing hero's Prev/Next pair,
+ * `/gestures`' tuning panel, and this gallery), so it is written once, here,
+ * rather than re-derived and re-explained in each component's own
+ * stylesheet: **put `not-content` on any custom component's root**, full
+ * stop, before reaching for a narrower fix. A component that opts out this
+ * way also opts out of Starlight's own heading and link colours
+ * (`.example-card h3`/`.example-card a` below set those back explicitly,
+ * since the gallery is the one component with real headings and links
+ * inside it).
+ */
+
+/*
+ * examples.mdx's gallery: one card per shipped example (see that page's own
+ * intro), laid out as a responsive grid rather than a stacked list, since
+ * nine cards read as a browsable catalogue, not sequential prose.
+ *
+ * `.example-gallery` itself carries `not-content`
+ * (in examples.mdx's markup) per the convention above. `align-items: start`
+ * alone was not enough: it stops a grid row from stretching a
+ * shorter card to match its taller neighbour, but every non-first
+ * `<article>` still measurably had a 16px margin-top of its own (confirmed
+ * directly: react-movie-stack, the gallery's first card, measured
+ * `margin-top: 0`; vue-movie-stack, right next to it, measured
+ * `margin-top: 16px`, and its own top position was exactly react's plus
+ * that 16px), which `align-items: start` cannot see through, since it
+ * aligns a margin BOX, not a content box. `not-content` removes the margin
+ * at its source instead.
+ */
+.example-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  align-items: start;
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.example-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border: 1px solid var(--sl-color-gray-5, #ccc);
+  border-radius: 12px;
+  background: var(--sl-color-bg-nav, var(--sl-color-black, #111));
+}
+
+.example-card h3 {
+  margin: 0;
+  font-family: var(--__sl-font-mono, monospace);
+  font-size: 1rem;
+  /* Starlight's own heading colour, restored: not-content opts this
+     heading out of `.sl-markdown-content :is(h1, ..., h6) { color: ... }`
+     along with the margin rule that was the actual point of opting out. */
+  color: var(--sl-color-white, #fff);
+  font-weight: 600;
+}
+
+.example-card a {
+  /* Same restoration as h3 above, for Starlight's link colour. */
+  color: var(--sl-color-text-accent);
+}
+
+.example-card a:hover {
+  color: var(--sl-color-white, #fff);
+}
+
+/*
+ * Reserves enough height for the gallery's own longest description
+ * (react-movie-stack's, measured at 127.66px against this rule's
+ * `line-height: 25.2px`, five lines) so every card's preview image starts
+ * at the same Y regardless of how many lines its own description actually
+ * wraps to. `align-items: start` fixes each row's ARTICLE
+ * tops; without this, the image inside a shorter-description card (for
+ * example vanilla-basic, three lines) still visibly sat higher than its
+ * row neighbour's (for example react-infinite-feed, four lines), a second,
+ * independent cause of the same-looking symptom, not the sibling-margin
+ * bug this file's own top comment is otherwise about.
+ *
+ * `:first-of-type`, not a bare `.example-card p`: every card has a SECOND
+ * `<p>` too, the "Source · Open in StackBlitz" links line, and the bare
+ * selector gave it the same 8.5rem `min-height` as the description, found
+ * while checking screenshots for the empty gap that left
+ * under every card (confirmed directly: that links paragraph measured
+ * 136px tall, `min-height: 8.5rem` exactly, for one line of text). The
+ * description is always the first `<p>` in the card (the heading is a
+ * `<div>`, not a `<p>`), so `:first-of-type` reaches only it.
+ */
+.example-card p:first-of-type {
+  margin: 0;
+  min-height: 8.5rem;
+  font-size: 0.9rem;
+  color: var(--sl-color-gray-2, #333);
+}
+
+.example-card p:last-of-type {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--sl-color-gray-2, #333);
+}
+
+/*
+ * Every preview is a real <img> now: react-movie-stack and vue-movie-stack
+ * once used live islands, replaced with screenshots
+ * generated the same way as the other seven, for one consistent treatment
+ * across all nine.
+ *
+ * `height: auto` is required here, not decorative. Every
+ * `<img>` in examples.mdx carries `width="960" height="720"` (a real HTML
+ * attribute pair, there so the browser can reserve layout space before the
+ * image loads). Browsers map an `<img>`'s `height` attribute to a
+ * presentational CSS hint, and this rule never declared its own `height`
+ * (only `width` and `aspect-ratio`), so that hint was the only declaration
+ * for the `height` property in the whole cascade and won by default:
+ * every preview rendered at a literal `height: 720px` no matter how narrow
+ * its actual column was. `aspect-ratio` only computes a MISSING dimension;
+ * once `height` was pinned to 720px by the presentational hint, the
+ * `aspect-ratio: 4 / 3` below had nothing left to do. Measured directly on
+ * the built page before this fix: a 306px-wide column rendered its image at
+ * 306 x 720 (ratio 0.43, tall and narrow), and `object-fit: cover` then
+ * had to blow the image up and crop away roughly two thirds of its width to
+ * fill that box, leaving only the front card's centre visible. Confirmed
+ * fixed the same way: 306 x 229.5 (exactly 4 / 3) after adding `height:
+ * auto` here.
+ *
+ * `object-fit: contain`, not `cover`: the generator's own clip (see
+ * generate-example-screenshots.mjs's computeClip) already frames each
+ * screenshot close to 4 / 3, but never pixel-exact, and `cover` crops
+ * whatever `aspect-ratio` mismatch remains; `contain` guarantees the whole
+ * screenshot is always visible, at the cost of a sliver of letterboxing on
+ * the shorter axis when a crop is not exactly 4 / 3.
+ */
+.example-card__preview {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  border-radius: 8px;
+  background: var(--sl-color-gray-6, #f4f4f4);
+}
+
+/*
+ * The first-stack demo on each track's Getting Started renders the README
+ * quickstart unchanged, 300 by 400 pixel cards and all. Its fan reaches about
+ * 72px left of the front card, so card plus fan (360px) does not fit inside
+ * a phone's own content column (its own left/right padding subtracted from
+ * the 375px viewport this site is measured at). The clip is on this
+ * full-width wrapper, never on the stack (see the Layout and overflow
+ * guide).
+ */
+.quickstart-demo,
+.not-content[data-demo='first-stack'] {
+  margin: 1.5rem 0 2rem;
+  overflow-x: clip;
+}
+
+/*
+ * Below 520px, this demo breaks out of the content column to the full
+ * viewport width instead of shrinking (a card plus its fan, 360px, does not
+ * fit inside the narrower column, but does fit 375px): a negative
+ * inline margin equal to the column's own padding
+ * (`--sl-content-pad-x`, set by Starlight's own ContentPanel) pulls the
+ * wrapper out to the viewport edges, and the demo's own existing centering
+ * keeps the stack itself centred inside that wider box. This renders the
+ * exact quickstart file unmodified, at its real 300x400 card size, rather
+ * than a zoomed or otherwise altered one: a CSS `zoom` on an ancestor scales
+ * the box a drag is measured against without scaling the pointer's own
+ * screen-pixel movement, so a 1:1 drag stopped tracking the finger (measured
+ * directly: an 80px drag moved the card about 56px). Removing the zoom and
+ * widening the box instead keeps that mapping exactly 1:1 at any width.
+ */
+@media (max-width: 520px) {
+  .quickstart-demo,
+  .not-content[data-demo='first-stack'] {
+    margin-inline: calc(-1 * var(--sl-content-pad-x, 1rem));
+  }
+
+  /*
+   * The stack's own root centres its one 300px-wide grid column within
+   * whatever width it is given (the README's own `justify-content: center`,
+   * unchanged). Left at its default width (this wrapper's own, matching the
+   * viewport at this breakpoint), that centres the card with only half the
+   * viewport's own slack to its left, short of the roughly 60px the fan
+   * behind it needs, and the trailing cards clip against this wrapper's own
+   * left edge. Forcing the root itself wider (420px, the 300px card plus
+   * 60px of clearance on each side) instead gives the centred card that
+   * clearance; the extra width past this wrapper's own box overflows to the
+   * right, where the fan never reaches, and is contained the same way the
+   * fan's own paint is, by this wrapper's `overflow-x: clip` above.
+   *
+   * That still leaves the whole visible block (the fan plus the card, not
+   * the invisible width past it) sitting flush against the viewport's own
+   * left edge, not centred: the root's own left edge is where the fan's own
+   * leftmost pixel lands, since the 420px root gives the card exactly 60px
+   * of clearance on that side, so shifting the root right by half the
+   * *viewport's* remaining slack (`50vw` minus half the visible block's own
+   * width, 180px) centres that visible block instead of centring the root's
+   * own, partly invisible, box. `vw`, not a fixed pixel offset, because this
+   * media query covers a range of widths (any viewport up to 520px, not
+   * only the 375px this is measured at), and the block must stay centred
+   * throughout that range, not only at one width within it.
+   */
+  .quickstart-demo [aria-roledescription='carousel'],
+  .not-content[data-demo='first-stack'] [aria-roledescription='carousel'] {
+    width: 420px;
+    margin-left: calc(50vw - 180px);
+  }
+}
+
+/*
+ * The four recipe pages' React and Vue live demos (src/components/tracks/demos/
+ * {InfiniteFeed,ClampWithControls,ProgrammaticControl,FormsInCards}{React,Vue}.astro)
+ * mount the real recipe component unchanged, and every one of those
+ * components was designed for its own app's dark page (`--bg: #121218`),
+ * not Starlight's own light-or-dark theme: `.recipe-clamp`'s and its
+ * siblings' `--muted`/`--ink` text colours (examples/vanilla-recipes/src/app.css)
+ * read fine on that dark background but fail WCAG contrast against
+ * Starlight's light theme. This stage gives every recipe demo its own
+ * fixed dark background, the same one every recipe app already paints its
+ * own `body` with, so the exact colours a11y.spec.ts already scans clean on
+ * each app's own page read the same way here, regardless of the reader's
+ * site-wide theme.
+ */
+.recipe-demo-stage {
+  margin: 1.5rem 0 2rem;
+  padding: 1.5rem 1rem;
+  border-radius: 16px;
+  background: #121218;
+  overflow-x: clip;
+}
+
+/*
+ * The default `fan()` layout spreads the cards behind the front one toward
+ * the negative (left) side (packages/core/src/layout/fan.ts: `out.main =
+ * -offset * depth`), so the room for that fan has to be reserved on the
+ * left or the back cards clip against this stage's own edge at narrow
+ * widths. `ClampStack.tsx`/`ExternalControlStack.{tsx,vue}`/`FormCardsStack.{tsx,vue}`/
+ * `InfiniteFeed.vue` assume an outer shell reserves this room for them (the
+ * same room react-recipes' and vue-recipes' own `.stage--fan` reserves on
+ * each app's own page); this stage plays that role here. The vanilla
+ * recipes and vue-clamp-controls' own App.vue reserve this room themselves,
+ * so their own demo needs no second copy of it.
+ */
+.recipe-demo-stage--fan {
+  padding-left: 7rem;
+}
+
+@media (max-width: 520px) {
+  .recipe-demo-stage--fan {
+    padding-left: 6.5rem;
+  }
+}

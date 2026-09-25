@@ -1,0 +1,26 @@
+{
+  "name": "nextjs-app-router",
+  "version": "0.0.0",
+  "private": true,
+  "description": "An App Router page that server renders a fanned stack of invented movie posters with the React Riffle adapter, proving no window or document access at render time.",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start -p 4310",
+    "typecheck": "tsc --noEmit",
+    "check:ssr": "node scripts/check-ssr.mjs"
+  },
+  "dependencies": {
+    "@rpxl/riffle": "workspace:*",
+    "next": "^16.3.6",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "^5.9.3"
+  }
+}

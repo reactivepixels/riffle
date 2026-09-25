@@ -1,0 +1,54 @@
+---
+title: Programmatic control
+description: Driving the stack from a component that never touches the engine directly, through the imperative handle alone.
+sidebar:
+  order: 3
+---
+
+import Demo from '@docs/components/tracks/Demo.astro'
+import Only from '@docs/components/tracks/Only.astro'
+import Snippet from '@docs/components/tracks/Snippet.astro'
+
+A prev/next button pair sits right next to the stack it drives. Plenty of real UIs need control from
+further away: a thumbnail rail, a "now playing" panel, a router that jumps to a specific card from a
+URL, a test harness. None of that needs to live inside, or even next to, the stack itself.
+
+<Only fw="vanilla">
+
+Every `Riffle` instance exposes `goTo(index, opts?)` alongside `next` and `prev`. Hand that instance
+to whatever else needs it, and drive the stack from there.
+
+</Only>
+
+<Only fw="react, vue">
+
+Every adapter's handle exposes `goTo(index, opts?)` alongside `next` and `prev`. Hand that handle to
+whatever else needs it, as a prop, a ref passed down, or a value read from a store, and drive the
+stack from there.
+
+</Only>
+
+## Live
+
+The thumbnail rail below is a **sibling**, not a child, of the stack it drives. It never touches the
+engine directly, only the film list it renders its own numbered buttons from, and moves the stack
+purely by calling `goTo(index)`.
+
+<Demo name="programmatic-control" />
+
+<Snippet name="goto-wiring" />
+
+A few things worth calling out:
+
+- **The rail is a genuinely separate piece.** It could just as easily be a completely different file,
+  imported by neither the stack's own component nor its parent, wired together only where both
+  happen to be used together.
+- **`aria-current="true"` marks the active thumbnail**, read from the stack's own `change` event, not
+  from polling the handle's `activeIndex` getter: that getter is there for imperative reads (an event
+  handler, an effect), not for driving a render.
+- **`goTo` takes `{ animate: false }`** when you want a jump to be instant instead of springing there,
+  useful for a "restore this position" case (returning to a page, for example) where an animated
+  approach would be visual noise rather than feedback.
+
+Next: [Forms inside cards](/riffle/_track_/recipes/forms-in-cards/) covers the other direction:
+controls that live inside a card, not outside the stack.

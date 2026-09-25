@@ -1,0 +1,30 @@
+{
+  "name": "react-recipes",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Four small React apps, one per Riffle recipe: clamped bounds, programmatic control, forms inside cards, and a custom layout strategy.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@rpxl/riffle": "workspace:*",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "happy-dom": "^15.11.7",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.0",
+    "vitest": "^2.1.9"
+  }
+}

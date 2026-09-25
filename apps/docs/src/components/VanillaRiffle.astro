@@ -1,0 +1,53 @@
+---
+/**
+ * The Vanilla tab of the landing page hero: a real, draggable Riffle stack
+ * built straight from the workspace package, not a screen recording. Shares
+ * its card data with HeroStackReact.tsx and HeroStackVue.ts (see
+ * ../lib/hero-cards.ts) and its layout with both via hero-stack.css, so
+ * switching the landing page's framework tabs changes only the engine
+ * underneath, never the size or content of the demo.
+ */
+import { heroCards as cards } from '../lib/hero-cards'
+import './hero-stack.css'
+---
+
+<div class="riffle-hero not-content">
+  <div id="hero-stack" class="riffle-hero__stack" role="group" aria-label="Riffle live demo">
+    {
+      cards.map((card, i) => (
+        <div class="riffle-hero__card" style={{ background: card.gradient }} data-index={i}>
+          {card.title}
+        </div>
+      ))
+    }
+  </div>
+  <div class="riffle-hero__controls">
+    <button id="hero-prev" type="button" aria-label="Previous card">
+      &larr; Prev
+    </button>
+    <button id="hero-next" type="button" aria-label="Next card">
+      Next &rarr;
+    </button>
+  </div>
+  <p class="riffle-hero__hint">Drag a card, or use the buttons.</p>
+</div>
+
+<script>
+  import { createRiffle } from '@rpxl/riffle'
+
+  const stack = document.getElementById('hero-stack')
+  if (stack) {
+    const cardEls = Array.from(stack.querySelectorAll<HTMLElement>('.riffle-hero__card'))
+
+    const riffle = createRiffle(stack, {
+      count: cardEls.length,
+      cardWidth: stack.clientWidth,
+      cardHeight: stack.clientHeight,
+    })
+
+    cardEls.forEach((el, i) => riffle.registerNode(i, el))
+
+    document.getElementById('hero-next')?.addEventListener('click', () => riffle.next())
+    document.getElementById('hero-prev')?.addEventListener('click', () => riffle.prev())
+  }
+</script>

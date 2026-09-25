@@ -1,0 +1,73 @@
+---
+title: Layout and overflow
+description: How much room a card stack needs around it, and where to clip it.
+sidebar:
+  order: 4
+---
+
+import Only from '@docs/components/tracks/Only.astro'
+
+A card stack is never as small as it looks. The cards fanned out behind the front one, and
+whichever card is mid-flight toward or away from the front during a drag or a settle, both extend
+past the space the front card alone occupies, sometimes well past it. That is the stack working as
+intended, not a layout bug: a fan needs room to fan into, and a card sliding out needs room to
+slide through before it settles or disappears.
+
+## Leave room for the fan
+
+Keep the stack's own containing element sized for its resting look, with room reserved for the
+fan. The default `fan()` layout offsets each card behind the front by 32 pixels to the left, so
+the movie-stack example gives its `.stage` a left padding of 6.5rem (5.5rem at 520px and below) and
+leaves the stack itself unpadded. A custom layout reaches wherever its poses put the cards: the
+[Layouts](/riffle/_track_/guides/layouts/) guide measures `spread()`'s arc and sizes the stack's box to match.
+
+## Clip at a wide ancestor, not at the stack
+
+Put no clip on the stack or its stage. Set `overflow-x: clip` on a wider ancestor instead, one that
+spans the space you actually want the animation to play out across: the whole page for a stack
+that is the main thing on it, or a viewport-width wrapper for one that shares the page with other
+content. `overflow` clips at the _nearest_ ancestor that has one set, walking up from the
+overflowing element, so a clip on a wide ancestor only has any effect if nothing narrower sits
+between it and the stack. Clip the stack's own box instead and you cut the fan and the exit
+animation short right at its edge, which reads as a glitch rather than a card sliding cleanly off
+screen.
+
+## `clip`, not `hidden`
+
+Use `overflow-x: clip`, not `overflow-x: hidden`: `hidden` also turns the element into a new scroll
+container, which can interfere with the page's own vertical scroll, where `clip` contains the
+horizontal overflow without doing that.
+
+## A stack that owns the page
+
+For a stack that owns the whole page, put the clip on _both_ `html` and `body`, not just one: a
+`<body>` with a non-`visible` overflow and no explicit overflow on `html` propagates that value to
+the viewport and is itself treated as `visible` again, so `html` alone still lets the page's own
+scrollable width grow with the animation, and `body` alone leaves the browser measuring the
+still-wider box `body` itself becomes.
+
+<Only fw="vanilla">
+
+The movie-stack example does exactly this in the `<style>` block of its `index.html`, which holds
+the page-level rules, leaving the stack itself unclipped. Its `app.css` scopes every rule under the
+`.vms-root` class that `mount(el)` adds, so importing the module into a page never touches that
+page's own `html` or `body`.
+
+</Only>
+
+<Only fw="react">
+
+The movie-stack example does exactly this in its `src/app.css`, with `overflow-x: clip` on both
+`html` and `body`, leaving the stack itself unclipped.
+
+</Only>
+
+<Only fw="vue">
+
+The movie-stack example does exactly this in its `src/app.css`, with `overflow-x: clip` on both
+`html` and `body`, leaving the stack itself unclipped.
+
+</Only>
+
+Next: [Accessibility](/riffle/_track_/guides/accessibility/) covers what the engine does for assistive technology, and
+what your own markup still has to supply.

@@ -1,0 +1,35 @@
+---
+/**
+ * Reads apps/docs/scripts/generate-bundle-sizes.mjs's output: the packages'
+ * actual size-limit measurements, so the number this page shows can never
+ * drift from what CI actually enforces (see that script's own doc comment
+ * and packages/core/package.json's `size-limit` field). Astro resolves a
+ * JSON import at build time like any other module; a missing file (the
+ * generator script has not run) fails the build immediately rather than
+ * rendering a stale or made-up number.
+ */
+import bundleSizes from '../generated/bundle-sizes.json'
+
+function kb(bytes: number): string {
+  return (bytes / 1000).toFixed(2)
+}
+---
+
+<p class="bundle-sizes">
+  <strong>{kb(bundleSizes.core.sizeBytes)} kB</strong> gzipped, zero dependencies. Add{' '}
+  <strong>{kb(bundleSizes.react.sizeBytes)} kB</strong> for the React adapter, or{' '}
+  <strong>{kb(bundleSizes.vue.sizeBytes)} kB</strong> for Vue.
+</p>
+
+<style>
+  .bundle-sizes {
+    margin: 0 0 1.5rem;
+    text-align: center;
+    color: var(--sl-color-gray-2, #333);
+    font-size: 0.95rem;
+  }
+
+  .bundle-sizes strong {
+    color: var(--sl-color-white, #111);
+  }
+</style>

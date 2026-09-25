@@ -1,0 +1,118 @@
+/*
+ * TuningPanel.tsx's own styling: a live stack (borrowing demo-stack.css's
+ * card look, imported alongside this file) next to a column of sliders. See
+ * TuningPanel.tsx's own comment for why each control is what it is.
+ */
+
+.tuning-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2.5rem;
+  margin: 1.5rem 0 2rem;
+  /*
+   * Clips at this element, which spans the full content column width
+   * (this island is always used solo), rather than at .tuning-panel__stage
+   * further down: a card animating out toward the exit slot, or a drag
+   * pushed further than the fan's reserved space by an extreme slider
+   * setting, both legitimately extend past the stage's own narrow box
+   * while in progress, and that motion needs the real content width to
+   * play out across, not to be cut a few pixels past the stage's edge.
+   * `clip`, not `hidden`: it contains the overflow without creating a
+   * scroll container, so the page's own vertical scroll is unaffected.
+   */
+  overflow-x: clip;
+}
+
+.tuning-panel__stack-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+/*
+ * Reserves room for fan()'s default cards-behind-the-front offset (see the
+ * comment above this element in TuningPanel.tsx) so the fan spreads into
+ * space this box already claims in normal flow, rather than overflowing
+ * past the 160px-wide card into whatever sits to its left (on this page,
+ * the sidebar). 280px total: the 160px card plus a 120px reserve.
+ */
+.tuning-panel__stage {
+  width: 280px;
+  height: 220px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+.tuning-panel__card {
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  box-shadow: 0 16px 36px rgb(0 0 0 / 28%);
+}
+
+.tuning-panel__controls {
+  min-width: 280px;
+  max-width: 360px;
+  flex: 1 1 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.tuning-panel__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.tuning-panel__field-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--sl-color-gray-2, #333);
+}
+
+.tuning-panel__field-label code {
+  font-size: 0.85rem;
+}
+
+.tuning-panel__field-value {
+  font-variant-numeric: tabular-nums;
+  color: var(--sl-color-gray-3, #666);
+}
+
+.tuning-panel__field input[type='range'] {
+  width: 100%;
+}
+
+.tuning-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.tuning-panel__actions button {
+  border-radius: 8px;
+  border: 1px solid var(--sl-color-gray-5, #ccc);
+  background: var(--sl-color-bg, #fff);
+  color: var(--sl-color-text, #111);
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.tuning-panel__actions button:hover {
+  background: var(--sl-color-gray-6, #f4f4f4);
+}
+
+.tuning-panel__status {
+  font-size: 0.8rem;
+  color: var(--sl-color-gray-2, #333);
+  min-height: 1.1rem;
+}

@@ -1,0 +1,14 @@
+---
+// The React clamp-with-controls demo: examples/react-recipes' own
+// ClampStack, the same file the Clamp with controls recipe's snippets come
+// from. It assumes the same `.stage--fan` room react-recipes' own App.tsx
+// shell reserves for it, and that app's own dark page, so this wrapper
+// gives it both: see .recipe-demo-stage and .recipe-demo-stage--fan in
+// custom.css. See src/lib/track-demos.ts for why each island has a wrapper
+// like this one.
+import ClampStack from '../../../../../../examples/react-recipes/src/ClampStack'
+---
+
+<div class="recipe-demo-stage recipe-demo-stage--fan not-content">
+  <ClampStack client:load />
+</div>

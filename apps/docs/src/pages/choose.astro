@@ -1,0 +1,99 @@
+---
+/**
+ * The landing spot for every old framework-neutral URL (see
+ * scripts/lib/redirects.mjs), reached as `/riffle/choose/?next=<slug>`.
+ * This is a static site (see astro.config.mjs's `site`/`base`, no server
+ * adapter), so the query string is never known at build time: the three
+ * links below render server side pointing at each track's overview, which
+ * works with JavaScript disabled, then the script below upgrades each
+ * href to the exact requested page (`trackPath(fw, next)`, falling back to
+ * the overview when that page does not exist in a given track) once it can
+ * read `location.search` in the browser. If a track is already remembered
+ * (`FRAMEWORK_STORAGE_KEY`, the same key TrackSwitcher.astro and
+ * TrackCards.astro write), the same script navigates there immediately
+ * with `location.replace`, without waiting for a click.
+ */
+import { getCollection } from 'astro:content'
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+import { FRAMEWORKS, TRACK_LABELS, trackPath } from '../../scripts/lib/tracks.mjs'
+
+const ids = (await getCollection('docs')).map((doc) => doc.id)
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+---
+
+<StarlightPage
+  frontmatter={{ title: 'Choose your framework', tableOfContents: false }}
+  hasSidebar={false}
+>
+  <p>
+    Riffle's docs are organised into three self-contained tracks. Pick the one you use,
+    and we will take you to the page you were looking for.
+  </p>
+  <div class="choose-cards not-content" id="choose-cards" data-doc-ids={JSON.stringify(ids)}>
+    {
+      FRAMEWORKS.map((fw) => (
+        <a class="choose-card" data-choose-card={fw} href={`${base}${trackPath(fw, '')}`}>
+          {TRACK_LABELS[fw]}
+        </a>
+      ))
+    }
+  </div>
+</StarlightPage>
+
+<script>
+  import { FRAMEWORK_STORAGE_KEY, chooseTarget, isFramework } from '../../scripts/lib/tracks.mjs'
+
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+  const container = document.getElementById('choose-cards')
+  const ids = new Set(JSON.parse(container?.dataset.docIds ?? '[]'))
+  const next = new URLSearchParams(location.search).get('next') ?? ''
+
+  for (const link of document.querySelectorAll('[data-choose-card]')) {
+    const fw = link.getAttribute('data-choose-card')
+    if (fw) link.setAttribute('href', `${base}${chooseTarget(fw, next, ids)}`)
+  }
+
+  // Every localStorage access is wrapped in try/catch: a private-browsing
+  // tab or a blocked storage policy must never leave this page stuck.
+  function readStoredFramework() {
+    try {
+      const value = localStorage.getItem(FRAMEWORK_STORAGE_KEY)
+      return isFramework(value) ? value : null
+    } catch {
+      return null
+    }
+  }
+
+  const stored = readStoredFramework()
+  if (stored) {
+    location.replace(`${base}${chooseTarget(stored, next, ids)}`)
+  }
+</script>
+
+<style>
+  .choose-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .choose-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    border: 1px solid var(--sl-color-gray-5, #ccc);
+    border-radius: 12px;
+    background: var(--sl-color-bg-nav, var(--sl-color-black, #111));
+    color: var(--sl-color-white, #fff);
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .choose-card:is(:hover, :focus-visible) {
+    border-color: var(--sl-color-accent, #8b5cf6);
+    color: var(--sl-color-accent-high);
+  }
+</style>

@@ -1,0 +1,172 @@
+---
+title: Gestures
+description: Slop, axis lock, the commit rule, and the rotation the front card picks up while dragging.
+sidebar:
+  order: 2
+---
+
+import Demo from '@docs/components/tracks/Demo.astro'
+import Only from '@docs/components/tracks/Only.astro'
+import Snippet from '@docs/components/tracks/Snippet.astro'
+
+A drag on a Riffle stack passes through four decisions before anything moves: whether the gesture
+belongs to the carousel at all, how far the front card tracks your pointer, what releasing means,
+and how much the card tilts along the way. This page covers all four, and ends with a live panel
+you can use to feel every option below on a running stack.
+
+:::note[Under the hood]
+Everything on this page is implemented as a handful of small, pure functions in the core engine,
+each covered by its own tests. For the exact parameter shapes, see the
+
+<Only fw="vanilla">
+  [`RiffleOptions`](/riffle/_track_/api/interfaces/riffleoptions/) and
+  [`RotationOptions`](/riffle/_track_/api/interfaces/rotationoptions/) API reference.
+</Only>
+<Only fw="react, vue">
+  [`RiffleOptions`](/riffle/_track_/api/core/interfaces/riffleoptions/) and
+  [`RotationOptions`](/riffle/_track_/api/core/interfaces/rotationoptions/) API reference.
+</Only>
+:::
+
+## Slop and axis lock
+
+A press doesn't become a drag right away: Riffle waits for a small amount of movement, 6 pixels,
+before it commits to anything. Below that, a `pointerdown` could still just be a tap, or the very
+start of a page scroll.
+
+Once the pointer clears those 6 pixels, Riffle decides, once, for the rest of that gesture, whether
+it belongs to the carousel or to the page:
+
+- If the movement is mostly across the stack's own axis rather than along it, the gesture is
+  **abandoned**: Riffle lets go, and the page's own scrolling takes over instead. This is why a
+  horizontal stack (`axis: 'x'`, the default) never fights a vertical scroll, and a vertical stack
+  (`axis: 'y'`) never fights a horizontal one.
+- Otherwise the gesture **locks**: the stack starts tracking the pointer, and every further move
+  drags it, regardless of which way the pointer wanders after that.
+
+This decision is made exactly once, the instant those 6 pixels clear, and never changes
+mid-gesture: a drag can't start as a scroll and then switch to dragging the stack, or the other way
+around.
+
+### A vertical stack
+
+<Only fw="vanilla">
+
+Pass `axis: 'y'` to `createRiffle` and the whole gesture turns a quarter: the stack drags up and
+down, the page keeps its horizontal scroll, and the arrow keys become Up and Down. This stack of
+tracks also passes `bounds: 'clamp'`, so it stops at either end instead of looping, and a
+`fan({ offset: -32 })` layout defined once, at module scope:
+
+</Only>
+
+<Only fw="react">
+
+Pass `axis="y"` to `<Riffle>` and the whole gesture turns a quarter: the stack drags up and down,
+the page keeps its horizontal scroll, and the arrow keys become Up and Down. This stack of tracks
+also passes `bounds="clamp"`, so it stops at either end instead of looping, and a
+`fan({ offset: -32 })` layout defined at module scope, so its identity is stable across renders:
+
+</Only>
+
+<Only fw="vue">
+
+Pass `axis="y"` to `<Riffle>` and the whole gesture turns a quarter: the stack drags up and down,
+the page keeps its horizontal scroll, and the arrow keys become Up and Down. This stack of tracks
+also passes `bounds="clamp"`, so it stops at either end instead of looping, and a
+`:layout="layout"` from `fan({ offset: -32 })`, defined once in `<script setup>` so its identity is
+stable:
+
+</Only>
+
+<Snippet name="vertical" />
+
+## The commit rule
+
+While dragging, the drag distance is measured as a fraction of one step, called `progress`: `0` is
+back where the drag started, `1` is a full step to the next card, `-1` a full step to the previous
+one. Releasing the pointer decides one of three things: commit forward, commit backward, or spring
+back to where the drag began.
+
+Two options control that decision:
+
+- `threshold`: the fraction of a step that commits on distance alone. Defaults to **0.25**, a
+  quarter of a step.
+- `flingVelocity`: the release speed, in pixels per millisecond, that commits regardless of
+  distance. Defaults to **0.5**.
+
+```
+byFling = |velocity| >= flingVelocity
+byDistance = |progress| >= threshold
+
+no commit          if neither is true
+commit by velocity  if byFling
+commit by distance  otherwise
+```
+
+**Velocity wins whenever it clears the fling bar.** Dragging 40% of the way toward the next card
+and then flicking back sharply commits in the direction of the flick, not the direction of the
+larger on-screen movement, because the flick is the more recent, more deliberate signal. Only when
+a release doesn't clear `flingVelocity` does distance alone decide it, against `threshold`.
+
+Velocity itself is read over a short, recent window (roughly the last **100 milliseconds**), not
+averaged over the whole gesture, so a drag that stops dead before release always reads as no
+fling, however fast it was earlier on.
+
+## Rotation
+
+While dragging, the front card tilts a little. `rotation.maxRotation` caps how far (default **16
+degrees**), or pass `rotation: false` to turn tilting off entirely without affecting the drag
+itself. Three contributions add up to make the tilt, each scaled by that same cap:
+
+- **Distance** (`rotation.baseFactor`, default **0.35**): the further the drag has travelled toward
+  committing, the more the card tilts.
+- **Grip** (`rotation.leverFactor`, default **0.65**): where you grabbed the card changes which way
+  it tilts. Grab it near one edge and it pivots one way; grab the opposite edge and the same drag
+  pivots it the other way, the way pulling a physical card by a corner behaves differently from
+  pulling it by its centre.
+- **Trajectory** (`rotation.trajFactor`, default **0.15**): a diagonal drag picks up a touch more
+  tilt than a perfectly straight one at the same distance.
+
+## Try it
+
+<Only fw="vanilla">
+
+Every slider below is one of these same options, live on a running stack: moving one passes the new
+value to the engine's `update()`, so each drag on the stack feels exactly like the number you set.
+
+</Only>
+
+<Only fw="react, vue">
+
+Every slider below is one of these same options, live on a running stack: moving one updates the
+engine immediately, so each drag on the stack feels exactly like the number you set (see
+[Options between renders](/riffle/_track_/guides/adapter-details/#options-between-renders) for how an option change
+reaches the engine).
+
+</Only>
+
+<Demo name="tuning-panel" />
+
+<Only fw="vanilla">
+
+"Copy config" writes the options that differ from their defaults to your clipboard, as a typed
+TypeScript object ready to merge into your own `createRiffle` options.
+
+</Only>
+
+<Only fw="react">
+
+"Copy config" writes the options that differ from their defaults to your clipboard, as a typed
+object of `<Riffle>` props, ready to spread onto your own stack: `<Riffle {...tuning} cards={cards}>`.
+
+</Only>
+
+<Only fw="vue">
+
+"Copy config" writes the options that differ from their defaults to your clipboard, as a typed
+object of `<Riffle>` props, ready to bind onto your own stack: `<Riffle v-bind="tuning" :cards="cards">`.
+
+</Only>
+
+Next: [Layouts](/riffle/_track_/guides/layouts/) covers `stepTravel()`, the other half of what a drag feels like, and
+walks through writing a custom `LayoutStrategy`.

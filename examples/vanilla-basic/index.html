@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Riffle: vanilla basic</title>
+    <style>
+      /*
+       * The card animating out toward the exit slot legitimately extends
+       * past the stack's own box while a drag or a settle is in
+       * progress: that is what the stack is meant to look like
+       * mid-motion, not a bug. Clipping here, on the root element, rather
+       * than on the stack's own narrow box, lets that motion play out
+       * across the real screen width instead of being cut off a few
+       * pixels past the front card's own edge. `clip`, not `hidden`: it
+       * contains the overflow without creating a scroll container of its
+       * own, so the page's own vertical scroll is unaffected.
+       *
+       * Both `html` and `body` need it (confirmed directly: either alone
+       * leaves `document.documentElement.scrollWidth` growing past
+       * `clientWidth` while the exit animation is mid-flight). A `<body>`
+       * with a non-`visible` overflow alone propagates that value to the
+       * viewport and is itself treated as `visible` again (the same quirk
+       * that lets a `<body>` with `overflow: hidden` suppress the page's
+       * scrollbar), so `html` on its own still measures the pre-clip
+       * extent; `html` alone, in turn, does not stop `body`'s own box, the
+       * one that actually contains the overflowing content, from still
+       * being measured as wider than the viewport. Setting it on both
+       * closes that gap.
+       */
+      html {
+        overflow-x: clip;
+      }
+      body {
+        margin: 0;
+        display: grid;
+        place-items: center;
+        min-height: 100dvh;
+        font-family: system-ui;
+        background: #f6f6f7;
+        overflow-x: clip;
+      }
+      /*
+       * The fan spreads to the left of the front card: three cards behind
+       * it at 32px each, the deepest scaled to 0.76, so it reaches
+       * 96 - 0.24 * 300 / 2 = 60px past the card's left edge. A left
+       * margin of that amount centres the whole fan, not just the front
+       * card, and keeps every card on screen at phone widths.
+       */
+      #stack {
+        position: relative;
+        width: 300px;
+        height: 400px;
+        margin-left: 60px;
+      }
+      .card {
+        position: absolute;
+        inset: 0;
+        border-radius: 16px;
+        display: grid;
+        place-items: center;
+        color: white;
+        font-size: 3rem;
+        box-shadow: 0 12px 40px rgb(0 0 0 / 0.25);
+        cursor: grab;
+        user-select: none;
+      }
+      .card:active {
+        cursor: grabbing;
+      }
+      .controls {
+        margin-top: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .readout {
+        min-width: 3.5rem;
+        text-align: center;
+      }
+      button {
+        min-width: 44px;
+        min-height: 44px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        background: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div id="stack"></div>
+      <div class="controls">
+        <button id="prev" aria-label="Previous card">Prev</button>
+        <span class="readout" data-testid="readout">1 / 5</span>
+        <button id="next" aria-label="Next card" data-testid="next-button">Next</button>
+      </div>
+    </div>
+
+    <script type="module">
+      import { createRiffle } from 'https://esm.sh/@rpxl/riffle@0.1'
+
+      const colours = ['#00659d', '#00abbc', '#e2c58a', '#fc8890', '#b35d7f']
+      const stack = document.getElementById('stack')
+
+      const riffle = createRiffle(stack, { count: colours.length, cardWidth: 300, cardHeight: 400 })
+
+      colours.forEach((colour, i) => {
+        const card = document.createElement('div')
+        card.className = 'card'
+        card.style.background = colour
+        card.textContent = String(i + 1)
+        stack.appendChild(card)
+        riffle.registerNode(i, card)
+      })
+
+      const readout = document.querySelector('[data-testid="readout"]')
+
+      document.getElementById('next').addEventListener('click', () => riffle.next())
+      document.getElementById('prev').addEventListener('click', () => riffle.prev())
+
+      riffle.on('change', ({ index }) => {
+        console.log('now showing', index)
+        readout.textContent = `${index + 1} / ${colours.length}`
+      })
+    </script>
+  </body>
+</html>

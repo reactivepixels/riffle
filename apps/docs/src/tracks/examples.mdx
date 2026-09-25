@@ -1,0 +1,20 @@
+---
+title: Examples
+description: Every shipped example for this track, one card each, with source and StackBlitz links.
+---
+
+import { Aside } from '@astrojs/starlight/components'
+import ExampleGallery from '@docs/components/tracks/ExampleGallery.astro'
+
+Real, runnable apps, each proving a specific thing (a build tool, an adapter, an SSR setup, a
+particular option). Every one lives in `examples/` in the repository, is built and typechecked in
+CI, and is the actual source of the code shown throughout this track, never a copy.
+
+<Aside type="note">
+  Source and "Open in StackBlitz" links below point at
+  `github.com/reactivepixels/riffle`, the repository's eventual public home. They will
+  resolve once that repository is public; until then, run an example locally from this
+  checkout (`pnpm --filter <example-name> dev`).
+</Aside>
+
+<ExampleGallery />

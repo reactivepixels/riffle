@@ -1,0 +1,13 @@
+{
+  // `pnpm typecheck` for the docs app: the registries and the plain modules
+  // the track components share. Scoped to .ts files, which tsc can read
+  // (an .astro file needs Astro's own checker); the registries import the
+  // .astro demo wrappers only as values, typed through astro/client.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["astro/client"]
+  },
+  "include": ["src/lib/**/*.ts", "src/components/tracks/**/*.ts"],
+  "exclude": []
+}

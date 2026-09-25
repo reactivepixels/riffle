@@ -1,0 +1,62 @@
+name: Bug report
+description: Something in Riffle is not working the way the docs say it should.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this. A reproduction link is required:
+        without one, a bug report usually just sits until someone else builds the
+        repro anyway.
+
+  - type: input
+    id: reproduction
+    attributes:
+      label: Reproduction link
+      description: >
+        A StackBlitz link showing the bug, forked from
+        https://stackblitz.com/github/reactivepixels/riffle/tree/main/examples/vanilla-basic
+        (pick whichever example is closest to your own setup under
+        github.com/reactivepixels/riffle/tree/main/examples, then reduce your own case
+        down to the smallest version that still shows the problem). A link to your own
+        unrelated project, or no link at all, will get this issue closed with a request
+        to add one.
+      placeholder: https://stackblitz.com/edit/github-reactivepixels-riffle-repro
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you expect, and what did you get instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Exactly what to do in the reproduction link above to see the bug.
+      placeholder: |
+        1. Open the reproduction
+        2. Drag the front card left past halfway
+        3. Release
+    validations:
+      required: true
+
+  - type: input
+    id: package
+    attributes:
+      label: Package and version
+      description: e.g. "@rpxl/riffle 0.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Browser and OS
+      placeholder: e.g. Safari 18 on iOS 18, Chrome 129 on Windows 11
+    validations:
+      required: true

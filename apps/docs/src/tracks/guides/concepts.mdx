@@ -1,0 +1,68 @@
+---
+title: Concepts
+description: The position scalar, and the pure functions that turn it into a pose.
+sidebar:
+  order: 1
+---
+
+import Only from '@docs/components/tracks/Only.astro'
+import PositionScrubber from '@docs/components/PositionScrubber.astro'
+
+Riffle's entire visual state comes from one number: `position`. Everything else, how far each card
+sits behind the front and how much it has shrunk, which card is on top, how far a card has slid off
+the edge, is a pure function of that one scalar plus a card's index.
+
+<Only fw="react, vue">
+
+You rarely call these functions yourself: the engine underneath your stack calls them on every
+frame. They are exported from the core package, `@rpxl/riffle`, for when you want to reason about
+a layout or write your own.
+
+</Only>
+
+## `wrap`: index and position become depth
+
+For a card at `index`, its **depth** relative to the front is:
+
+{/* snippet-ok: conceptual restatement of wrap's signature, not a runnable step; see wrap's own @example in the API reference for real usage */}
+
+```js
+const depth = wrap(index - position, count)
+```
+
+`wrap` folds `index - position` into the range `[-1, count - 1)`. Depth `0` is the front card.
+Depth `-1` is off-screen, about to exit. Positive depth is further back in the fan. Because
+`position` is continuous, not an integer, `depth` moves smoothly as `position` changes, which is
+what makes a drag feel like it tracks the finger instead of snapping between states.
+
+## `fan().pose()`: depth becomes a pose
+
+A layout strategy turns a depth into a `Pose`, a plain object of `main`, `cross`, `rotation`,
+`scale`, `opacity`, and `zIndex`. The default strategy, `fan()`, puts the front card at the origin
+and fans the rest out behind it at decreasing scale:
+
+{/* snippet-ok: conceptual restatement of fan().pose's signature, not a runnable step; `geometry` is undefined here on purpose, unlike the real LayoutStrategy example in the API reference */}
+
+```js
+const layout = fan()
+const pose = createPose()
+layout.pose(depth, geometry, pose)
+```
+
+`pose` is written in place, so each card keeps one pose object for its whole life and the layout
+allocates nothing per frame.
+
+## Try it
+
+Drag the slider. There is no engine running here at all: every time the input fires, this page
+recomputes `wrap` and `fan().pose()` for each card directly and writes the resulting transform,
+opacity, and z-index to the DOM itself, the same three pieces of work the engine does on every
+animation frame.
+
+<PositionScrubber />
+
+Watch the position readout above the slider: it is the same `position` value from the first code
+block, read to two decimal places.
+
+Next: [Gestures](/riffle/_track_/guides/gestures/) covers what a drag does to `position`, and
+[Layouts](/riffle/_track_/guides/layouts/) walks through writing a layout strategy of your own.

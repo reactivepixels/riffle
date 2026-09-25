@@ -1,0 +1,90 @@
+---
+title: Forms inside cards
+description: What happens to focus and keyboard input when the active card holds real form fields, and what inert does to the rest.
+sidebar:
+  order: 4
+---
+
+import Demo from '@docs/components/tracks/Demo.astro'
+import Only from '@docs/components/tracks/Only.astro'
+import Snippet from '@docs/components/tracks/Snippet.astro'
+
+A card is not required to be read-only content. If it holds a real form field, two pieces of engine
+behaviour, both already covered in [Accessibility](/riffle/_track_/guides/accessibility/), are what
+make that work without any extra configuration on your part.
+
+## Live
+
+<Demo name="forms-in-cards" />
+
+## Typing does not move the stack
+
+Riffle checks the keydown's own target before mapping arrow keys, `Home` or `End` to a stack move
+(see [Accessibility](/riffle/_track_/guides/accessibility/#what-riffle-does)). An `<input>`,
+`<textarea>`, `<select>`, or a `contenteditable` element is left alone entirely: the keydown reaches
+the field itself, so the caret moves and characters get typed exactly as they would outside a stack.
+There is nothing to opt into.
+
+## A background card's field is unreachable, not just visually behind
+
+Every card except the active one is `inert` (see [Accessibility](/riffle/_track_/guides/accessibility/)).
+An `<input>` inside a background card cannot receive focus: not by Tab, not by a screen reader's
+virtual cursor, not by a direct `.focus()` call from your own code. Advance the stack in the live demo
+above, then Tab through the page: only the front card's field is ever reachable, and the note you
+typed on a card you have since navigated away from stays exactly where you left it, simply out of
+reach until that card is active again.
+
+## Where focus goes when the active card changes
+
+If a field inside the active card is focused and the stack moves to a new card, focus follows, exactly
+as [Accessibility](/riffle/_track_/guides/accessibility/#what-riffle-does) describes for any card's
+content: it lands on the **new active card's own root element**, never on a field inside it, and never
+the specific field you happened to be in before.
+
+If you want focus to land inside the new card's first field instead, put it there yourself, in your
+own change handler: the engine updates the new card's accessibility state, including its own
+focus-follow onto that card's root, before it fires its own change event, so your own redirect runs
+after the engine's and is what sticks.
+
+<Snippet name="focus-redirect" />
+
+## Each card's own field
+
+<Snippet name="card-fields" />
+
+A few things worth calling out:
+
+<Only fw="vanilla">
+
+- **Each input's `id` is built from the film's own index** (`forms-in-cards-note-${index}`), so
+  `<label for>` genuinely targets the right field even though every card's markup is assembled the
+  same way.
+
+</Only>
+
+<Only fw="react">
+
+- **Each input's `id` is built from `useId()` plus the card's index**, so `<label htmlFor>` genuinely
+  targets the right field even though every card renders the same JSX. A hardcoded `id` would collide
+  across cards, and across multiple stacks on one page.
+
+</Only>
+
+<Only fw="vue">
+
+- **Each input's `id` is built from a per-instance prefix plus the card's index** (Vue has no `useId`
+  equivalent), so `<label for>` genuinely targets the right field even though every card's template
+  is the same.
+
+</Only>
+
+- **The label is real markup, not a placeholder standing in for one.** A `placeholder` disappears the
+  moment you type and most screen readers do not treat it as a substitute for a label; every version
+  of this recipe uses both, a real `<label>` for the accessible name and a `placeholder` for the
+  example prompt text.
+- **Nothing here is Riffle-specific.** The stack does not know or care that its cards contain form
+  fields; every behaviour on this page falls out of the roving-tabindex and `inert` mechanics that
+  apply to any element inside a card, form field or not.
+
+You have reached the end of the recipes. [Examples](/riffle/_track_/examples/) is the full gallery if
+you want to see every shipped example in one place.

@@ -1,0 +1,14 @@
+---
+// The Vue forms-in-cards demo: examples/vue-recipes' own FormCardsStack.vue,
+// the same file the Forms inside cards recipe's snippets come from. It
+// assumes the same `.stage--fan` room vue-recipes' own App.vue shell
+// reserves for it, and that app's own dark page, so this wrapper gives it
+// both: see .recipe-demo-stage and .recipe-demo-stage--fan in custom.css.
+// See src/lib/track-demos.ts for why each island has a wrapper like this
+// one.
+import FormCardsStack from '../../../../../../examples/vue-recipes/src/FormCardsStack.vue'
+---
+
+<div class="recipe-demo-stage recipe-demo-stage--fan not-content">
+  <FormCardsStack client:load />
+</div>

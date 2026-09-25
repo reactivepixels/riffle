@@ -1,0 +1,102 @@
+---
+title: Migration from vue-card-stack
+description: Map every vue-card-stack prop to its Riffle equivalent, with a worked before and after.
+only: [vue]
+---
+
+import { Code } from '@astrojs/starlight/components'
+import {
+  legacyUsageComponent,
+  legacyUsageTemplate,
+  vueMigrationAfter,
+  vueScaleStepConversion,
+} from '@docs/lib/snippets'
+
+[vue-card-stack](https://github.com/rodleviton/vue-card-stack) is unmaintained. Riffle is
+its spiritual successor: framework-agnostic at the core, with the same card-and-slot
+shape you already know from Vue.
+
+## Prop mapping
+
+| `vue-card-stack`                                     | Riffle                                                                    |
+| ---------------------------------------------------- | ------------------------------------------------------------------------- |
+| `cards`                                              | `cards`                                                                   |
+| `cardWidth`, `cardHeight`                            | `cardWidth`, `cardHeight` (now also accept `'auto'`)                      |
+| `sensitivity`                                        | `threshold`                                                               |
+| `maxVisibleCards`                                    | `maxVisible`                                                              |
+| `scaleMultiplier`                                    | `layout: fan({ scaleStep })`                                              |
+| `speed`                                              | `spring` (`'snappy'`, `'smooth'`, `'stiff'`, or `{ stiffness, damping }`) |
+| `stackWidth`, `paddingHorizontal`, `paddingVertical` | CSS on the container                                                      |
+| `#card="{ card }"` slot                              | unchanged                                                                 |
+
+### `scaleMultiplier` to `fan({ scaleStep })`
+
+`vue-card-stack` turned `scaleMultiplier` into a per-card scale step of
+`(1 - scaleMultiplier) / 10`, and each card behind the front one shrank by that step:
+`scale = 1 - step * depth`. `fan()` uses the same shape, `scale = 1 - scaleStep * depth`,
+so the conversion is:
+
+```
+scaleStep = (1 - scaleMultiplier) / 10
+```
+
+The shipped default was `scaleMultiplier: 0.5`, which gives `scaleStep = (1 - 0.5) / 10
+= 0.05`. Riffle's own default is `0.08`, a steeper fan, so pass the converted value to
+keep the old look:
+
+<Code code={vueScaleStepConversion} lang="ts" title="scaleStepConversion.ts" />
+
+The legacy README's props table lists `scaleMultiplier`'s default as `0.75`, but the
+published `vue-card-stack@1.3.1` package actually defaults to `0.5`, so if you never set
+the prop yourself, use `0.05` here, not the `0.025` the README's table would imply.
+
+Define `layout` once, outside the component or at the top of `<script setup>`, and pass
+it as `:layout="layout"`: it is compared by identity, so a new `fan()` on every render
+reaches the engine as a change every time.
+
+### `sensitivity` to `threshold`: the fraction means a different distance
+
+`vue-card-stack`'s `sensitivity` is the fraction of `cardWidth + paddingHorizontal` a
+card must travel before a drag commits. Riffle's `threshold` is the fraction of one
+step's travel, which for the default fan layout is `cardWidth + gap`. Both are a
+fraction of "cardWidth plus some spacing value," so if you carry `paddingHorizontal`'s
+old value over as Riffle's `gap`, `sensitivity` becomes `threshold` unchanged, same
+number. If the two spacing values differ, convert with:
+
+```
+threshold = sensitivity * (cardWidth + paddingHorizontal) / (cardWidth + gap)
+```
+
+using your old `cardWidth` and `paddingHorizontal` and your new `gap`. With both
+libraries' defaults (`cardWidth: 300` in each, `paddingHorizontal: 20` in
+`vue-card-stack`, `gap: 20` in Riffle), the two step sizes are already the same 320
+pixels, so `sensitivity: 0.25` and `threshold: 0.25` behave identically without
+converting anything.
+
+## Before: vue-card-stack
+
+<Code code={legacyUsageComponent} lang="js" title="component (legacy)" />
+
+<Code code={legacyUsageTemplate} lang="html" title="template (legacy)" />
+
+## After: Riffle
+
+The same example translated directly: the same cards, the same `#card` slot, and the
+component renamed from `vue-card-stack` to `Riffle`. The slot's `card` is typed straight
+from `:cards="cards"`, so no cast is needed to read `card.background`.
+
+<Code code={vueMigrationAfter} lang="vue" title="LegacyMigration.vue" />
+
+This keeps Riffle's defaults, which differ from the legacy ones in two places:
+`maxVisible` is 4 (legacy `maxVisibleCards` was 10), and the fan's `scaleStep` is 0.08
+(the shipped legacy default converts to 0.05, above). Pass `:max-visible` and `:layout` to match
+the old look exactly.
+
+## Install
+
+```
+npm uninstall vue-card-stack
+npm install @rpxl/riffle
+```
+
+Next: [Adapter details](/riffle/_track_/guides/adapter-details/) documents every export the snippet above uses.

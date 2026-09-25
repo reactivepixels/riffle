@@ -1,0 +1,48 @@
+---
+/**
+ * Starlight's MarkdownContent, overridden (see astro.config.mjs) to tag a
+ * framework track page's indexed content for Pagefind search.
+ *
+ * MarkdownContent renders inside `<main data-pagefind-body>` (Page.astro),
+ * so anything emitted here is part of what Pagefind indexes for the page,
+ * unlike a Head override, which renders outside that element and would
+ * never be seen by the indexer at all.
+ *
+ * A hidden marker element carries two independent Pagefind attributes:
+ * - `data-pagefind-filter="framework:<fw>"` registers this page under the
+ *   `framework` facet with the raw track key (`vanilla`, `react`, `vue`),
+ *   which Search.astro's override reads back to pre-filter results to the
+ *   current track.
+ * - `data-pagefind-meta="framework:<Label>"` records the same page's
+ *   human-readable track label (`TRACK_LABELS`); Pagefind's default result
+ *   UI shows any unrecognised meta key as a small tag per result
+ *   ("Framework: React"), the visible per-result track label, shown
+ *   even where filtering is unavailable or turned off.
+ *
+ * `hidden` only affects rendering in a browser: Pagefind reads the built
+ * HTML directly, not a live DOM, so the attribute value is indexed exactly
+ * the same whether or not the element is visible.
+ *
+ * Pages outside the tracks (the landing page, `/choose/`, and so on) have
+ * no `framework` in their frontmatter, so they render through unchanged
+ * with no marker and no filter/meta, exactly like Starlight's own default.
+ */
+import Default from '@astrojs/starlight/components/MarkdownContent.astro'
+import { TRACK_LABELS } from '../../../scripts/lib/tracks.mjs'
+import { isFramework } from './framework'
+
+const { framework } = Astro.locals.starlightRoute.entry.data
+---
+
+<Default>
+  {
+    isFramework(framework) && (
+      <span
+        hidden
+        data-pagefind-filter={`framework:${framework}`}
+        data-pagefind-meta={`framework:${TRACK_LABELS[framework]}`}
+      />
+    )
+  }
+  <slot />
+</Default>

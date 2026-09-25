@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Riffle E2E fixture: image and link cards</title>
+    <style>
+      body {
+        margin: 0;
+        display: grid;
+        place-items: center;
+        min-height: 100dvh;
+        font-family: system-ui;
+        background: #f6f6f7;
+      }
+      #stack {
+        position: relative;
+        width: 300px;
+        height: 400px;
+      }
+      .card {
+        position: absolute;
+        inset: 0;
+        border-radius: 16px;
+        display: grid;
+        place-items: center;
+        background: #00659d;
+        color: white;
+        box-shadow: 0 12px 40px rgb(0 0 0 / 0.25);
+        cursor: grab;
+        user-select: none;
+      }
+      .card:active {
+        cursor: grabbing;
+      }
+      .card img {
+        width: 160px;
+        height: 160px;
+        pointer-events: auto;
+      }
+      .card a {
+        color: white;
+        font-size: 1.1rem;
+        margin-top: 1rem;
+      }
+      .readout {
+        margin-top: 1.5rem;
+        text-align: center;
+        font-family: system-ui;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      A real focusable before and after the
+      stack, so a11y.spec.ts's Tab loop actually has somewhere else on the
+      page to move to. Without these, the fixture had exactly one focusable
+      element outside a card at a time (the active card itself), so Tab
+      forward or back could never leave the stack, and a loop that never
+      leaves the stack cannot exercise wrap-around: it proves nothing about
+      whether Tab escaping the stack in either direction stays clear of a
+      background card.
+    -->
+    <button id="before-stack" type="button">Before stack</button>
+    <div>
+      <div id="stack"></div>
+      <p class="readout" data-testid="readout">1 / 3</p>
+    </div>
+    <button id="after-stack" type="button">After stack</button>
+
+    <!--
+      Not the CDN import (see vanilla-basic and interaction.spec.ts's route
+      handler): this fixture is served locally by e2e/serve.ts, which also
+      exposes packages/core/dist under /core-dist/, so it can import the
+      real workspace build directly with no routing needed.
+    -->
+    <script type="module">
+      import { createRiffle } from '/core-dist/index.js'
+
+      const stack = document.getElementById('stack')
+      const readout = document.querySelector('[data-testid="readout"]')
+      const count = 3
+
+      const riffle = createRiffle(stack, { count, cardWidth: 300, cardHeight: 400 })
+
+      for (let i = 0; i < count; i += 1) {
+        const card = document.createElement('div')
+        card.className = 'card'
+        // A stable per-card index, set here
+        // directly rather than by a11y.ts, so a11y.spec.ts can identify
+        // which card a focused element belongs to independent of anything
+        // a11y.ts itself writes (role, aria-roledescription, aria-label,
+        // tabindex, inert): an identity check that relied on one of those
+        // would stop meaning anything the moment that exact attribute broke,
+        // which is precisely the failure mode under test. Matches the
+        // `data-riffle-card` convention the React and Vue adapters already
+        // use (packages/core/src/react/useRiffle.ts, packages/core/src/vue/directives.ts).
+        card.dataset.riffleCard = String(i)
+        // Amendment: a card containing an <img> and an <a> drags normally
+        // in every browser. Only card 0 carries them; the other two are
+        // plain colour cards so the fixture stays minimal.
+        if (i === 0) {
+          const img = document.createElement('img')
+          img.src =
+            'data:image/svg+xml;utf8,' +
+            encodeURIComponent(
+              '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><rect width="160" height="160" fill="%23ffffff" opacity="0.25"/></svg>',
+            )
+          img.alt = 'Fixture artwork'
+          card.appendChild(img)
+          const link = document.createElement('a')
+          link.href = '#nowhere'
+          link.textContent = 'A link inside the card'
+          card.appendChild(link)
+        } else {
+          const label = document.createElement('span')
+          label.textContent = String(i + 1)
+          label.style.fontSize = '3rem'
+          card.appendChild(label)
+        }
+        // A real <button> control on every
+        // card, so a11y.spec.ts can assert that Tab and a direct .focus()
+        // call can never reach a control on a background (inert) card,
+        // only on the one card that is currently active.
+        const button = document.createElement('button')
+        button.type = 'button'
+        button.dataset.testid = `card-action-${i}`
+        button.textContent = `Action ${i + 1}`
+        card.appendChild(button)
+        stack.appendChild(card)
+        riffle.registerNode(i, card)
+      }
+
+      riffle.on('change', ({ index }) => {
+        readout.textContent = `${index + 1} / ${count}`
+      })
+    </script>
+  </body>
+</html>

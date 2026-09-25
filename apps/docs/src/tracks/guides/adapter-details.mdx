@@ -1,0 +1,172 @@
+---
+title: Adapter details
+description: How options reach the engine between renders, refs and handles, and server rendering.
+only: [react, vue]
+sidebar:
+  order: 6
+---
+
+import Only from '@docs/components/tracks/Only.astro'
+
+<Only fw="react">
+
+The rest of the React adapter, after [Getting Started](/riffle/_track_/getting-started/): what
+`<Riffle>` passes through, the `riffleRef` handle, how option changes reach the engine, refs, and
+server components.
+
+If you also import from the core directly, for example `fan()` to tune the layout, no extra
+install is needed: both entries ship in the same package.
+
+</Only>
+
+<Only fw="vue">
+
+The rest of the Vue adapter, after [Getting Started](/riffle/_track_/getting-started/): `<Riffle>`
+and its typed slot, the template ref, how option changes reach the engine, the directives outside
+`<script setup>`, and server rendering.
+
+If you also import from the core directly, for example `fan()` to tune the layout, no extra
+install is needed: both entries ship in the same package.
+
+</Only>
+
+<Only fw="react">
+
+## `<Riffle>`
+
+Any prop that is not one of `<Riffle>`'s own (`cards`, `children`, `getKey`, `onChange`,
+`riffleRef`, `cardClassName`) and not a Riffle option goes to the root element: `id`,
+`aria-label`, `data-*` and so on, with `style` and `className` merged into what the adapter sets.
+
+`ref` on `<Riffle>` reaches the root element, under React 18 and React 19 alike: the component is
+wrapped in `forwardRef` and composes your ref with its own.
+
+## `riffleRef`
+
+`riffleRef` receives a `RiffleInstance`: `next`, `prev`, `goTo`, `on`, `instance` (the live
+engine, or null while unmounted), `activeIndex` and `state` (the current snapshot). Reading
+`activeIndex` or `state` from the ref does not re-render anything: use `onChange` for that, or
+`useRiffle` with `useRiffleState` below.
+
+## Headless: `useRiffle`
+
+`useRiffle(options)` creates one engine per component instance and returns `getRootProps` and
+`getCardProps`, a pair of prop getters that wire the engine to whatever markup you render, plus
+the imperative handle (`next`, `prev`, `goTo`, `subscribe`, `getSnapshot`, `on`, `instance`).
+[Getting Started](/riffle/_track_/getting-started/#headless-useriffle-and-userifflestate) shows a
+stack built this way.
+
+## Options between renders
+
+Options are compared with the previous render's, and only what changed reaches the engine's
+`update()`. `spring` and `rotation` compare shallowly, so an inline object literal with the same
+values is not a change. Every other option, `layout` and `getLabel` included, compares by
+identity: pass a stable reference (module scope, `useMemo`, or a `useState` initializer) rather
+than a fresh object or function on every render, or every render calls `update()`. Only two
+changes rebuild the engine instead, keeping its position: a new `axis`, and `cardWidth` or
+`cardHeight` switching between a number and `'auto'`.
+
+`startIndex` is read once, when the engine is first built. Changing it later does nothing: call
+`goTo` to move.
+
+## Refs
+
+`getCardProps(index, props)` wants a stable ref. If the ref you pass changes identity on every
+render, React detaches and reattaches it, which unregisters and re-registers that card with the
+engine every render. Pass a ref created once instead.
+
+The root ref from `getRootProps` is safe to pass inline. Detaching it does not tear the engine
+down at once: teardown waits one microtask, and a re-attach to the same element before then
+cancels it. An inline ref callback, recreated every render, produces exactly that detach and
+reattach within one commit, so it changes nothing. The same holds for React's StrictMode, which
+attaches, detaches and reattaches every ref at mount.
+
+## `useRiffleState`
+
+`useRiffleState` subscribes to one slice of the snapshot instead of the whole thing, so a
+component reading only `activeIndex` does not re-render when `isDragging` flips.
+
+## Server components
+
+The package build begins with `'use client'`, so frameworks with React Server Components treat it
+as client code. Render `<Riffle>` from a client component of your own: its `children` is a
+function, and a server component cannot pass one across.
+
+</Only>
+
+<Only fw="vue">
+
+## `<Riffle>`
+
+The drop-in component: pass `cards` and a `#card="{ card, index }"` slot, and it wires up
+`useRiffle` for you. Every Riffle option is a prop, plus `getKey` for lists that reorder and
+`cardClassName` for a class on every card element. Attributes that are not props, such as `id`,
+`class`, `style` or `aria-label`, fall through to the root element as usual in Vue.
+
+In a `.vue` template (or JSX), the slot's `card` is typed by whatever array you bind to `cards`,
+the same way a `<script setup generic="T">` component's slot would be: `:cards="films"` types
+`#card="{ card }"`'s `card` as `films`'s element type, not `unknown`. This inference comes from
+Vue's `DefineSetupFnComponent` generic constructor type, cast onto the component the adapter
+builds. That type first ships in Vue 3.4.20, which is why the adapter requires `vue@^3.4.20`.
+
+That inference is a template-compiler feature, so it only reaches a template. A component that
+builds `<Riffle>` with `h()` instead does not get it: `h()`'s own typing does not carry a
+component's generic through a call the way the template compiler does, so a slot passed to `h()`
+gets no inferred type for `card` at all (an unannotated one is an `implicit any` error under
+strict settings). Annotate the slot callback's parameter yourself, typically `unknown`, then
+narrow `card` with a cast.
+
+## Template ref
+
+A template ref on `<Riffle>` receives a `RiffleInstance`: `next`, `prev`, `goTo`, `on`,
+`instance` (the live engine, or null while unmounted), `activeIndex` and `state` (the current
+snapshot). `activeIndex` and `state` are reactive when read in a template or a `computed`.
+
+## `useRiffle`
+
+`useRiffle(options)` accepts a ref, a getter, or a plain options object, and returns `state`,
+`activeIndex`, the two directives, and the imperative handle (`next`, `prev`, `goTo`, `on`,
+`instance`).
+
+## Options between renders
+
+Options are compared with the previous set, and only what changed reaches the engine's
+`update()`. `spring` and `rotation` compare shallowly, so a fresh object with the same values is
+not a change. Every other option, `layout` and `getLabel` included, compares by identity, so
+define them once (module scope, or once in `setup`) rather than creating a new object or function
+each time the getter runs. Only two changes rebuild the engine instead, keeping its position: a
+new `axis`, and `cardWidth` or `cardHeight` switching between a number and `'auto'`.
+
+`startIndex` is read once, when the engine is first built: call `goTo` to move later.
+
+## The directives
+
+Attach `v-riffle-root` to the stack container and `v-riffle-card="index"` to each card. In
+`<script setup>`, destructure `vRiffleRoot` and `vRiffleCard` from `useRiffle` at the top level,
+under exactly those names: `<script setup>` exposes a top-level binding named `vSomething` to its
+template as the directive `v-something`, and that is the only reason the template can see them.
+Renamed, or kept inside an object, they do not resolve.
+
+Outside `<script setup>`, a template cannot use a setup binding as a directive, and a component's
+`directives` option is shared by every instance, so it cannot hold one engine per instance. Use a
+render function instead, and pass the directives to `withDirectives`: either the pair `useRiffle`
+returns, or a pair you build with `createRootDirective` and `createCardDirective` from a handle
+you create yourself with `createAdapterHandle` from `@rpxl/riffle`, as
+[`examples/vue-movie-stack/src/RenderFunctionStack.ts`](https://github.com/reactivepixels/riffle/blob/main/examples/vue-movie-stack/src/RenderFunctionStack.ts)
+does.
+
+Both directives are element-aware: Vue unmounts a removed card synchronously during patch but runs
+`updated` hooks after it, so a per-index ref callback would have unregistered whichever card had
+just moved into that slot instead of the one that left.
+
+## Server rendering
+
+During server rendering the directives render the root with `display: grid` and
+`data-riffle-root`, and each card with its grid cell and `data-riffle-card`, so the stack is
+already stacked before hydration. On the server that `display: grid` is unconditional, where on
+the client it only applies when you have not already set an inline `display` yourself.
+
+Moving off the legacy `vue-card-stack` package? See
+[Migration from vue-card-stack](/riffle/_track_/migration/).
+
+</Only>

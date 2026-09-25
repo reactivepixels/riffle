@@ -1,0 +1,11 @@
+---
+// The Vue first-stack demo: the README quickstart itself,
+// examples/vue-movie-stack/src/Quickstart.vue, given the example's films.
+// See src/lib/track-demos.ts for why each island has a wrapper like this one.
+import Quickstart from '../../../../../../examples/vue-movie-stack/src/Quickstart.vue'
+import { films } from '../../../../../../examples/vue-movie-stack/src/films'
+---
+
+<div class="quickstart-demo not-content">
+  <Quickstart client:load films={films.map(({ title }) => ({ title }))} />
+</div>

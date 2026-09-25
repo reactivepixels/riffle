@@ -1,0 +1,49 @@
+name: Feature request
+description: Propose something Riffle does not do yet.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing, a quick look at the
+        [docs](https://reactivepixels.github.io/riffle) and the
+        [good first issues](https://github.com/reactivepixels/riffle/labels/good%20first%20issue)
+        is worth it: a Svelte adapter, a Solid adapter, a web component, and a second
+        built-in layout are already scoped and waiting for someone to pick up.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve
+      description: What are you trying to do that Riffle does not support today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed API or behavior
+      description: >
+        Sketch the shape you have in mind: a new option, a new event, a new adapter, a
+        new layout. Code is welcome.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What have you tried with the existing API, and why did it fall short?
+
+  - type: checkboxes
+    id: fit
+    attributes:
+      label: Fit with Riffle's own scope
+      description: >
+        Riffle is a cycling card stack (a fixed set of cards that cycle through stack
+        positions), not a swipe-to-dismiss deck. A feature that only makes sense for a
+        Tinder-style discard flow (undo, permanent removal, a like/nope state) is out of
+        scope and will be closed as such.
+      options:
+        - label: This fits a cycling stack, not a swipe-to-dismiss deck
+          required: true

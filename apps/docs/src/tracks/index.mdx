@@ -1,0 +1,26 @@
+---
+title: Overview
+description: What Riffle is, and how to install it for your framework.
+---
+
+import Demo from '@docs/components/tracks/Demo.astro'
+import Only from '@docs/components/tracks/Only.astro'
+import Snippet from '@docs/components/tracks/Snippet.astro'
+
+Riffle is a cycling card stack. Cards fan out behind the front one and cycle in place: drag the
+front card away and the next one comes forward, and nothing is ever swiped away or discarded.
+
+<Demo name="hero" />
+
+## Install
+
+<Snippet name="install" />
+
+<Only fw="vue">
+
+Riffle for Vue requires Vue 3.4.20 or later.
+
+Coming from `vue-card-stack`? [Migration from vue-card-stack](/riffle/_track_/migration/) maps every
+prop to its Riffle equivalent, with a worked before and after.
+
+</Only>

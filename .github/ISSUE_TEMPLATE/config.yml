@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://reactivepixels.github.io/riffle
+    about: Guides, API reference, and the migration guide from vue-card-stack.
+  - name: Questions and discussion
+    url: https://github.com/reactivepixels/riffle/discussions
+    about: Ask a usage question, or discuss an idea before writing up a feature request.

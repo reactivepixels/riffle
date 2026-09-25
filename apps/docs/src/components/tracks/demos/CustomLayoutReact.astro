@@ -1,0 +1,12 @@
+---
+// The React custom-layout demo: examples/react-recipes' own
+// CustomLayoutStack, the same file the Layouts guide shows. See
+// src/lib/track-demos.ts for why each island has a wrapper like this one.
+// client:load, not client:visible: the demo sits below the fold, and it must
+// be live whenever the page is, not only once scrolled to.
+import CustomLayoutStack from '../../../../../../examples/react-recipes/src/CustomLayoutStack'
+---
+
+<div class="demo-clip not-content">
+  <CustomLayoutStack client:load />
+</div>

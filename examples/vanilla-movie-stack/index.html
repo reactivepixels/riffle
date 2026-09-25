@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Riffle: Vanilla movie stack</title>
+    <style>
+      /*
+       * Page-level chrome only: html/body resets and the page background.
+       * src/app.css, loaded by src/main.ts, never touches these (every rule
+       * there is nested under .vms-root) so main.ts's mount() stays safe to
+       * import into a page that already has its own body and global styles,
+       * such as a docs site.
+       */
+      * {
+        box-sizing: border-box;
+      }
+
+      /*
+       * The card animating out toward the exit slot, and the fanned cards
+       * behind the front one, legitimately extend past the stack's own box
+       * while a drag or a settle is in progress: that is what the stack is
+       * meant to look like mid-motion, not a bug. Clipping here, on the root
+       * element, rather than on the stack's own narrow box, lets that motion
+       * play out across the real screen width instead of being cut off a
+       * few pixels past the front card's own edge. `clip`, not `hidden`: it
+       * contains the overflow without creating a scroll container of its
+       * own, so the page's own vertical scroll is unaffected.
+       *
+       * Both `html` and `body` need it (confirmed directly, the same way
+       * examples/react-movie-stack/src/app.css's own comment describes):
+       * `html` alone still measures the pre-clip extent, and `body` alone
+       * does not stop `html`'s own box from being measured wider than the
+       * viewport. Setting it on both closes that gap.
+       */
+      html {
+        overflow-x: clip;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(ellipse at 50% 20%, #1c1c26, #121218 70%);
+        overflow-x: clip;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="vanilla-movie-stack-root"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

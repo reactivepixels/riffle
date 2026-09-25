@@ -1,0 +1,14 @@
+---
+// The Vue infinite-feed demo: examples/vue-recipes' own InfiniteFeed.vue,
+// the same file the Infinite feed recipe's snippets come from. Self-styled
+// in its own <style scoped>, but (like vue-recipes' own App.vue shell)
+// leaves the room its fan needs, and its own dark-page contrast, to this
+// wrapper: see .recipe-demo-stage and .recipe-demo-stage--fan in
+// custom.css. See src/lib/track-demos.ts for why each island has a wrapper
+// like this one.
+import InfiniteFeed from '../../../../../../examples/vue-recipes/src/InfiniteFeed.vue'
+---
+
+<div class="recipe-demo-stage recipe-demo-stage--fan not-content">
+  <InfiniteFeed client:load />
+</div>

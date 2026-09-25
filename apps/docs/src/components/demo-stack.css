@@ -1,0 +1,123 @@
+/*
+ * Shared by ReactStack.tsx and VueStack.ts: one stylesheet for both live
+ * demo islands so the two frameworks read as the same demo, not two
+ * differently themed ones. [data-riffle-card] is scoped under .demo-stack
+ * (see below) and set by both adapters (React's getCardProps, Vue's
+ * v-riffle-card directive), so styling by that attribute reaches the
+ * registered card wrapper in either framework without a framework-specific
+ * class prop.
+ *
+ * The .demo-row element in index.mdx's "One engine, three frameworks"
+ * section carries a "not-content" class: see custom.css's top-of-file
+ * comment for why every custom component root on this site does. Do not
+ * remove it from the markup.
+ *
+ * Neither .demo-row nor .demo-stack ever clips: the card animating out
+ * toward the exit slot, and the fanned cards behind the front one, both
+ * legitimately extend past the Riffle root's own box while a drag or a
+ * settle is in progress, and that motion needs the full content column to
+ * play out across. See .demo-clip below, and the Getting Started page's
+ * "Layout" note.
+ */
+
+.demo-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 3rem;
+  margin: 1.5rem 0 2rem;
+  /*
+   * Clips at the row, which spans the full content column width, so a
+   * pair of side-by-side islands (index.mdx) never paints over
+   * the sidebar or the table of contents. `clip`, not `hidden`: it
+   * contains the overflow without creating a scroll container, so the
+   * page's own vertical scroll is unaffected.
+   */
+  overflow-x: clip;
+}
+
+.demo-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+/*
+ * For a solo island (adapters/react.mdx, adapters/vue.mdx), a wrapper with
+ * this class around the island stands in for .demo-row: same clip, same
+ * reasoning, sized to the content column instead of split between two
+ * islands.
+ */
+.demo-clip {
+  overflow-x: clip;
+}
+
+.demo-stack__label {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sl-color-gray-3, #666);
+}
+
+.demo-stack [data-riffle-card] {
+  cursor: grab;
+}
+
+.demo-stack [data-riffle-card]:active {
+  cursor: grabbing;
+}
+
+.demo-stack [data-riffle-card]:focus-visible {
+  outline: 2px solid var(--sl-color-accent, #8b5cf6);
+  outline-offset: 4px;
+  border-radius: 16px;
+}
+
+.demo-stack__poster {
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  box-shadow: 0 16px 36px rgb(0 0 0 / 28%);
+}
+
+.demo-stack__controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.demo-stack__controls button {
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 999px;
+  border: 1px solid var(--sl-color-gray-5, #ccc);
+  background: var(--sl-color-bg, #fff);
+  color: var(--sl-color-text, #111);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.demo-stack__title {
+  min-width: 9rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--sl-color-gray-2, #333);
+}
+
+/*
+ * Before an island hydrates (Astro keeps the `ssr` attribute on its
+ * <astro-island> until then), the engine has not positioned anything yet,
+ * so every card sits in the same grid cell, the last one painted on top and
+ * every card's shadow stacked into one heavy one. Showing only the first
+ * card until then gives the stable pre-hydration state: that card is the
+ * one the engine puts in front, at that same spot, so hydrating only fans
+ * the rest out behind it, with nothing jumping.
+ */
+astro-island[ssr] .demo-stack [aria-roledescription='carousel'] > * + * {
+  visibility: hidden;
+}

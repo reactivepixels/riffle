@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Riffle: infinite feed recipe</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        overflow-x: clip;
+      }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(ellipse at 50% 20%, #1c1c26, #121218 70%);
+        overflow-x: clip;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="infinite-feed-recipe-root"></div>
+    <script type="module" src="/src/infinite-feed.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Riffle: custom layout</title>
+  </head>
+  <body>
+    <div class="page">
+      <div class="stage">
+        <div id="stack" aria-label="Swatches"></div>
+      </div>
+      <div class="controls">
+        <button id="prev" class="control" type="button" aria-label="Previous card">
+          <span aria-hidden="true">&#8249;</span>
+        </button>
+        <span id="readout" class="readout"></span>
+        <button id="next" class="control" type="button" aria-label="Next card">
+          <span aria-hidden="true">&#8250;</span>
+        </button>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

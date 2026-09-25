@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node", "@playwright/test"],
+    // tracks.spec.ts imports FRAMEWORKS/trackPath/etc. straight from
+    // apps/docs/scripts/lib/tracks.mjs (and buildRedirects/loadApiRedirects
+    // from redirects.mjs) rather than a hand-copied list, so the enumerated
+    // redirect map and switcher targets can never drift from the site's own.
+    "allowJs": true
+  },
+  "include": ["specs", "utils", "*.ts"]
+}

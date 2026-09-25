@@ -1,0 +1,20 @@
+{
+  "name": "custom-layout",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A hand-written LayoutStrategy that fans cards along an arc, with no framework.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@rpxl/riffle": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^8.3.0"
+  }
+}

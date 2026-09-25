@@ -1,0 +1,69 @@
+---
+title: Infinite feed
+description: Growing the card count while the stack is live, with a growth rule you can unit test on its own.
+sidebar:
+  order: 1
+---
+
+import Demo from '@docs/components/tracks/Demo.astro'
+import Only from '@docs/components/tracks/Only.astro'
+import Snippet from '@docs/components/tracks/Snippet.astro'
+
+Riffle has no built-in concept of pagination: `count` is just how many cards are currently
+registered. An infinite feed is `count` growing while the stack stays live, driven from outside the
+engine the same way any other state change would be.
+
+## Live
+
+<Demo name="infinite-feed" />
+
+Drag toward the end, or press the arrow keys: once the active card is within two of the last one, a
+simulated fetch starts, "Loading more" shows, and eight freshly generated cards land a moment later.
+
+## The growth rule, isolated
+
+The actual decision of "should we fetch another page yet" is a plain function of three numbers, with
+no framework import and no timers. It has its own unit tests for exactly that reason: a rule this
+easy to get subtly wrong (fire once, not on every render; not while already loading; not past the
+end) is worth testing in isolation from whatever calls it.
+
+<Snippet name="growth" />
+
+## Wiring it to the stack
+
+<Only fw="vanilla">
+
+`checkGrowth()` runs after mount, after every `change` event, and again once each page lands, the
+same moments a framework effect would re-run at. It reads the engine's own
+`riffle.getSnapshot().activeIndex`, registers each new card, and grows the count with
+`riffle.setCount()`.
+
+</Only>
+
+<Only fw="react">
+
+An effect with `[activeIndex, cards.length]` as its dependency array calls `shouldGrow` on every
+render those two values change, and appends a page to React state when it says yes. The effect reads
+`isLoadingRef`, not the `isLoading` state value: putting `isLoading` in the dependency array would
+make the effect's own `setIsLoading(true)` re-run itself before the fetch lands, cancelling nothing
+in particular but firing the check twice for one approach to the end.
+
+</Only>
+
+<Only fw="vue">
+
+A `watch` on `[activeIndex, () => cards.value.length]`, with `immediate: true` for the initial mount,
+calls `shouldGrow` whenever either of those changes. `isLoading` is read inside the callback but
+deliberately left out of the watched sources, so the callback's own `isLoading.value = true` does not
+retrigger the watcher.
+
+</Only>
+
+<Snippet name="growth-wiring" />
+
+Every card carries a stable id (`getKey` / `get-key`), so growth never disturbs a card already on
+screen, and `bounds: 'clamp'` makes "the end" a real, fixed thing to approach rather than a loop that
+never runs out.
+
+Next: [Clamp with controls](/riffle/_track_/recipes/clamp-with-controls/) covers the other end of the
+count question, a stack that does not wrap.

@@ -1,0 +1,13 @@
+---
+// The React infinite-feed demo: examples/react-infinite-feed's own App, the
+// same file the Infinite feed recipe's snippets come from. Self-styled
+// inline (no dependency on that app's own stylesheet) and reserves its own
+// fan room, so only the dark stage (see .recipe-demo-stage in custom.css,
+// for contrast against Starlight's own light theme) is added here. See
+// src/lib/track-demos.ts for why each island has a wrapper like this one.
+import { App } from '../../../../../../examples/react-infinite-feed/src/App'
+---
+
+<div class="recipe-demo-stage not-content">
+  <App client:load />
+</div>

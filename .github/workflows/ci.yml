@@ -1,0 +1,184 @@
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      # Before typecheck: the packages typecheck against their own source, but
+      # nextjs-app-router and nuxt-example resolve the adapters through their built
+      # dist, so a clean checkout has nothing for those two to typecheck
+      # against until this has run.
+      - run: pnpm build
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm --filter @rpxl/riffle check-exports
+      - run: pnpm --filter @rpxl/riffle exec size-limit
+      - run: pnpm --filter @rpxl/riffle test:bench
+      - run: pnpm --filter @rpxl/riffle test:gc
+      - run: node scripts/check-prose.mjs
+      - run: node scripts/check-agnostic.mjs
+      - run: node scripts/check-snippets.mjs
+      - run: node scripts/check-internal-refs.mjs
+      - run: pnpm --filter @rpxl/docs check:api
+      - run: pnpm --filter @rpxl/docs build
+      # Every internal link in the built site, component-rendered ones and
+      # redirect stubs included, which the build's own link validator
+      # cannot see (see scripts/check-built-links.mjs).
+      - run: node scripts/check-built-links.mjs
+      # A component that throws while the site is prerendered leaves an empty
+      # island and a green build (see scripts/check-built-islands.mjs).
+      - run: node scripts/check-built-islands.mjs
+      - run: pnpm --filter react-movie-stack build
+      - run: pnpm --filter vue-movie-stack build
+      - run: pnpm --filter vertical-stack build
+      - run: pnpm --filter custom-layout build
+      - run: pnpm --filter vue-clamp-controls build
+      - run: pnpm --filter react-infinite-feed build
+      - run: pnpm --filter react-recipes build
+      - run: pnpm --filter vue-recipes build
+      - run: pnpm --filter vanilla-movie-stack build
+      - run: pnpm --filter vanilla-recipes build
+      - run: pnpm --filter nextjs-app-router build
+      - run: pnpm --filter nextjs-app-router check:ssr
+      - run: pnpm --filter nuxt-example build
+      - run: pnpm --filter nuxt-example check:ssr
+
+  react-matrix:
+    # The peer range (packages/core/package.json) promises both majors;
+    # `verify` above only ever runs against whatever is in the lockfile
+    # (React 19). Swaps are a throwaway `add` in the checkout this job
+    # discards afterward, never a lockfile commit.
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        react: ['18', '19']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Install React ${{ matrix.react }}
+        run: pnpm --filter @rpxl/riffle add -D react@${{ matrix.react }} react-dom@${{ matrix.react }} @types/react@${{ matrix.react }} @types/react-dom@${{ matrix.react }}
+      - run: pnpm --filter @rpxl/riffle exec vitest run --config vitest.react.config.ts
+      - run: pnpm --filter @rpxl/riffle typecheck
+
+  vue-matrix:
+    # 3.4.20, not 3.4.0: DefineSetupFnComponent (the generic drop-in
+    # component's type, packages/core/src/vue/Riffle.ts) only exists from
+    # 3.4.20 on, so the peer floor in packages/core/package.json matches
+    # that. @vue/test-utils is pinned per
+    # cell because 2.5.1's mount() calls the app.onUnmount() API Vue itself
+    # only added in 3.5, unconditionally: that is a @vue/test-utils floor
+    # gap, not a vue entry one, so the 3.4 cell uses the last @vue/
+    # test-utils release before that call was added.
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - vue: '3.4.20'
+            test-utils: '2.4.6'
+          - vue: 'latest'
+            test-utils: '2.5.1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Install Vue ${{ matrix.vue }} and a compatible @vue/test-utils
+        run: pnpm --filter @rpxl/riffle add -D vue@${{ matrix.vue }} @vue/test-utils@${{ matrix.test-utils }}
+      - run: pnpm --filter @rpxl/riffle exec vitest run --config vitest.vue.config.ts
+      - run: pnpm --filter @rpxl/riffle typecheck
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      # The docs site's live islands and API reference import the built
+      # packages, as in docs.yml.
+      - run: pnpm build
+      - run: pnpm --filter @rpxl/docs build
+      - run: node scripts/check-built-links.mjs
+      - run: node scripts/check-built-islands.mjs
+      # Runs against a real build (apps/docs/scripts/serve-dist.mjs mounts
+      # dist/ under /riffle, matching astro.config.mjs's base path).
+      # @lhci/cli is pinned via dlx rather than added to the workspace: it is a CI-only
+      # tool with no code that imports it, so it does not need a lockfile
+      # entry.
+      - run: pnpm dlx @lhci/cli@0.15.1 autorun --config=./lighthouserc.json
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci/
+          retention-days: 7
+
+  e2e:
+    runs-on: ubuntu-latest
+    # The visual baselines (e2e/specs/visual.spec.ts-snapshots)
+    # were generated inside this exact image, at this exact tag, matching
+    # e2e/package.json's pinned @playwright/test version. Running the whole
+    # e2e job (not just visual.spec.ts) in it, rather than bare ubuntu-latest
+    # with `playwright install --with-deps`, means every spec's fontconfig
+    # fallbacks, browser build and OS libraries are identical to how the
+    # baselines were made: on bare ubuntu-latest, the same system font
+    # stack the examples use (no @font-face) can still rasterise a few
+    # pixels differently, which visual.spec.ts's maxDiffPixelRatio: 0.001
+    # has no room to absorb. Browsers ship inside this image already, at the
+    # matching revisions (verified locally: chromium-1243, firefox-1543,
+    # webkit-2359, the same versions a bare `playwright install` reports),
+    # so there is no separate browser install step.
+    container: mcr.microsoft.com/playwright:v1.63.0-noble
+    # GitHub runs container steps with HOME=/github/home, a directory owned
+    # by the runner user rather than root, and Firefox refuses to launch as
+    # root with a HOME it does not own. /root is root's own home in the image.
+    env:
+      HOME: /root
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm the container image matches the pinned Playwright version
+        # Prevents the two from drifting apart silently: if e2e/package.json's
+        # @playwright/test version ever moves without this tag moving with
+        # it, the browsers baked into the image stop matching the ones
+        # Playwright's own test runner expects, and the visual baselines
+        # stop being trustworthy for the reason this job exists to avoid.
+        run: |
+          pinned=$(node -p "require('./e2e/package.json').devDependencies['@playwright/test']")
+          image_version="1.63.0"
+          if [ "$pinned" != "$image_version" ]; then
+            echo "::error::e2e/package.json pins @playwright/test@$pinned, but .github/workflows/ci.yml's e2e job runs mcr.microsoft.com/playwright:v$image_version-noble. Update the container tag to match, and regenerate the visual baselines in it (see CONTRIBUTING.md)."
+            exit 1
+          fi
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      # react-movie-stack, vue-movie-stack and vanilla-basic all build against
+      # the workspace packages, so those need a real dist before Playwright's
+      # webServer builds and serves the examples themselves.
+      - run: pnpm build
+      - run: pnpm --filter @rpxl/riffle-e2e e2e
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 7

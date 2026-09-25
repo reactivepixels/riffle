@@ -1,0 +1,16 @@
+---
+/**
+ * Renders its children only on the listed framework tracks:
+ * `<Only fw="vue">` or `<Only fw="react, vue">`.
+ */
+import { pageFramework, parseFrameworkList } from './framework'
+
+interface Props {
+  fw: string
+}
+
+const allowed = parseFrameworkList(Astro.props.fw)
+const current = pageFramework('Only', Astro.locals.starlightRoute.entry.data)
+---
+
+{allowed.includes(current) && <slot />}

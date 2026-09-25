@@ -1,0 +1,93 @@
+name: Nightly
+
+on:
+  schedule:
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+
+jobs:
+  mutation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      # stryker.config.json's concurrency (8) suits a local workstation; a
+      # hosted ubuntu-latest runner has 4 vCPUs, and oversubscribing it makes
+      # mutants time out rather than finish faster.
+      - run: pnpm mutation --concurrency 4
+      - name: Upload mutation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutation-report
+          path: packages/core/reports/mutation/
+          retention-days: 14
+
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm audit --prod --audit-level high
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    # The visual baselines (e2e/specs/visual.spec.ts-snapshots)
+    # were generated inside this exact image, at this exact tag, matching
+    # e2e/package.json's pinned @playwright/test version. Running the whole
+    # e2e job (not just visual.spec.ts) in it, rather than bare ubuntu-latest
+    # with `playwright install --with-deps`, means every spec's fontconfig
+    # fallbacks, browser build and OS libraries are identical to how the
+    # baselines were made: on bare ubuntu-latest, the same system font
+    # stack the examples use (no @font-face) can still rasterise a few
+    # pixels differently, which visual.spec.ts's maxDiffPixelRatio: 0.001
+    # has no room to absorb. Browsers ship inside this image already, at the
+    # matching revisions (verified locally: chromium-1243, firefox-1543,
+    # webkit-2359, the same versions a bare `playwright install` reports),
+    # so there is no separate browser install step.
+    container: mcr.microsoft.com/playwright:v1.63.0-noble
+    # GitHub runs container steps with HOME=/github/home, a directory owned
+    # by the runner user rather than root, and Firefox refuses to launch as
+    # root with a HOME it does not own. /root is root's own home in the image.
+    env:
+      HOME: /root
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm the container image matches the pinned Playwright version
+        # Prevents the two from drifting apart silently: if e2e/package.json's
+        # @playwright/test version ever moves without this tag moving with
+        # it, the browsers baked into the image stop matching the ones
+        # Playwright's own test runner expects, and the visual baselines
+        # stop being trustworthy for the reason this job exists to avoid.
+        run: |
+          pinned=$(node -p "require('./e2e/package.json').devDependencies['@playwright/test']")
+          image_version="1.63.0"
+          if [ "$pinned" != "$image_version" ]; then
+            echo "::error::e2e/package.json pins @playwright/test@$pinned, but .github/workflows/nightly.yml's e2e job runs mcr.microsoft.com/playwright:v$image_version-noble. Update the container tag to match, and regenerate the visual baselines in it (see CONTRIBUTING.md)."
+            exit 1
+          fi
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      # react-movie-stack, vue-movie-stack and vanilla-basic all build against
+      # the workspace packages, so those need a real dist before Playwright's
+      # webServer builds and serves the examples themselves.
+      - run: pnpm build
+      - run: pnpm --filter @rpxl/riffle-e2e e2e
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 7

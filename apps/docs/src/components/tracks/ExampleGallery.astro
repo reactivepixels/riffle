@@ -1,0 +1,40 @@
+---
+/**
+ * The examples gallery, one card per shipped example that belongs to the
+ * current track: src/tracks/examples.mdx renders `<ExampleGallery />` and
+ * this component reads the framework off the page itself, the same way
+ * Demo.astro and Snippet.astro do, and picks its cards from the typed
+ * registry, src/lib/track-examples.ts.
+ */
+import { EXAMPLES } from '../../lib/track-examples'
+import { pageFramework } from './framework'
+
+const fw = pageFramework('ExampleGallery', Astro.locals.starlightRoute.entry.data)
+const cards = EXAMPLES[fw]
+---
+
+<div class="example-gallery not-content">
+  {
+    cards.map((card) => (
+      <article class="example-card" id={card.name}>
+        <h3>{card.title}</h3>
+        <p>{card.description}</p>
+        <img
+          class="example-card__preview"
+          src={card.screenshot}
+          alt={card.alt}
+          width="960"
+          height="720"
+          loading="lazy"
+        />
+        <p>
+          <a href={`https://github.com/reactivepixels/riffle/tree/main/${card.source}`}>Source</a>{' '}
+          ·{' '}
+          <a href={`https://stackblitz.com/github/reactivepixels/riffle/tree/main/${card.source}`}>
+            Open in StackBlitz
+          </a>
+        </p>
+      </article>
+    ))
+  }
+</div>
