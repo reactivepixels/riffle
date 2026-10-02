@@ -7,7 +7,7 @@ head:
     content: 'Riffle: a cycling card stack for Vanilla JS, React and Vue'
 hero:
   title: Riffle
-  tagline: A cycling card stack, physics based and framework agnostic. Cards fan out behind the front one and cycle in place, nothing is ever swiped away or discarded.
+  tagline: A cycling card stack, physics based and framework agnostic. Cards fan out behind the front one and cycle in place, nothing is ever swiped away or discarded. Under 7 kB, zero dependencies.
   actions:
     - text: Choose your framework
       link: '#choose-your-framework'
@@ -17,8 +17,6 @@ hero:
       link: https://github.com/reactivepixels/riffle
       icon: github
       variant: secondary
-      attrs:
-        title: Resolves once the repository is public
 ---
 
 import BundleSizes from '../../components/BundleSizes.astro'
@@ -57,6 +55,10 @@ independently of the other.
   velocity carries into a fling, and a release short of the threshold eases back rather
   than snapping. [Gestures](/riffle/choose/?next=guides/gestures) has a live tuning panel for the exact
   numbers.
+- **Small, and safe to server render.** Under 7 kB minified and gzipped with zero
+  runtime dependencies, and every adapter renders its first frame from the same
+  snapshot the engine starts from, so a server-rendered stack never flashes on
+  hydration.
 - **Accessible by construction.** Roving tabindex, genuine `inert` on background cards,
   a debounced live region, and keyboard support out of the box. See
   [Accessibility](/riffle/choose/?next=guides/accessibility) for what Riffle does and what you still have

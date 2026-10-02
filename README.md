@@ -6,6 +6,15 @@
   <a href="https://raw.githubusercontent.com/reactivepixels/riffle/main/media/hero.webm">Watch the WebM (sharper, smaller file)</a>
 </p>
 
+<p align="center">
+
+[![npm version](https://img.shields.io/npm/v/@rpxl/riffle.svg)](https://www.npmjs.com/package/@rpxl/riffle)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/@rpxl/riffle)](https://bundlephobia.com/package/@rpxl/riffle)
+[![CI](https://github.com/reactivepixels/riffle/actions/workflows/ci.yml/badge.svg)](https://github.com/reactivepixels/riffle/actions/workflows/ci.yml)
+[![license](https://img.shields.io/npm/l/@rpxl/riffle.svg)](https://github.com/reactivepixels/riffle/blob/main/LICENSE)
+
+</p>
+
 # Riffle
 
 Cards, cascading.
@@ -15,6 +24,26 @@ through stack positions under a horizontal or vertical drag gesture. The front c
 sits full size, the cards behind it fan out at decreasing scale, and dragging the
 front card away brings the next one forward. It is explicitly not a swipe-to-dismiss
 deck: cards are never discarded, there is no like/nope state, and nothing runs out.
+
+**[Live demo and docs](https://reactivepixels.github.io/riffle/)**
+
+## Why Riffle
+
+- **Feels like real cards.** A spring drives every settle, drag velocity carries into a
+  fling, and the grab point acts as a lever: pick a card up near a corner and it tilts as
+  it leaves.
+- **Small, with nothing to install alongside it.** Under 7 kB minified and gzipped, zero
+  runtime dependencies, tree-shakable.
+- **One engine, three frameworks.** Vanilla JS, `@rpxl/riffle/react` and
+  `@rpxl/riffle/vue` all drive the same headless core. You own the markup and styles;
+  Riffle only writes transforms.
+- **Accessible by construction.** ARIA carousel semantics, exactly one tabbable card with
+  the rest `inert`, arrow keys plus Home and End, a polite live region, and
+  `prefers-reduced-motion` respected out of the box.
+- **SSR safe.** Adapters render from an initial snapshot that matches the engine's first
+  frame, so there is no flash on hydration. Next.js App Router and Nuxt examples included.
+- **Flexible.** Horizontal or vertical, loop or clamp at the ends, custom layouts,
+  imperative `next()`, `prev()` and `goTo()` for your own controls.
 
 ## Install
 
@@ -154,7 +183,13 @@ it, so neither can drift from what actually ships.
 
 Full docs, API reference and a live demo: https://reactivepixels.github.io/riffle
 
-[![npm version](https://img.shields.io/npm/v/@rpxl/riffle.svg)](https://www.npmjs.com/package/@rpxl/riffle)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/@rpxl/riffle)](https://bundlephobia.com/package/@rpxl/riffle)
-[![CI](https://github.com/reactivepixels/riffle/actions/workflows/ci.yml/badge.svg)](https://github.com/reactivepixels/riffle/actions/workflows/ci.yml)
-[![license](https://img.shields.io/npm/l/@rpxl/riffle.svg)](https://github.com/reactivepixels/riffle/blob/main/LICENSE)
+## Contributing
+
+Issues and pull requests are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) covers setup,
+the test suites and the release flow, and issues labelled
+[good first issue](https://github.com/reactivepixels/riffle/labels/good%20first%20issue)
+are scoped for a first contribution, including Svelte and Solid adapters.
+
+## License
+
+[MIT](LICENSE)
