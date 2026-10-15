@@ -19,8 +19,8 @@
     "capture": "pnpm -r --filter './packages/*' build && pnpm --filter @rpxl/riffle-e2e run capture && node e2e/scripts/encode-hero.mjs"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.31.1",
+    "@changesets/cli": "^3.0.3",
     "prettier": "^3.9.10",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   }
 }

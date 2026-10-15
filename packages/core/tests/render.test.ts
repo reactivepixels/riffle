@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { beforeEach, describe, expect, it } from 'vitest'
 import { applyPose, poseToTransform } from '../src/render/transform'
 import { createPose } from '../src/layout/fan'

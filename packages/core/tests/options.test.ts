@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createRiffle } from '../src/riffle'
 import { RiffleError } from '../src/errors'

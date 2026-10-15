@@ -14,6 +14,7 @@ export default defineConfig({
     // A single worker process, so nothing else competes for the CPU while
     // frame timings are taken.
     pool: 'forks',
-    poolOptions: { forks: { singleFork: true } },
+    maxWorkers: 1,
+    isolate: false,
   },
 })

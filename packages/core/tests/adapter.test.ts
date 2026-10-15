@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import * as fc from 'fast-check'
 import { describe, expect, it, vi } from 'vitest'
 import { createAdapterHandle } from '../src/adapter'
