@@ -8,12 +8,8 @@ export default defineConfig({
     // tests/vue/**, which vitest.react.config.ts and vitest.vue.config.ts
     // own instead (see vitest.all.config.ts).
     include: ['tests/*.test.ts'],
-    environmentMatchGlobs: [
-      [
-        'tests/{render,pointer,a11y,riffle,keyboard,measure,options,lifecycle,adapter}.test.ts',
-        'happy-dom',
-      ],
-    ],
+    // DOM-touching suites opt into happy-dom per file with a
+    // `// @vitest-environment happy-dom` docblock.
     // The frame-budget bench, its assertion test and the GC burst live
     // under bench/, each with its own dedicated vitest config
     // (vitest.bench.config.ts, vitest.gc.config.ts): they are slow, noisy

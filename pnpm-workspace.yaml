@@ -3,3 +3,9 @@ packages:
   - 'apps/*'
   - 'examples/*'
   - 'e2e'
+# auto-install-peers resolves next's optional @playwright/test peer to the
+# latest release, which puts a second playwright-core in the lockfile. Hold it
+# at the 1.63.0 the e2e package and the CI Playwright image pin. (e2e also
+# lists playwright-core directly so @axe-core/playwright's peer resolves to it.)
+overrides:
+  '@playwright/test': 1.63.0

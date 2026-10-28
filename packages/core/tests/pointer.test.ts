@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { attachPointer } from '../src/gesture/pointer'
 
@@ -10,7 +11,24 @@ function makeElement(): HTMLElement {
   node.releasePointerCapture = vi.fn()
   node.getBoundingClientRect = () =>
     ({ left: 0, top: 0, width: 300, height: 400, right: 300, bottom: 400, x: 0, y: 0 }) as DOMRect
+  keepWebkitUserSelect(node.style)
   return node
+}
+
+/**
+ * happy-dom drops `-webkit-user-select` (it only stores properties it knows),
+ * but Safari honours it and the engine writes it, so store it like a browser.
+ */
+function keepWebkitUserSelect(style: CSSStyleDeclaration): void {
+  const setProperty = style.setProperty.bind(style)
+  const getPropertyValue = style.getPropertyValue.bind(style)
+  let webkit = ''
+  style.setProperty = (name, value, priority) => {
+    if (name === '-webkit-user-select') webkit = value ?? ''
+    else setProperty(name, value, priority)
+  }
+  style.getPropertyValue = (name) =>
+    name === '-webkit-user-select' ? webkit : getPropertyValue(name)
 }
 
 function fire(node: HTMLElement, type: string, init: Record<string, unknown> = {}): void {

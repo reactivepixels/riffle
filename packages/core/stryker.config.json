@@ -5,7 +5,7 @@
   "checkers": ["typescript"],
   "plugins": ["@stryker-mutator/vitest-runner", "@stryker-mutator/typescript-checker"],
   "tsconfigFile": "tsconfig.json",
-  "mutate": ["src/**/*.ts", "!src/index.ts", "!src/types.ts"],
+  "mutate": ["src/**/*.ts", "!src/index.ts", "!src/types.ts", "!src/react/**", "!src/vue/**"],
   "reporters": ["html", "clear-text", "progress"],
   "htmlReporter": {
     "fileName": "reports/mutation/index.html"

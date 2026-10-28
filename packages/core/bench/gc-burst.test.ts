@@ -26,7 +26,7 @@ describe('GC burst: the drag frame loop allocates nothing', () => {
     if (typeof global.gc !== 'function') {
       throw new Error(
         'bench/gc-burst.test.ts requires --expose-gc. Run it via `pnpm --filter @rpxl/riffle test:gc` ' +
-          '(vitest.gc.config.ts sets poolOptions.forks.execArgv), not a plain vitest invocation.',
+          '(vitest.gc.config.ts sets execArgv), not a plain vitest invocation.',
       )
     }
 
