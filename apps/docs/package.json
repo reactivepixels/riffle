@@ -16,7 +16,7 @@
     "@astrojs/react": "~7.0.1",
     "@astrojs/starlight": "^0.42.7",
     "@astrojs/vue": "~7.0.3",
-    "@pagefind/default-ui": "^1.5.2",
+    "@pagefind/default-ui": "^1.6.0",
     "@rpxl/riffle": "workspace:*",
     "astro": "~7.3.8",
     "react": "^19.3.1",
