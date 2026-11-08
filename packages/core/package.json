@@ -120,8 +120,8 @@
     "size-limit": "^14.3.0",
     "tsup": "^9.0.0",
     "typescript": "^6.0.3",
-    "vitest": "^5.0.5",
-    "vue": "^3.5.44",
+    "vitest": "^5.1.0",
+    "vue": "^3.5.45",
     "vue-tsc": "^3.3.14"
   },
   "size-limit": [
