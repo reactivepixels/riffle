@@ -220,10 +220,6 @@ export default defineConfig({
       ],
       components: {
         Sidebar: './src/components/tracks/TrackSwitcher.astro',
-        // The landing page's right-column live demo: see LandingHero.astro's
-        // own doc comment for why Starlight's own `hero.image` frontmatter
-        // cannot host it.
-        Hero: './src/components/LandingHero.astro',
         // Tags a framework track page's indexed content with Pagefind
         // filter/meta attributes (see the component's own doc comment).
         MarkdownContent: './src/components/tracks/MarkdownContent.astro',
