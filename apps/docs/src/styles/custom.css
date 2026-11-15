@@ -28,8 +28,9 @@
 }
 
 :root[data-theme='light'] {
+  /* Starlight's light theme sets text in the mid accent, so it is ink here. */
   --sl-color-accent-low: #fff3b0;
-  --sl-color-accent: #ffd60a;
+  --sl-color-accent: #111111;
   --sl-color-accent-high: #111111;
   --sl-color-white: #111111;
   --sl-color-gray-1: #1f1d1a;
