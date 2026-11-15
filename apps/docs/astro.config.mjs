@@ -124,12 +124,21 @@ export default defineConfig({
   integrations: [
     // The landing page's "One engine, three frameworks" section renders a
     // live React stack and a live Vue stack side by side (see
-    // src/content/docs/index.mdx): the framework's own proof that the
+    // src/pages/index.astro): the framework's own proof that the
     // engine underneath is framework agnostic.
     react(),
     vue(),
     starlight({
       title: SITE_TITLE,
+      // The same mark the landing page and showcase carry, one per theme.
+      logo: {
+        dark: './src/assets/brand/mark-dark.svg',
+        light: './src/assets/brand/mark-light.svg',
+      },
+      // Code blocks share the landing page's rounded, flat frames.
+      expressiveCode: {
+        styleOverrides: { borderRadius: '0.875rem', borderColor: 'transparent' },
+      },
       description: 'A framework-agnostic carousel card stack. Cards, cascading.',
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/reactivepixels/riffle' },

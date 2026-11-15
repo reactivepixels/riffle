@@ -114,11 +114,14 @@ const links = topics.map((topic) => {
     text-decoration: none;
   }
 
-  a:is(.track-switcher-current, :hover, :focus-visible) {
+  a:is(:hover, :focus-visible) {
     color: var(--sl-color-accent-high);
   }
 
-  :global([data-theme='light']) a.track-switcher-current {
-    color: var(--sl-color-accent);
+  /* The current track: the same yellow pill as the current page, in both themes. */
+  a.track-switcher-current {
+    border-radius: 999px;
+    background: #ffd60a;
+    color: #111111;
   }
 </style>
