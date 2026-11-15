@@ -55,12 +55,10 @@ const describe = (r: Record) => `${r.title} by ${r.artist}`
 <Scene
   id="crate-digging"
   index="02"
-  kicker="Record shop"
-  title="Dig the crate."
-  lede="Sleeves that loop forever, like the best shop bins. Let the stack come to rest and the record slides out to say hello. Grab it again and it tucks back in."
-  features={["bounds: 'loop'", "on('settle')", "on('dragstart')", "on('change')", 'getLabel']}
+  title="Record crate"
+  lede="Sleeves loop like a shop bin. When the stack settles, the record slides out."
+  config={["bounds: 'loop'", "on('settle')", "on('dragstart')"]}
   code={crateSource}
-  flip
   class="crate-scene"
   style="--bg: #ff5a1f; --ink: #140c08;"
 >
@@ -169,14 +167,12 @@ const describe = (r: Record) => `${r.title} by ${r.artist}`
       <div class="crate-ledge" aria-hidden="true"></div>
     </div>
 
-    <div class="crate-now">
-      <span class="crate-eq" aria-hidden="true"><span></span><span></span><span></span></span>
-      <p>
-        <span class="crate-now__label">Now spinning</span>
-        <span class="crate-now__title" data-now-playing>{describe(records[0]!)}</span>
+    <div class="sc-controls">
+      <p class="sc-note">
+        Now playing: <span data-now-playing>{describe(records[0]!)}</span>
       </p>
+      <p class="sc-note crate-hint">Drag sideways. It loops.</p>
     </div>
-    <p class="crate-hint">Drag sideways. It loops, like any good crate.</p>
   </div>
 </Scene>
 
@@ -192,12 +188,15 @@ const describe = (r: Record) => `${r.title} by ${r.artist}`
   .crate-stage {
     display: grid;
     justify-items: center;
-    gap: 26px;
     width: 100%;
   }
 
+  .crate-hint {
+    flex-basis: 100%;
+  }
+
   .crate-rig {
-    --w: min(370px, 54vw);
+    --w: min(420px, 54vw);
     display: grid;
     justify-items: center;
     width: 100%;
@@ -698,81 +697,14 @@ const describe = (r: Record) => `${r.title} by ${r.artist}`
   }
 
   /* Readout under the crate. */
-  .crate-now {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    max-width: 100%;
-    padding: 10px 22px 10px 16px;
-    border-radius: 999px;
-    background: #140c08;
-    color: #ffd9c7;
-  }
 
-  .crate-now p {
-    display: grid;
-    gap: 4px;
-    min-width: 0;
-  }
 
-  .crate-now__label {
-    font: 700 11px/1 var(--font-mono);
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-  }
 
-  .crate-now__title {
-    overflow: hidden;
-    font-size: 15px;
-    font-weight: 750;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
 
-  .crate-eq {
-    display: flex;
-    align-items: flex-end;
-    gap: 3px;
-    width: 22px;
-    height: 18px;
-    flex: none;
-  }
 
-  .crate-eq span {
-    flex: 1;
-    height: 100%;
-    border-radius: 2px;
-    background: #ff5a1f;
-    transform-origin: bottom;
-    animation: crate-eq 900ms ease-in-out infinite alternate;
-  }
 
-  .crate-eq span:nth-child(2) {
-    animation-delay: -300ms;
-  }
 
-  .crate-eq span:nth-child(3) {
-    animation-delay: -600ms;
-  }
 
-  @keyframes crate-eq {
-    from {
-      transform: scaleY(0.25);
-    }
-    to {
-      transform: scaleY(1);
-    }
-  }
 
-  @media (prefers-reduced-motion: reduce) {
-    .crate-eq span {
-      animation: none;
-      transform: scaleY(0.6);
-    }
-  }
 
-  .crate-hint {
-    font-size: 14px;
-    font-weight: 650;
-  }
 </style>

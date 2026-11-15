@@ -79,14 +79,12 @@ const flags = ['#ff4f8b', '#ffd23f', '#3ad1c4', '#ff7a1a', '#8b5cf6', '#ffffff']
 <Scene
   id="stories"
   index="06"
-  kicker="City guide"
-  title="Stories that wait for you."
-  lede="A weekend guide that plays itself. The bar on top calls next() every few seconds, and it holds still the moment you grab, hover or focus a story. With reduced motion on, it never moves by itself."
-  features={['next()', "on('change')", "on('dragstart')", 'prefers-reduced-motion']}
+  title="City stories"
+  lede="Advances on its own every five seconds and holds while you touch it."
+  config={['next()', "on('dragstart')", 'prefers-reduced-motion']}
   code={storiesSource}
-  flip
   class="stories-scene"
-  style="--bg: #ff4f8b; --ink: #1b0612;"
+  style="--bg: #1e0f24; --ink: #f6e9f1;"
 >
   <div class="stories-stage">
     <div class="stories-stack" data-stack role="group" aria-label="Two Days In, Mexico City">
@@ -271,12 +269,12 @@ const flags = ['#ff4f8b', '#ffd23f', '#3ad1c4', '#ff7a1a', '#8b5cf6', '#ffffff']
       }
     </div>
 
-    <div class="stories-controls">
-      <button class="stories-button" type="button" data-prev aria-label="Previous story">
+    <div class="sc-controls">
+      <button class="sc-button" type="button" data-prev aria-label="Previous story">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"></path></svg>
       </button>
       <button
-        class="stories-button stories-button--pause"
+        class="sc-button stories-pause"
         type="button"
         data-pause
         aria-pressed="false"
@@ -284,17 +282,17 @@ const flags = ['#ff4f8b', '#ffd23f', '#3ad1c4', '#ff7a1a', '#8b5cf6', '#ffffff']
         hidden
       >
         <svg class="stories-icon-pause" viewBox="0 0 24 24" aria-hidden="true"
-          ><path d="M8 5v14M16 5v14"></path></svg
+          ><path d="M9 6v12M15 6v12"></path></svg
         >
         <svg class="stories-icon-play" viewBox="0 0 24 24" aria-hidden="true"
-          ><path d="M7 5v14l12-7Z"></path></svg
+          ><path d="M8 6v12l10-6Z"></path></svg
         >
       </button>
-      <button class="stories-button" type="button" data-next aria-label="Next story">
+      <button class="sc-button" type="button" data-next aria-label="Next story">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
       </button>
+      <p class="sc-note stories-hint">Hover, focus or grab a story to hold it.</p>
     </div>
-    <p class="stories-hint">Hover, focus or grab a story to hold it.</p>
   </div>
 </Scene>
 
@@ -307,21 +305,14 @@ const flags = ['#ff4f8b', '#ffd23f', '#3ad1c4', '#ff7a1a', '#8b5cf6', '#ffffff']
 </script>
 
 <style>
-  :global(.stories-scene) {
-    background-image:
-      radial-gradient(50% 40% at 70% 40%, rgb(255 214 10 / 28%), transparent 70%),
-      radial-gradient(40% 50% at 10% 90%, rgb(139 92 246 / 25%), transparent 70%);
-  }
-
   .stories-stage {
     display: grid;
     justify-items: center;
-    gap: 24px;
     width: 100%;
   }
 
   .stories-stack {
-    --w: min(296px, 62vw);
+    --w: min(320px, 64vw);
     position: relative;
     width: var(--w);
     aspect-ratio: 9 / 16;
@@ -398,7 +389,7 @@ const flags = ['#ff4f8b', '#ffd23f', '#3ad1c4', '#ff7a1a', '#8b5cf6', '#ffffff']
   }
 
   .story:focus-visible {
-    outline: 3px solid #1b0612;
+    outline: 3px solid #f6e9f1;
     outline-offset: 5px;
   }
 
@@ -489,74 +480,28 @@ const flags = ['#ff4f8b', '#ffd23f', '#3ad1c4', '#ff7a1a', '#8b5cf6', '#ffffff']
     text-wrap: balance;
   }
 
-  .stories-controls {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
 
-  .stories-button {
-    display: grid;
-    place-items: center;
-    width: 52px;
-    height: 52px;
-    border: 2px solid #1b0612;
-    border-radius: 50%;
-    background: transparent;
-    color: #1b0612;
-    cursor: pointer;
-    transition: transform 200ms var(--ease-out);
-  }
-
-  .stories-button:hover {
-    transform: scale(1.06);
-  }
-
-  .stories-button:focus-visible {
-    outline: 3px solid #1b0612;
-    outline-offset: 3px;
-  }
-
-  .stories-button[hidden] {
+  .stories-pause[hidden] {
     display: none;
-  }
-
-  .stories-button--pause {
-    width: 60px;
-    height: 60px;
-    background: #1b0612;
-    color: #ff4f8b;
-  }
-
-  .stories-button svg {
-    width: 24px;
-    height: 24px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2.4;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-
-  .stories-button--pause svg {
-    stroke-width: 3;
   }
 
   .stories-icon-play {
     display: none;
-    fill: currentColor !important;
   }
 
-  .stories-button--pause[aria-pressed='true'] .stories-icon-play {
+  .stories-pause .stories-icon-play {
+    fill: currentColor;
+  }
+
+  .stories-pause[aria-pressed='true'] .stories-icon-play {
     display: block;
   }
 
-  .stories-button--pause[aria-pressed='true'] .stories-icon-pause {
+  .stories-pause[aria-pressed='true'] .stories-icon-pause {
     display: none;
   }
 
   .stories-hint {
-    font-size: 14px;
-    font-weight: 650;
+    flex-basis: 100%;
   }
 </style>

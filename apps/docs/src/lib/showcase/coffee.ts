@@ -12,10 +12,9 @@ import { createRiffle, fan } from '@rpxl/riffle'
 
 export function mountCoffeeOrigins(scene: HTMLElement): void {
   const stack = scene.querySelector<HTMLElement>('[data-stack]')
-  const backdrop = scene.querySelector<HTMLElement>('[data-backdrop]')
   const prevButton = scene.querySelector<HTMLButtonElement>('[data-prev]')
   const nextButton = scene.querySelector<HTMLButtonElement>('[data-next]')
-  if (!stack || !backdrop || !prevButton || !nextButton) return
+  if (!stack || !prevButton || !nextButton) return
 
   // #region setup
   const bags = Array.from(stack.querySelectorAll<HTMLElement>('.bag'))
@@ -33,10 +32,9 @@ export function mountCoffeeOrigins(scene: HTMLElement): void {
   // Your brand, your colours: the scene floods to the bag in front, and
   // the headline, copy and buttons follow through the --ink property.
   riffle.on('change', ({ index }) => {
-    const { flood, ink, origin } = bags[index]!.dataset
+    const { flood, ink } = bags[index]!.dataset
     scene.style.setProperty('--bg', flood!)
     scene.style.setProperty('--ink', ink!)
-    backdrop.dataset.word = origin
   })
 
   prevButton.addEventListener('click', () => riffle.prev())

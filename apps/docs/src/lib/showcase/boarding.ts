@@ -15,8 +15,7 @@ export function mountBoardingPasses(scene: HTMLElement): void {
   const prevButton = scene.querySelector<HTMLButtonElement>('[data-prev]')
   const nextButton = scene.querySelector<HTMLButtonElement>('[data-next]')
   const counter = scene.querySelector<HTMLElement>('[data-counter]')
-  const backdrop = scene.querySelector<HTMLElement>('[data-backdrop]')
-  if (!stack || !prevButton || !nextButton || !counter || !backdrop) return
+  if (!stack || !prevButton || !nextButton || !counter) return
 
   // #region setup
   const passes = Array.from(stack.querySelectorAll<HTMLElement>('.pass'))
@@ -35,9 +34,7 @@ export function mountBoardingPasses(scene: HTMLElement): void {
 
   // The whole scene takes on the colour of wherever you fly next.
   riffle.on('change', ({ index }) => {
-    const pass = passes[index]!
-    scene.style.setProperty('--bg', pass.dataset.tint!)
-    backdrop.dataset.code = pass.dataset.code
+    scene.style.setProperty('--bg', passes[index]!.dataset.tint!)
   })
 
   // Clamped at both ends, so the buttons say when there is nowhere to go.

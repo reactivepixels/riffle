@@ -124,23 +124,13 @@ const describe = (c: Creature) =>
 <Scene
   id="holo-cards"
   index="03"
-  kicker="Trading cards"
-  title="Tilt it. Catch the light."
-  lede="Grab a card by its corner and it swings on the lever you made. The foil reads the drag on every frame, so the holo slides like the real thing."
-  features={['rotation: { maxRotation: 24 }', 'leverFactor', "on('drag')", 'progress, offset']}
+  title="Trading cards"
+  lede="Grab a corner and the card tilts on it. The foil follows the drag."
+  config={['rotation: { maxRotation: 24 }', "on('drag')", 'progress', 'offset']}
   code={holoSource}
   class="holo-scene"
   style="--bg: #0e0b22; --ink: #f4f0ff;"
 >
-  <div slot="backdrop" class="holo-backdrop" aria-hidden="true">
-    <span style="--x: 8%; --y: 18%; --s: 1; --d: 0s"></span>
-    <span style="--x: 46%; --y: 9%; --s: 0.6; --d: -1.2s"></span>
-    <span style="--x: 92%; --y: 14%; --s: 0.8; --d: -2.4s"></span>
-    <span style="--x: 70%; --y: 88%; --s: 1.1; --d: -0.6s"></span>
-    <span style="--x: 22%; --y: 82%; --s: 0.7; --d: -1.8s"></span>
-    <span style="--x: 96%; --y: 60%; --s: 0.5; --d: -3s"></span>
-  </div>
-
   <div class="holo-stage">
     <div class="holo-stack" data-stack role="group" aria-label="Shardlings trading cards">
       {
@@ -322,7 +312,9 @@ const describe = (c: Creature) =>
         ))
       }
     </div>
-    <p class="holo-hint">Grab a corner and drag. The foil follows you.</p>
+    <div class="sc-controls">
+      <p class="sc-note">Grab a corner and drag.</p>
+    </div>
   </div>
 </Scene>
 
@@ -335,50 +327,17 @@ const describe = (c: Creature) =>
 </script>
 
 <style>
-  :global(.holo-scene) {
-    background-image:
-      radial-gradient(60% 50% at 50% 50%, rgb(124 92 255 / 26%), transparent 70%),
-      radial-gradient(40% 40% at 20% 90%, rgb(236 72 153 / 14%), transparent 70%);
-  }
 
-  .holo-backdrop {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    overflow: hidden;
-    pointer-events: none;
-  }
 
-  .holo-backdrop span {
-    position: absolute;
-    left: var(--x);
-    top: var(--y);
-    width: calc(var(--s) * 22px);
-    aspect-ratio: 1;
-    background: #e9e3ff;
-    clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
-    opacity: 0.5;
-    animation: holo-twinkle 3.6s ease-in-out infinite;
-    animation-delay: var(--d);
-  }
-
-  @keyframes holo-twinkle {
-    50% {
-      opacity: 0.1;
-      transform: scale(0.6);
-    }
-  }
 
   .holo-stage {
     display: grid;
     justify-items: center;
-    gap: 34px;
     width: 100%;
-    padding: 24px 0 8px;
   }
 
   .holo-stack {
-    --w: min(300px, 62vw);
+    --w: min(330px, 62vw);
     position: relative;
     width: var(--w);
     aspect-ratio: 5 / 7;
@@ -673,14 +632,5 @@ const describe = (c: Creature) =>
     color: #3a3346;
   }
 
-  .holo-hint {
-    font-size: 14px;
-    font-weight: 650;
-  }
 
-  @media (prefers-reduced-motion: reduce) {
-    .holo-backdrop span {
-      animation: none;
-    }
-  }
 </style>

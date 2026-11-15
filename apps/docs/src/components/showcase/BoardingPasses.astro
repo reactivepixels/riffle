@@ -77,7 +77,7 @@ const passes: Pass[] = [
   },
   {
     from: { code: 'RKV', city: 'Reykjavik' },
-    to: { code: 'KYO', city: 'Kyoto' },
+    to: { code: 'KIX', city: 'Osaka' },
     flight: 'OR 88',
     date: '27 Jun',
     day: '27 June',
@@ -92,7 +92,7 @@ const passes: Pass[] = [
     tint: '#8a1832',
   },
   {
-    from: { code: 'KYO', city: 'Kyoto' },
+    from: { code: 'KIX', city: 'Osaka' },
     to: { code: 'SEL', city: 'Seoul' },
     flight: 'OR 730',
     date: '02 Jul',
@@ -119,17 +119,13 @@ const label = (p: Pass) =>
 <Scene
   id="boarding-passes"
   index="01"
-  kicker="Travel wallet"
-  title="Five flights. One thumb."
-  lede="A wallet of boarding passes you flick through top to bottom. It stops at the last leg, and the whole scene turns the colour of wherever you are flying next."
-  features={["axis: 'y'", "bounds: 'clamp'", "on('change')", 'fan({ offset })', 'getLabel']}
+  title="Boarding passes"
+  lede="Five legs of one trip, stacked top to bottom. The stack stops at the last leg."
+  config={["axis: 'y'", "bounds: 'clamp'", 'fan({ offset: 60 })', "on('change')"]}
   code={boardingSource}
   class="bp-scene"
   style={`--bg: ${first.tint}; --ink: #ffffff;`}
 >
-  <div slot="backdrop" class="bp-backdrop" data-backdrop data-code={first.to.code} aria-hidden="true">
-  </div>
-
   <div class="bp-stage">
     <div class="bp-stack" data-stack role="group" aria-label="Boarding passes, Orrery Air">
       {
@@ -138,7 +134,6 @@ const label = (p: Pass) =>
             class="pass"
             data-label={label(pass)}
             data-tint={pass.tint}
-            data-code={pass.to.code}
             style={`--band: ${pass.band}; z-index: ${passes.length - i};`}
           >
             <div class="pass__ticket">
@@ -245,16 +240,16 @@ const label = (p: Pass) =>
       }
     </div>
 
-    <div class="bp-controls">
-      <button class="bp-button" type="button" data-prev aria-label="Previous pass">
+    <div class="sc-controls">
+      <button class="sc-button" type="button" data-prev aria-label="Previous pass">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6"></path></svg>
       </button>
-      <p class="bp-counter" data-counter aria-hidden="true">1 / {passes.length}</p>
-      <button class="bp-button" type="button" data-next aria-label="Next pass">
+      <p class="sc-note" data-counter aria-hidden="true">1 / {passes.length}</p>
+      <button class="sc-button" type="button" data-next aria-label="Next pass">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
       </button>
+      <p class="sc-note bp-hint">Drag the front pass down, or use the arrow keys.</p>
     </div>
-    <p class="bp-hint">Drag the front pass down, or use the arrow keys.</p>
   </div>
 </Scene>
 
@@ -271,34 +266,22 @@ const label = (p: Pass) =>
     transition: background-color 700ms var(--ease-out);
   }
 
-  .bp-backdrop {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    overflow: hidden;
-    pointer-events: none;
-  }
 
-  .bp-backdrop::before {
-    content: attr(data-code);
-    position: absolute;
-    right: -0.04em;
-    bottom: -0.12em;
-    font: 900 clamp(180px, 31vw, 520px) / 1 var(--font-display);
-    letter-spacing: -0.07em;
-    color: rgb(255 255 255 / 7%);
-  }
 
   .bp-stage {
     display: grid;
     justify-items: center;
-    gap: 22px;
-    padding-top: 136px;
+    width: 100%;
+    padding-top: 140px;
+  }
+
+  .bp-hint {
+    flex-basis: 100%;
   }
 
   .bp-stack {
     position: relative;
-    width: min(318px, 76vw);
+    width: min(340px, 78vw);
     aspect-ratio: 318 / 472;
   }
 
@@ -551,64 +534,12 @@ const label = (p: Pass) =>
     color: #5b6170;
   }
 
-  .bp-controls {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
 
-  .bp-button {
-    display: grid;
-    place-items: center;
-    width: 52px;
-    height: 52px;
-    border: 2px solid rgb(255 255 255 / 85%);
-    border-radius: 50%;
-    background: transparent;
-    color: #fff;
-    cursor: pointer;
-    transition:
-      background-color 200ms ease,
-      opacity 200ms ease;
-  }
 
-  .bp-button svg {
-    width: 24px;
-    height: 24px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2.4;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
 
-  .bp-button:hover {
-    background: rgb(255 255 255 / 14%);
-  }
 
-  .bp-button:focus-visible {
-    outline: 3px solid #fff;
-    outline-offset: 3px;
-  }
 
-  .bp-button[aria-disabled='true'] {
-    opacity: 0.35;
-    cursor: default;
-  }
 
-  .bp-button[aria-disabled='true']:hover {
-    background: transparent;
-  }
 
-  .bp-counter {
-    min-width: 64px;
-    font: 700 15px/1 var(--font-mono);
-    letter-spacing: 0.08em;
-    text-align: center;
-  }
 
-  .bp-hint {
-    font-size: 14px;
-    font-weight: 600;
-  }
 </style>
