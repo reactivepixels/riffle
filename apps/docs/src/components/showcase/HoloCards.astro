@@ -1,0 +1,686 @@
+---
+/**
+ * Showcase scene 3: holo trading cards for a made-up game, on a dark field.
+ * Each creature is a small geometric inline SVG. The foil and glare layers
+ * read `--shift` and `--glow`, which src/lib/showcase/holo.ts writes from
+ * the engine's drag event.
+ */
+import Scene from './Scene.astro'
+import { holoSource } from '../../lib/snippets'
+
+interface Creature {
+  art: 'fox' | 'wyrm' | 'turtle' | 'moth' | 'owl'
+  name: string
+  type: string
+  hp: number
+  stage: string
+  weak: string
+  moves: { name: string; cost: number; damage: string }[]
+  flavour: string
+  number: string
+  sky: [string, string]
+  body: string
+  accent: string
+  frame: 'gold' | 'silver'
+}
+
+const creatures: Creature[] = [
+  {
+    art: 'fox',
+    name: 'Emberfox',
+    type: 'Ember',
+    hp: 120,
+    stage: 'Stage 1',
+    weak: 'Tide',
+    moves: [
+      { name: 'Cinder Flick', cost: 1, damage: '30' },
+      { name: 'Tail Bonfire', cost: 3, damage: '90' },
+    ],
+    flavour: 'Leaves warm footprints in fresh snow. Nobody has ever caught one asleep.',
+    number: '014',
+    sky: ['#ffb347', '#e8432e'],
+    body: '#fff1e4',
+    accent: '#c2410c',
+    frame: 'gold',
+  },
+  {
+    art: 'wyrm',
+    name: 'Tidewyrm',
+    type: 'Tide',
+    hp: 140,
+    stage: 'Stage 2',
+    weak: 'Spark',
+    moves: [
+      { name: 'Undertow', cost: 2, damage: '50' },
+      { name: 'King Swell', cost: 4, damage: '130' },
+    ],
+    flavour: 'Sailors blame it for every wave that arrives a second too early.',
+    number: '037',
+    sky: ['#4cc9f0', '#1d3fb8'],
+    body: '#e8f4ff',
+    accent: '#1d4ed8',
+    frame: 'silver',
+  },
+  {
+    art: 'moth',
+    name: 'Voltmoth',
+    type: 'Spark',
+    hp: 80,
+    stage: 'Basic',
+    weak: 'Grove',
+    moves: [
+      { name: 'Static Dust', cost: 1, damage: '20' },
+      { name: 'Porch Light', cost: 2, damage: '60' },
+    ],
+    flavour: 'Drawn to streetlights, which tend to flicker for a week afterwards.',
+    number: '052',
+    sky: ['#ffe066', '#8b5cf6'],
+    body: '#f6f0ff',
+    accent: '#6d28d9',
+    frame: 'gold',
+  },
+  {
+    art: 'turtle',
+    name: 'Thornback',
+    type: 'Grove',
+    hp: 160,
+    stage: 'Stage 2',
+    weak: 'Ember',
+    moves: [
+      { name: 'Bramble Wall', cost: 2, damage: '40' },
+      { name: 'Old Growth', cost: 4, damage: '120' },
+    ],
+    flavour: 'Moves one field a year. Moss grows on the shell faster than it walks.',
+    number: '088',
+    sky: ['#b5e48c', '#2d6a4f'],
+    body: '#eef7e6',
+    accent: '#3f6212',
+    frame: 'silver',
+  },
+  {
+    art: 'owl',
+    name: 'Gloomowl',
+    type: 'Dusk',
+    hp: 100,
+    stage: 'Stage 1',
+    weak: 'Spark',
+    moves: [
+      { name: 'Hush', cost: 1, damage: '20' },
+      { name: 'Midnight Stare', cost: 3, damage: '100' },
+    ],
+    flavour: 'Asks one question each night. Nobody remembers the answer by morning.',
+    number: '101',
+    sky: ['#7b6cf6', '#1b1340'],
+    body: '#f0eeff',
+    accent: '#4c1d95',
+    frame: 'gold',
+  },
+]
+
+const describe = (c: Creature) =>
+  `${c.name}, ${c.type} type, ${c.hp} HP, moves ${c.moves[0]!.name} ${c.moves[0]!.damage} and ${c.moves[1]!.name} ${c.moves[1]!.damage}`
+---
+
+<Scene
+  id="holo-cards"
+  index="03"
+  kicker="Trading cards"
+  title="Tilt it. Catch the light."
+  lede="Grab a card by its corner and it swings on the lever you made. The foil reads the drag on every frame, so the holo slides like the real thing."
+  features={['rotation: { maxRotation: 24 }', 'leverFactor', "on('drag')", 'progress, offset']}
+  code={holoSource}
+  class="holo-scene"
+  style="--bg: #0e0b22; --ink: #f4f0ff;"
+>
+  <div slot="backdrop" class="holo-backdrop" aria-hidden="true">
+    <span style="--x: 8%; --y: 18%; --s: 1; --d: 0s"></span>
+    <span style="--x: 46%; --y: 9%; --s: 0.6; --d: -1.2s"></span>
+    <span style="--x: 92%; --y: 14%; --s: 0.8; --d: -2.4s"></span>
+    <span style="--x: 70%; --y: 88%; --s: 1.1; --d: -0.6s"></span>
+    <span style="--x: 22%; --y: 82%; --s: 0.7; --d: -1.8s"></span>
+    <span style="--x: 96%; --y: 60%; --s: 0.5; --d: -3s"></span>
+  </div>
+
+  <div class="holo-stage">
+    <div class="holo-stack" data-stack role="group" aria-label="Shardlings trading cards">
+      {
+        creatures.map((c, i) => (
+          <div
+            class={`holo holo--${c.frame}`}
+            data-label={describe(c)}
+            style={`--sky-a: ${c.sky[0]}; --sky-b: ${c.sky[1]}; --body: ${c.body}; --accent: ${c.accent}; z-index: ${creatures.length - i};`}
+          >
+            <div class="holo__frame">
+              <div class="holo__card">
+                <div class="holo__head">
+                  <p class="holo__stage">{c.stage}</p>
+                  <p class="holo__name">{c.name}</p>
+                  <p class="holo__hp">
+                    <span>HP</span>
+                    {c.hp}
+                  </p>
+                </div>
+
+                <div class="holo__art">
+                  <svg viewBox="0 0 100 70" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                    <circle cx="78" cy="16" r="24" fill="rgb(255 255 255 / 0.16)" />
+                    <circle cx="78" cy="16" r="13" fill="rgb(255 255 255 / 0.2)" />
+                    <path
+                      d="M0 58 Q25 50 50 58 T100 56 V70 H0Z"
+                      fill="rgb(0 0 0 / 0.18)"
+                    />
+                    {c.art === 'fox' && (
+                      <g>
+                        <path d="M26 30 30 8 44 22Z" fill="#c2410c" />
+                        <path d="M74 30 70 8 56 22Z" fill="#c2410c" />
+                        <path d="M31 13 40 23 33 25Z" fill="#ffd2a6" />
+                        <path d="M69 13 60 23 67 25Z" fill="#ffd2a6" />
+                        <path d="M50 64 24 30 34 20 50 24 66 20 76 30Z" fill="#ff7a2f" />
+                        <path d="M50 64 30 38 50 44 70 38Z" fill="#fff3e6" />
+                        <path d="M50 24 44 34 50 44 56 34Z" fill="#ff9a52" />
+                        <ellipse cx="40" cy="35" rx="2.6" ry="3.4" fill="#1c1917" />
+                        <ellipse cx="60" cy="35" rx="2.6" ry="3.4" fill="#1c1917" />
+                        <circle cx="40.8" cy="34" r="0.9" fill="#fff" />
+                        <circle cx="60.8" cy="34" r="0.9" fill="#fff" />
+                        <path d="M47 56h6l-3 4Z" fill="#1c1917" />
+                      </g>
+                    )}
+                    {c.art === 'wyrm' && (
+                      <g>
+                        <path
+                          d="M4 52c10-18 22-18 30-4s20 14 28 0 18-20 24-12"
+                          fill="none"
+                          stroke="#0b2a7a"
+                          stroke-width="11"
+                          stroke-linecap="round"
+                        />
+                        <path
+                          d="M4 52c10-18 22-18 30-4s20 14 28 0 18-20 24-12"
+                          fill="none"
+                          stroke="#9fe7ff"
+                          stroke-width="7"
+                          stroke-linecap="round"
+                        />
+                        <path
+                          d="M10 46l3-5M20 40l2-6M36 50l2-6M48 54l1-6M64 44l3-5"
+                          stroke="#e9fbff"
+                          stroke-width="1.6"
+                          stroke-linecap="round"
+                        />
+                        <path d="M80 26c6-6 16-2 15 6s-10 9-15 5Z" fill="#9fe7ff" />
+                        <path d="M84 24l-2-8 6 6ZM90 23l2-8 2 9Z" fill="#e9fbff" />
+                        <circle cx="89" cy="30" r="1.8" fill="#0b1e4f" />
+                        <path
+                          d="M0 64q6-4 12 0t12 0 12 0 12 0 12 0 12 0 12 0 12 0"
+                          fill="none"
+                          stroke="rgb(255 255 255 / 0.5)"
+                          stroke-width="1.6"
+                        />
+                      </g>
+                    )}
+                    {c.art === 'moth' && (
+                      <g>
+                        <ellipse cx="34" cy="28" rx="20" ry="13" fill="#ffe066" transform="rotate(-24 34 28)" />
+                        <ellipse cx="66" cy="28" rx="20" ry="13" fill="#ffe066" transform="rotate(24 66 28)" />
+                        <ellipse cx="38" cy="46" rx="12" ry="9" fill="#ffd23f" transform="rotate(28 38 46)" />
+                        <ellipse cx="62" cy="46" rx="12" ry="9" fill="#ffd23f" transform="rotate(-28 62 46)" />
+                        <circle cx="32" cy="27" r="5.5" fill="#6d28d9" />
+                        <circle cx="68" cy="27" r="5.5" fill="#6d28d9" />
+                        <circle cx="32" cy="27" r="2.2" fill="#fff" />
+                        <circle cx="68" cy="27" r="2.2" fill="#fff" />
+                        <path d="M47 30l3-6 3 6 0 22-3 4-3-4Z" fill="#3b0764" />
+                        <path d="M48 24c-2-6-6-10-10-11M52 24c2-6 6-10 10-11" fill="none" stroke="#3b0764" stroke-width="1.6" stroke-linecap="round" />
+                        <path d="M17 50l6-6-2 5 5-1-7 8 2-5Z M83 50l-6-6 2 5-5-1 7 8-2-5Z" fill="#fff6bf" />
+                      </g>
+                    )}
+                    {c.art === 'turtle' && (
+                      <g>
+                        <path d="M14 56h72" stroke="#1b4332" stroke-width="3" stroke-linecap="round" />
+                        <rect x="26" y="48" width="9" height="9" rx="3" fill="#52796f" />
+                        <rect x="62" y="48" width="9" height="9" rx="3" fill="#52796f" />
+                        <circle cx="84" cy="44" r="8" fill="#74a57f" />
+                        <circle cx="87" cy="42" r="1.6" fill="#1b4332" />
+                        <path d="M18 52Q48 4 80 52Z" fill="#40916c" />
+                        <path d="M30 16l4 9-8-2ZM44 9l3 9-7-1ZM58 10l2 9-7-2ZM70 18l1 9-7-3Z" fill="#d8f3dc" />
+                        <path
+                          d="M36 36l7-6 8 2 2 8-7 6-8-2ZM53 40l6-5 7 3 1 7-6 4-7-3ZM24 47l5-5 7 2M66 48l4-4"
+                          fill="none"
+                          stroke="#b7e4c7"
+                          stroke-width="1.6"
+                          stroke-linejoin="round"
+                        />
+                      </g>
+                    )}
+                    {c.art === 'owl' && (
+                      <g>
+                        <path d="M34 14l6 10M66 14l-6 10" stroke="#c4b5fd" stroke-width="4" stroke-linecap="round" />
+                        <rect x="30" y="18" width="40" height="46" rx="20" fill="#5b4b9a" />
+                        <path d="M38 50q12 10 24 0v8q-12 8-24 0Z" fill="#7c6bc4" />
+                        <circle cx="42" cy="34" r="9" fill="#f5f3ff" />
+                        <circle cx="58" cy="34" r="9" fill="#f5f3ff" />
+                        <circle cx="42" cy="34" r="5" fill="#facc15" />
+                        <circle cx="58" cy="34" r="5" fill="#facc15" />
+                        <circle cx="42" cy="34" r="2.6" fill="#1b1340" />
+                        <circle cx="58" cy="34" r="2.6" fill="#1b1340" />
+                        <path d="M47 42h6l-3 5Z" fill="#fbbf24" />
+                        <path d="M10 60h80" stroke="#2e1065" stroke-width="3" stroke-linecap="round" />
+                        <circle cx="16" cy="14" r="1" fill="#fff" />
+                        <circle cx="88" cy="40" r="1.2" fill="#fff" />
+                        <circle cx="12" cy="40" r="0.8" fill="#fff" />
+                      </g>
+                    )}
+                  </svg>
+                  <span class="holo__foil" aria-hidden="true" />
+                  <span class="holo__sparkle" aria-hidden="true" />
+                </div>
+
+                <p class="holo__species">
+                  {c.type} type Shardling, {c.stage.toLowerCase()}
+                </p>
+
+                <ul class="holo__moves">
+                  {c.moves.map((move) => (
+                    <li>
+                      <span class="holo__cost" aria-hidden="true">
+                        {Array.from({ length: move.cost }, () => (
+                          <span />
+                        ))}
+                      </span>
+                      <span class="holo__move">{move.name}</span>
+                      <span class="holo__damage">{move.damage}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <dl class="holo__stats">
+                  <div>
+                    <dt>Weakness</dt>
+                    <dd>{c.weak} x2</dd>
+                  </div>
+                  <div>
+                    <dt>Resistance</dt>
+                    <dd>None</dd>
+                  </div>
+                  <div>
+                    <dt>Retreat</dt>
+                    <dd>{c.moves[0]!.cost}</dd>
+                  </div>
+                </dl>
+
+                <p class="holo__flavour">{c.flavour}</p>
+
+                <div class="holo__foot">
+                  <span>Shardlings</span>
+                  <span>
+                    {c.number}/120 <span aria-hidden="true">&#9733;</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <span class="holo__glare" aria-hidden="true" />
+          </div>
+        ))
+      }
+    </div>
+    <p class="holo-hint">Grab a corner and drag. The foil follows you.</p>
+  </div>
+</Scene>
+
+<script>
+  import { mountWhenNear } from '../../lib/showcase/lazy'
+  import { mountHoloCards } from '../../lib/showcase/holo'
+
+  const scene = document.getElementById('holo-cards')
+  if (scene) mountWhenNear(scene, () => mountHoloCards(scene))
+</script>
+
+<style>
+  :global(.holo-scene) {
+    background-image:
+      radial-gradient(60% 50% at 50% 50%, rgb(124 92 255 / 26%), transparent 70%),
+      radial-gradient(40% 40% at 20% 90%, rgb(236 72 153 / 14%), transparent 70%);
+  }
+
+  .holo-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .holo-backdrop span {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: calc(var(--s) * 22px);
+    aspect-ratio: 1;
+    background: #e9e3ff;
+    clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+    opacity: 0.5;
+    animation: holo-twinkle 3.6s ease-in-out infinite;
+    animation-delay: var(--d);
+  }
+
+  @keyframes holo-twinkle {
+    50% {
+      opacity: 0.1;
+      transform: scale(0.6);
+    }
+  }
+
+  .holo-stage {
+    display: grid;
+    justify-items: center;
+    gap: 34px;
+    width: 100%;
+    padding: 24px 0 8px;
+  }
+
+  .holo-stack {
+    --w: min(300px, 62vw);
+    position: relative;
+    width: var(--w);
+    aspect-ratio: 5 / 7;
+    translate: calc(0.5 * (96px - 0.12 * var(--w))) 0;
+  }
+
+  .holo {
+    --shift: 0;
+    --glow: 0;
+    position: absolute;
+    inset: 0;
+    container-type: inline-size;
+    border-radius: 16px;
+    cursor: grab;
+    will-change: transform;
+    box-shadow:
+      0 2px 4px rgb(0 0 0 / 30%),
+      0 30px 60px -20px rgb(0 0 0 / 70%),
+      0 0 50px -10px color-mix(in srgb, var(--sky-a) 35%, transparent);
+  }
+
+  .holo:active {
+    cursor: grabbing;
+  }
+
+  .holo:focus-visible {
+    outline: 3px solid #f4f0ff;
+    outline-offset: 5px;
+  }
+
+  .holo__frame {
+    height: 100%;
+    padding: 3.2cqw;
+    border-radius: inherit;
+    overflow: hidden;
+    background:
+      linear-gradient(
+        125deg,
+        #fff6d2 0%,
+        #d6a945 18%,
+        #fff2c0 34%,
+        #b8862c 52%,
+        #f7dd8f 70%,
+        #a87420 86%,
+        #f3d27e 100%
+      );
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 70%);
+  }
+
+  .holo--silver .holo__frame {
+    background: linear-gradient(
+      125deg,
+      #ffffff 0%,
+      #a9b4c4 18%,
+      #f4f7fb 34%,
+      #8592a6 52%,
+      #e6ebf2 70%,
+      #7a879b 86%,
+      #dfe5ee 100%
+    );
+  }
+
+  .holo__card {
+    display: flex;
+    flex-direction: column;
+    gap: 2cqw;
+    height: 100%;
+    overflow: hidden;
+    padding: 3.4cqw 3.8cqw 3cqw;
+    border-radius: 3cqw;
+    background:
+      linear-gradient(180deg, rgb(255 255 255 / 60%), transparent 30%), var(--body);
+    color: #17131f;
+  }
+
+  .holo__head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    column-gap: 2cqw;
+  }
+
+  .holo__stage {
+    grid-column: 1 / -1;
+    font: 700 max(9px, 3cqw) / 1.1 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #3a3346;
+  }
+
+  .holo__name {
+    font-size: max(15px, 8.6cqw);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .holo__hp {
+    font-size: max(14px, 7cqw);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    color: #9f1239;
+  }
+
+  .holo__hp span {
+    margin-right: 0.6cqw;
+    font-size: 0.5em;
+    letter-spacing: 0.04em;
+  }
+
+  .holo__art {
+    position: relative;
+    overflow: hidden;
+    flex: none;
+    aspect-ratio: 100 / 64;
+    border-radius: 1.6cqw;
+    background: linear-gradient(160deg, var(--sky-a), var(--sky-b));
+    box-shadow:
+      0 0 0 0.8cqw rgb(255 255 255 / 70%),
+      0 0 0 1.2cqw rgb(0 0 0 / 14%);
+  }
+
+  .holo__art svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* The foil: a rainbow band twice the window's width, slid by --shift. */
+  .holo__foil {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -50%;
+    width: 200%;
+    background: linear-gradient(
+      105deg,
+      transparent 24%,
+      rgb(255 0 128 / 70%) 34%,
+      rgb(255 214 0 / 70%) 41%,
+      rgb(0 255 170 / 70%) 48%,
+      rgb(0 180 255 / 70%) 55%,
+      rgb(170 0 255 / 70%) 62%,
+      transparent 72%
+    );
+    mix-blend-mode: color-dodge;
+    opacity: calc(0.3 + var(--glow) * 0.7);
+    transform: translateX(calc(var(--shift) * -42%));
+    transition:
+      transform 700ms var(--ease-out),
+      opacity 700ms var(--ease-out);
+  }
+
+  .holo__sparkle {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle, rgb(255 255 255 / 90%) 0 0.4cqw, transparent 0.7cqw) 0 0 / 7cqw 6cqw,
+      radial-gradient(circle, rgb(255 255 255 / 70%) 0 0.3cqw, transparent 0.6cqw) 3.5cqw 3cqw /
+        7cqw 6cqw;
+    mix-blend-mode: overlay;
+    opacity: calc(0.15 + var(--glow) * 0.85);
+    transition: opacity 700ms var(--ease-out);
+  }
+
+  /* A soft light across the whole card, sliding against the foil. */
+  .holo__glare {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  .holo__glare::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    bottom: -20%;
+    left: -60%;
+    width: 120%;
+    background: linear-gradient(
+      100deg,
+      transparent 30%,
+      rgb(255 255 255 / 55%) 48%,
+      rgb(255 255 255 / 0%) 62%
+    );
+    mix-blend-mode: soft-light;
+    opacity: calc(0.25 + var(--glow) * 0.75);
+    transform: translateX(calc(30% + var(--shift) * 70%));
+    transition:
+      transform 700ms var(--ease-out),
+      opacity 700ms var(--ease-out);
+  }
+
+  .holo.is-held .holo__foil,
+  .holo.is-held .holo__sparkle,
+  .holo.is-held .holo__glare::before {
+    transition: none;
+  }
+
+  .holo__species {
+    padding: 1.2cqw 2.4cqw;
+    border-radius: 99px;
+    background: rgb(0 0 0 / 6%);
+    font: 600 max(9px, 2.9cqw) / 1.2 var(--font-mono);
+    color: #3a3346;
+    text-align: center;
+  }
+
+  .holo__moves {
+    display: grid;
+    gap: 1.6cqw;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .holo__moves li {
+    display: grid;
+    grid-template-columns: 11cqw 1fr auto;
+    align-items: center;
+    gap: 2cqw;
+    padding-bottom: 1.6cqw;
+    border-bottom: 1px solid rgb(0 0 0 / 10%);
+  }
+
+  .holo__cost {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8cqw;
+  }
+
+  .holo__cost span {
+    width: 3.2cqw;
+    height: 3.2cqw;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: inset 0 -0.4cqw 0 rgb(0 0 0 / 25%);
+  }
+
+  .holo__move {
+    font-size: max(11px, 4.6cqw);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .holo__damage {
+    font-size: max(13px, 6cqw);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+  }
+
+  .holo__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2cqw;
+    margin: 0;
+    text-align: center;
+  }
+
+  .holo__stats div {
+    display: grid;
+    gap: 0.8cqw;
+  }
+
+  .holo__stats dt {
+    font: 700 max(8px, 2.5cqw) / 1 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #3a3346;
+  }
+
+  .holo__stats dd {
+    margin: 0;
+    font-size: max(10px, 3.6cqw);
+    font-weight: 800;
+  }
+
+  .holo__flavour {
+    margin-top: auto;
+    font: italic 500 max(9.5px, 3.3cqw) / 1.3 var(--font-serif);
+    color: #3a3346;
+  }
+
+  .holo__foot {
+    display: flex;
+    justify-content: space-between;
+    font: 700 max(8.5px, 2.7cqw) / 1 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #3a3346;
+  }
+
+  .holo-hint {
+    font-size: 14px;
+    font-weight: 650;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .holo-backdrop span {
+      animation: none;
+    }
+  }
+</style>

@@ -1,0 +1,436 @@
+---
+/**
+ * The showcase: six made-up products, each built around a live Riffle
+ * stack, one full viewport colour field per scene. A standalone page with
+ * its own layout (src/layouts/ShowcaseLayout.astro) rather than a Starlight
+ * page, so the whole thing can be art directed. Every stack is the vanilla
+ * core mounted by a small module under src/lib/showcase/, lazily, as its
+ * scene nears the screen.
+ */
+import ShowcaseLayout from '../layouts/ShowcaseLayout.astro'
+import BoardingPasses from '../components/showcase/BoardingPasses.astro'
+import CrateDigging from '../components/showcase/CrateDigging.astro'
+import HoloCards from '../components/showcase/HoloCards.astro'
+import Flashcards from '../components/showcase/Flashcards.astro'
+import CoffeeOrigins from '../components/showcase/CoffeeOrigins.astro'
+import Stories from '../components/showcase/Stories.astro'
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+
+const scenes = [
+  { id: 'boarding-passes', name: 'Boarding passes', colour: '#2459e0', ink: '#ffffff' },
+  { id: 'crate-digging', name: 'Crate digging', colour: '#ff5a1f', ink: '#140c08' },
+  { id: 'holo-cards', name: 'Holo cards', colour: '#8b6cff', ink: '#0e0b22' },
+  { id: 'flashcards', name: 'Flashcards', colour: '#efe4cf', ink: '#2b1d12' },
+  { id: 'coffee-origins', name: 'Coffee origins', colour: '#f2c230', ink: '#3b2a00' },
+  { id: 'stories', name: 'Stories', colour: '#ff4f8b', ink: '#1b0612' },
+]
+---
+
+<ShowcaseLayout
+  title="Riffle in the wild: six live card stacks"
+  description="Six made-up products built on Riffle, the physics based card stack for Vanilla JS, React and Vue. Boarding passes, record crates, holo cards, flashcards, coffee bags and stories, all live and draggable."
+>
+  <header class="intro">
+    <nav class="intro__nav" aria-label="Site">
+      <a class="intro__brand" href={`${base}/`}>
+        <svg viewBox="0 0 128 128" aria-hidden="true">
+          <path
+            fill-rule="evenodd"
+            d="M81 36 64 0 47 36l-1 2-9-10a6 6 0 0 0-9 9l10 10h-2L0 64l36 17h2L28 91a6 6 0 1 0 9 9l9-10 1 2 17 36 17-36v-2l9 10a6 6 0 1 0 9-9l-9-9 2-1 36-17-36-17-2-1 9-9a6 6 0 1 0-9-9l-9 10v-2Zm-17 2-2 5c-4 8-11 15-19 19l-5 2 5 2c8 4 15 11 19 19l2 5 2-5c4-8 11-15 19-19l5-2-5-2c-8-4-15-11-19-19l-2-5Z"
+            clip-rule="evenodd"></path>
+        </svg>
+        Riffle
+      </a>
+      <ul class="intro__links">
+        <li><a href={`${base}/#choose-your-framework`}>Docs</a></li>
+        <li><a href="https://github.com/reactivepixels/riffle">GitHub</a></li>
+      </ul>
+    </nav>
+
+    <div class="intro__main">
+      <div class="intro__copy">
+        <p class="intro__kicker">Showcase</p>
+        <h1 class="intro__title">Riffle, out in the&nbsp;wild.</h1>
+        <p class="intro__lede">
+          Riffle is a tiny, physics based card stack for Vanilla JS, React and Vue. Here it is
+          dressed up as six products that do not exist yet. Every stack below is live, so grab
+          one.
+        </p>
+      </div>
+
+      <div class="intro__deck" aria-hidden="true">
+        {
+          scenes.map((scene, i) => (
+            <span
+              class="intro__card"
+              style={`--i: ${i}; --c: ${scene.colour}; --k: ${scene.ink};`}
+            >
+              <span class="intro__card-number">0{i + 1}</span>
+              <span class="intro__card-name">{scene.name}</span>
+            </span>
+          ))
+        }
+      </div>
+    </div>
+
+    <nav class="intro__chips" aria-label="Scenes">
+      <ul>
+        {
+          scenes.map((scene, i) => (
+            <li>
+              <a href={`#${scene.id}`} style={`--c: ${scene.colour}; --k: ${scene.ink};`}>
+                <span class="intro__chip-number">0{i + 1}</span>
+                {scene.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <BoardingPasses />
+    <CrateDigging />
+    <HoloCards />
+    <Flashcards />
+    <CoffeeOrigins />
+    <Stories />
+  </main>
+
+  <footer class="outro">
+    <div class="outro__inner">
+      <p class="outro__kicker">Your turn</p>
+      <h2 class="outro__title">Your stack is next.</h2>
+      <p class="outro__lede">
+        One engine with the same feel in every framework. Pick yours and have a stack on screen in
+        minutes.
+      </p>
+      <div class="outro__actions">
+        <a class="outro__button outro__button--primary" href={`${base}/#choose-your-framework`}>
+          Choose your framework
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"></path></svg>
+        </a>
+        <a class="outro__button" href="https://github.com/reactivepixels/riffle">
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="outro__github">
+            <path
+              d="M12 .5a11.5 11.5 0 0 0-3.6 22.4c.6.1.8-.3.8-.6v-2.2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.7.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .5Z"
+            ></path>
+          </svg>
+          GitHub
+        </a>
+      </div>
+      <p class="outro__note">
+        Every airline, label, artist, creature, roaster and guide on this page is made up. The
+        physics are real.
+      </p>
+    </div>
+  </footer>
+</ShowcaseLayout>
+
+<style>
+  .intro {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: 24px clamp(20px, 5vw, 80px) clamp(32px, 5vw, 64px);
+    background:
+      radial-gradient(80% 60% at 85% 40%, rgb(139 108 255 / 18%), transparent 70%),
+      radial-gradient(50% 40% at 10% 100%, rgb(255 90 31 / 12%), transparent 70%), #0c0c0e;
+    color: #f5f2ea;
+    overflow-x: clip;
+  }
+
+  .intro__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1320px;
+    margin: 0 auto;
+  }
+
+  .intro__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    color: inherit;
+    font-size: 20px;
+    font-weight: 850;
+    letter-spacing: -0.03em;
+    text-decoration: none;
+  }
+
+  .intro__brand svg {
+    width: 26px;
+    height: 26px;
+    fill: currentColor;
+  }
+
+  .intro__links {
+    display: flex;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .intro__links a {
+    display: inline-grid;
+    place-items: center;
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: 999px;
+    color: inherit;
+    font-size: 15px;
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .intro__links a:hover {
+    background: rgb(255 255 255 / 10%);
+  }
+
+  .intro a:focus-visible,
+  .outro a:focus-visible {
+    outline: 3px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  .intro__main {
+    display: grid;
+    align-items: center;
+    gap: 48px;
+    width: 100%;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: clamp(40px, 7vw, 96px) 0 clamp(32px, 4vw, 56px);
+  }
+
+  @media (min-width: 960px) {
+    .intro__main {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+    }
+  }
+
+  .intro__kicker {
+    margin-bottom: 20px;
+    font: 700 13px/1 var(--font-mono);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #c9c3ff;
+  }
+
+  .intro__title {
+    font-size: clamp(60px, 10.4vw, 172px);
+    font-weight: 900;
+    line-height: 0.84;
+    letter-spacing: -0.06em;
+    text-wrap: balance;
+  }
+
+  .intro__lede {
+    max-width: 40ch;
+    margin-top: clamp(24px, 3vw, 40px);
+    font-size: clamp(18px, 1.6vw, 23px);
+    font-weight: 500;
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    color: #dcd7cc;
+  }
+
+  .intro__deck {
+    position: relative;
+    justify-self: center;
+    width: clamp(132px, 22vw, 280px);
+    aspect-ratio: 5 / 7;
+    margin: 8px 0 24px;
+  }
+
+  .intro__card {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(12px, 1.4vw, 18px);
+    border-radius: clamp(14px, 1.5vw, 20px);
+    background:
+      linear-gradient(160deg, rgb(255 255 255 / 22%), transparent 40%), var(--c);
+    color: var(--k);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 35%),
+      0 30px 50px -20px rgb(0 0 0 / 60%),
+      0 8px 16px -8px rgb(0 0 0 / 40%);
+    transform-origin: 50% 120%;
+    transform: rotate(calc((var(--i) - 2.5) * 9deg)) translateY(calc(var(--i) * -2px));
+    transition: transform 500ms var(--ease-out);
+  }
+
+  @media (max-width: 959px) {
+    .intro__card {
+      transform: rotate(calc((var(--i) - 2.5) * 6deg)) translateY(calc(var(--i) * -2px));
+    }
+  }
+
+  .intro__deck:hover .intro__card {
+    transform: rotate(calc((var(--i) - 2.5) * 13deg)) translateY(calc(var(--i) * -2px));
+  }
+
+  .intro__card-number {
+    font: 800 15px/1 var(--font-mono);
+  }
+
+  .intro__card-name {
+    font-size: clamp(16px, 2.2vw, 28px);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+  }
+
+  .intro__chips {
+    width: 100%;
+    max-width: 1320px;
+    margin: 0 auto;
+  }
+
+  .intro__chips ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .intro__chips a {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 18px 0 8px;
+    border-radius: 999px;
+    background: var(--c);
+    color: var(--k);
+    font-size: 15px;
+    font-weight: 750;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    transition: transform 200ms var(--ease-out);
+  }
+
+  .intro__chips a:hover {
+    transform: translateY(-2px);
+  }
+
+  .intro__chip-number {
+    display: inline-grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+    font: 800 12px/1 var(--font-mono);
+  }
+
+  .outro {
+    display: grid;
+    align-items: center;
+    min-height: 90vh;
+    min-height: 90svh;
+    padding: clamp(80px, 10vw, 140px) clamp(20px, 5vw, 80px) 48px;
+    background: #ffd60a;
+    color: #111111;
+    overflow-x: clip;
+  }
+
+  .outro__inner {
+    width: 100%;
+    max-width: 1320px;
+    margin: 0 auto;
+  }
+
+  .outro__kicker {
+    margin-bottom: 20px;
+    font: 700 13px/1 var(--font-mono);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .outro__title {
+    font-size: clamp(64px, 12vw, 200px);
+    font-weight: 900;
+    line-height: 0.84;
+    letter-spacing: -0.065em;
+    text-wrap: balance;
+  }
+
+  .outro__lede {
+    max-width: 36ch;
+    margin-top: 32px;
+    font-size: clamp(18px, 1.6vw, 23px);
+    font-weight: 550;
+    line-height: 1.45;
+  }
+
+  .outro__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 40px;
+  }
+
+  .outro__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 56px;
+    padding: 0 26px;
+    border: 2.5px solid #111;
+    border-radius: 999px;
+    color: #111;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    text-decoration: none;
+    transition: transform 200ms var(--ease-out);
+  }
+
+  .outro__button:hover {
+    transform: translateY(-2px);
+  }
+
+  .outro__button--primary {
+    background: #111;
+    color: #ffd60a;
+  }
+
+  .outro__button svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .outro__button svg.outro__github {
+    fill: currentColor;
+    stroke: none;
+  }
+
+  .outro__note {
+    max-width: 60ch;
+    margin-top: clamp(64px, 10vw, 120px);
+    padding-top: 20px;
+    border-top: 2px solid #111;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+</style>

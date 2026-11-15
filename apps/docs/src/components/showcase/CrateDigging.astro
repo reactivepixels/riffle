@@ -1,0 +1,778 @@
+---
+/**
+ * Showcase scene 2: a crate of record sleeves for made-up artists, each
+ * with its own typographic or geometric cover drawn in CSS. Server rendered
+ * here; src/lib/showcase/crate.ts mounts the engine and toggles the
+ * `is-playing` class that slides the record out and spins it.
+ */
+import Scene from './Scene.astro'
+import { crateSource } from '../../lib/snippets'
+
+interface Record {
+  art: 'bloom' | 'hymns' | 'static' | 'parallax' | 'machines' | 'moss'
+  title: string
+  artist: string
+  label: string
+  price: string
+}
+
+const records: Record[] = [
+  { art: 'bloom', title: 'Concrete Bloom', artist: 'Mira Solano', label: '#e63b2e', price: '24' },
+  {
+    art: 'hymns',
+    title: 'Night Bus Hymns',
+    artist: 'The Low Lanterns',
+    label: '#ffb238',
+    price: '19',
+  },
+  {
+    art: 'static',
+    title: 'Tangerine Static',
+    artist: 'Odalys and the Wires',
+    label: '#ff4fa3',
+    price: '22',
+  },
+  {
+    art: 'parallax',
+    title: 'Parallax',
+    artist: 'Kofi Mensah-Dahl',
+    label: '#ffe14d',
+    price: '27',
+  },
+  {
+    art: 'machines',
+    title: 'Soft Machines',
+    artist: 'Ines Varga Quartet',
+    label: '#3fb0b0',
+    price: '21',
+  },
+  { art: 'moss', title: 'Moss Hours', artist: 'Heron Coast', label: '#9fd18b', price: '18' },
+]
+
+const describe = (r: Record) => `${r.title} by ${r.artist}`
+---
+
+<Scene
+  id="crate-digging"
+  index="02"
+  kicker="Record shop"
+  title="Dig the crate."
+  lede="Sleeves that loop forever, like the best shop bins. Let the stack come to rest and the record slides out to say hello. Grab it again and it tucks back in."
+  features={["bounds: 'loop'", "on('settle')", "on('dragstart')", "on('change')", 'getLabel']}
+  code={crateSource}
+  flip
+  class="crate-scene"
+  style="--bg: #ff5a1f; --ink: #140c08;"
+>
+  <div class="crate-stage">
+    <div class="crate-rig">
+      <div class="crate-stack" data-stack role="group" aria-label="Record crate, new arrivals">
+        <div class="crate-divider" aria-hidden="true">
+          <span>Leftfield</span>
+          <span>New in</span>
+        </div>
+        {
+          records.map((record, i) => (
+            <div
+              class="sleeve"
+              data-label={describe(record)}
+              style={`--label: ${record.label}; z-index: ${records.length - i};`}
+            >
+              <div class="disc" aria-hidden="true">
+                <div class="disc__spin">
+                  <div class="disc__label">
+                    <span>Side A</span>
+                    <span>33</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class={`cover cover--${record.art}`}>
+                {record.art === 'bloom' && (
+                  <>
+                    <span class="bloom__sun" />
+                    <span class="bloom__bar" />
+                    <span class="bloom__bar bloom__bar--thin" />
+                    <p class="cover__title">
+                      Concrete
+                      <br />
+                      Bloom
+                    </p>
+                    <p class="cover__artist">Mira Solano</p>
+                  </>
+                )}
+                {record.art === 'hymns' && (
+                  <>
+                    <span class="hymns__rings" />
+                    <span class="hymns__moon" />
+                    <p class="cover__artist">The Low Lanterns</p>
+                    <p class="cover__title">Night Bus Hymns</p>
+                  </>
+                )}
+                {record.art === 'static' && (
+                  <>
+                    <span class="static__stripes" />
+                    <div class="static__card">
+                      <p class="cover__title">Tangerine Static</p>
+                      <p class="cover__artist">Odalys and the Wires</p>
+                    </div>
+                  </>
+                )}
+                {record.art === 'parallax' && (
+                  <>
+                    <p class="cover__title">
+                      <span>Parallax</span>
+                      <span aria-hidden="true">Parallax</span>
+                      <span aria-hidden="true">Parallax</span>
+                      <span aria-hidden="true">Parallax</span>
+                      <span aria-hidden="true">Parallax</span>
+                    </p>
+                    <p class="cover__artist">Kofi Mensah-Dahl</p>
+                  </>
+                )}
+                {record.art === 'machines' && (
+                  <>
+                    <span class="machines__grid">
+                      <span />
+                      <span />
+                      <span />
+                      <span />
+                    </span>
+                    <div class="machines__strip">
+                      <p class="cover__title">Soft Machines</p>
+                      <p class="cover__artist">Ines Varga Quartet</p>
+                    </div>
+                  </>
+                )}
+                {record.art === 'moss' && (
+                  <>
+                    <span class="moss__dots" />
+                    <span class="moss__leaf" />
+                    <p class="cover__title">Moss Hours</p>
+                    <p class="cover__artist">Heron Coast</p>
+                  </>
+                )}
+                <span class="cover__wear" />
+                <span class="cover__gloss" />
+              </div>
+
+              {i % 2 === 0 && (
+                <span class="sleeve__sticker" aria-hidden="true">
+                  <small>£</small>
+                  {record.price}
+                </span>
+              )}
+            </div>
+          ))
+        }
+      </div>
+      <div class="crate-ledge" aria-hidden="true"></div>
+    </div>
+
+    <div class="crate-now">
+      <span class="crate-eq" aria-hidden="true"><span></span><span></span><span></span></span>
+      <p>
+        <span class="crate-now__label">Now spinning</span>
+        <span class="crate-now__title" data-now-playing>{describe(records[0]!)}</span>
+      </p>
+    </div>
+    <p class="crate-hint">Drag sideways. It loops, like any good crate.</p>
+  </div>
+</Scene>
+
+<script>
+  import { mountWhenNear } from '../../lib/showcase/lazy'
+  import { mountCrateDigging } from '../../lib/showcase/crate'
+
+  const scene = document.getElementById('crate-digging')
+  if (scene) mountWhenNear(scene, () => mountCrateDigging(scene))
+</script>
+
+<style>
+  .crate-stage {
+    display: grid;
+    justify-items: center;
+    gap: 26px;
+    width: 100%;
+  }
+
+  .crate-rig {
+    --w: min(370px, 54vw);
+    display: grid;
+    justify-items: center;
+    width: 100%;
+    padding-top: 52px;
+  }
+
+  .crate-stack {
+    position: relative;
+    width: var(--w);
+    aspect-ratio: 1;
+    /*
+     * Centre the whole group (the fan to the left plus the record sliding out
+     * to the right), not the front sleeve alone.
+     */
+    translate: calc(45px - 0.21 * var(--w)) 0;
+  }
+
+  .crate-divider {
+    position: absolute;
+    top: -44px;
+    left: -16%;
+    width: 94%;
+    height: 60%;
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-radius: 12px 12px 0 0;
+    background: linear-gradient(180deg, #f6efe1, #e2d6bd);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 60%) inset;
+    font: 800 11px/1 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: #3a2a1a;
+  }
+
+  .crate-ledge {
+    position: relative;
+    z-index: 20;
+    width: min(640px, 100%);
+    height: 16px;
+    margin-top: -4px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #3a2216, #140c08);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 18%) inset,
+      0 26px 30px -14px rgb(20 12 8 / 60%);
+    pointer-events: none;
+  }
+
+  .sleeve {
+    position: absolute;
+    inset: 0;
+    container-type: inline-size;
+    cursor: grab;
+    will-change: transform;
+  }
+
+  .sleeve:active {
+    cursor: grabbing;
+  }
+
+  .sleeve:focus-visible {
+    outline: 3px solid #140c08;
+    outline-offset: 5px;
+  }
+
+  /* The record: slides out on .is-playing, spins inside its own layer. */
+  .disc {
+    position: absolute;
+    inset: 3%;
+    border-radius: 50%;
+    transition: transform 900ms var(--ease-out);
+  }
+
+  .sleeve.is-playing .disc {
+    transform: translateX(38%);
+  }
+
+  .disc::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 20deg,
+      transparent 0 6%,
+      rgb(255 255 255 / 16%) 11%,
+      transparent 17% 50%,
+      rgb(255 255 255 / 11%) 61%,
+      transparent 67%
+    );
+    pointer-events: none;
+  }
+
+  .disc__spin {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, transparent 0 33%, rgb(255 255 255 / 7%) 33.5% 34%, transparent 34.5%),
+      radial-gradient(circle, transparent 0 62%, rgb(255 255 255 / 5%) 62.5% 63%, transparent 63.5%),
+      repeating-radial-gradient(circle, #121212 0 1.2px, #1e1e1e 1.6px 2.6px), #121212;
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 6%) inset,
+      0 18px 34px -10px rgb(0 0 0 / 55%);
+    animation: crate-spin 3.2s linear infinite;
+    animation-play-state: paused;
+  }
+
+  .sleeve.is-playing .disc__spin {
+    animation-play-state: running;
+  }
+
+  @keyframes crate-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .disc__label {
+    position: absolute;
+    inset: 33%;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 7cqw;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, #121212 0 4.5%, transparent 5%),
+      radial-gradient(circle, transparent 0 42%, rgb(0 0 0 / 14%) 43% 44%, transparent 45%), var(--label);
+    color: #140c08;
+    font: 800 max(7px, 2.4cqw) / 1 var(--font-mono);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .disc__spin {
+      animation: none;
+    }
+  }
+
+  /* The sleeve. */
+  .cover {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    border-radius: 1.4cqw;
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 35%) inset,
+      0 0 0 1px rgb(0 0 0 / 8%) inset,
+      0 2px 4px rgb(20 12 8 / 25%),
+      0 22px 40px -14px rgb(20 12 8 / 60%);
+  }
+
+  .cover > span {
+    pointer-events: none;
+  }
+
+  .cover__title,
+  .cover__artist {
+    position: relative;
+    z-index: 2;
+  }
+
+  .cover__gloss {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background:
+      linear-gradient(118deg, rgb(255 255 255 / 26%) 0%, rgb(255 255 255 / 6%) 28%, transparent 42%),
+      linear-gradient(0deg, rgb(0 0 0 / 10%), transparent 30%);
+  }
+
+  .cover__wear {
+    position: absolute;
+    inset: 7%;
+    z-index: 3;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      transparent 0 66%,
+      rgb(255 255 255 / 10%) 68% 69.5%,
+      transparent 71.5%
+    );
+  }
+
+  .sleeve__sticker {
+    position: absolute;
+    z-index: 4;
+    top: 5cqw;
+    right: 5cqw;
+    display: grid;
+    place-items: center;
+    grid-auto-flow: column;
+    width: 15cqw;
+    height: 15cqw;
+    border-radius: 50%;
+    background: #fff8e6;
+    color: #b42318;
+    font: 900 max(11px, 5.2cqw) / 1 var(--font-display);
+    letter-spacing: -0.04em;
+    rotate: 12deg;
+    box-shadow: 0 2px 4px rgb(0 0 0 / 22%);
+  }
+
+  .sleeve__sticker small {
+    font-size: 0.6em;
+  }
+
+  /* 1. Concrete Bloom: Swiss sun and bars on cream. */
+  .cover--bloom {
+    background: #efe8da;
+    color: #141414;
+  }
+
+  .bloom__sun {
+    position: absolute;
+    top: -16%;
+    right: -14%;
+    width: 72%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #e63b2e;
+  }
+
+  .bloom__bar {
+    position: absolute;
+    left: 9%;
+    top: 0;
+    bottom: 40%;
+    width: 9%;
+    background: #141414;
+  }
+
+  .bloom__bar--thin {
+    left: 22%;
+    width: 2.2%;
+    bottom: 52%;
+  }
+
+  .cover--bloom .cover__title {
+    position: absolute;
+    left: 9%;
+    bottom: 15%;
+    font-size: 13.5cqw;
+    font-weight: 900;
+    line-height: 0.86;
+    letter-spacing: -0.06em;
+  }
+
+  .cover--bloom .cover__artist {
+    position: absolute;
+    left: 9%;
+    bottom: 7%;
+    font: 700 max(10px, 3.6cqw) / 1 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* 2. Night Bus Hymns: amber rings rising on navy. */
+  .cover--hymns {
+    display: grid;
+    align-content: start;
+    gap: 2cqw;
+    padding: 9cqw;
+    background: #101a3a;
+    color: #ffb238;
+  }
+
+  .hymns__rings {
+    position: absolute;
+    left: 50%;
+    bottom: -66%;
+    width: 150%;
+    aspect-ratio: 1;
+    translate: -50% 0;
+    border-radius: 50%;
+    background: repeating-radial-gradient(circle, #ffb238 0 0.55cqw, transparent 0.7cqw 4.2cqw);
+    opacity: 0.85;
+  }
+
+  .hymns__moon {
+    position: absolute;
+    right: 12%;
+    top: 36%;
+    width: 12%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #ffe2a8;
+    box-shadow: 0 0 0 2.4cqw rgb(255 178 56 / 18%);
+  }
+
+  .cover--hymns .cover__artist {
+    font: 700 max(10px, 3.4cqw) / 1 var(--font-mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .cover--hymns .cover__title {
+    max-width: 8ch;
+    font: italic 500 12cqw / 0.92 var(--font-serif);
+    letter-spacing: -0.03em;
+  }
+
+  /* 3. Tangerine Static: hazard stripes and a paper label. */
+  .cover--static {
+    display: grid;
+    place-items: center;
+    background: #ff7a1a;
+  }
+
+  .static__stripes {
+    position: absolute;
+    inset: -20%;
+    background: repeating-linear-gradient(
+      -38deg,
+      #ff7a1a 0 7cqw,
+      #ff4fa3 7cqw 14cqw,
+      #fff1d6 14cqw 15.5cqw
+    );
+  }
+
+  .static__card {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    gap: 2.4cqw;
+    width: 66%;
+    padding: 6cqw 6cqw 5cqw;
+    background: #fffaf0;
+    color: #141414;
+    box-shadow: 0 1.5cqw 3cqw rgb(0 0 0 / 22%);
+    rotate: -4deg;
+  }
+
+  .cover--static .cover__title {
+    font-size: 9.4cqw;
+    font-weight: 900;
+    line-height: 0.88;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+  }
+
+  .cover--static .cover__artist {
+    padding-top: 2.4cqw;
+    border-top: 0.6cqw solid #141414;
+    font: 700 max(10px, 3.2cqw) / 1.2 var(--font-mono);
+  }
+
+  /* 4. Parallax: one word, five times, sliding. */
+  .cover--parallax {
+    display: grid;
+    align-content: space-between;
+    padding: 6cqw 0 7cqw;
+    background: #ffe14d;
+    color: #141414;
+  }
+
+  .cover--parallax .cover__title {
+    display: grid;
+    font-size: 17cqw;
+    font-weight: 900;
+    line-height: 0.84;
+    letter-spacing: -0.065em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .cover--parallax .cover__title span:nth-child(1) {
+    translate: 4% 0;
+  }
+
+  .cover--parallax .cover__title span:nth-child(2) {
+    translate: -8% 0;
+    color: transparent;
+    -webkit-text-stroke: 0.45cqw #141414;
+  }
+
+  .cover--parallax .cover__title span:nth-child(3) {
+    translate: -20% 0;
+  }
+
+  .cover--parallax .cover__title span:nth-child(4) {
+    translate: -32% 0;
+    color: transparent;
+    -webkit-text-stroke: 0.45cqw #141414;
+  }
+
+  .cover--parallax .cover__title span:nth-child(5) {
+    translate: -44% 0;
+  }
+
+  .cover--parallax .cover__artist {
+    padding: 0 7cqw;
+    font: 700 max(10px, 3.6cqw) / 1 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: right;
+  }
+
+  /* 5. Soft Machines: four quarter circles. */
+  .cover--machines {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    background: #f3eee3;
+    color: #141414;
+  }
+
+  .machines__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3cqw;
+    padding: 8cqw 8cqw 5cqw;
+  }
+
+  .machines__grid span {
+    background: #1f8a8a;
+    border-radius: 100% 0 0 0;
+  }
+
+  .machines__grid span:nth-child(2) {
+    background: #e63b2e;
+    border-radius: 0 100% 0 0;
+  }
+
+  .machines__grid span:nth-child(3) {
+    background: #2747c7;
+    border-radius: 0 0 0 100%;
+  }
+
+  .machines__grid span:nth-child(4) {
+    background: #f2b632;
+    border-radius: 50%;
+  }
+
+  .machines__strip {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 3cqw;
+    padding: 0 8cqw 7cqw;
+  }
+
+  .cover--machines .cover__title {
+    font-size: 7.6cqw;
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    white-space: nowrap;
+  }
+
+  .cover--machines .cover__artist {
+    font: 700 max(9px, 2.8cqw) / 1.2 var(--font-mono);
+    text-align: right;
+  }
+
+  /* 6. Moss Hours: dot field and a serif title. */
+  .cover--moss {
+    display: grid;
+    align-content: end;
+    gap: 3cqw;
+    padding: 9cqw;
+    background: #1f3d2b;
+    color: #f1ead2;
+  }
+
+  .moss__dots {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, #9fd18b 0 0.9cqw, transparent 1.1cqw) 0 0 / 6cqw 6cqw;
+    -webkit-mask: radial-gradient(70% 60% at 70% 30%, #000 30%, transparent 75%);
+    mask: radial-gradient(70% 60% at 70% 30%, #000 30%, transparent 75%);
+    opacity: 0.75;
+  }
+
+  .moss__leaf {
+    position: absolute;
+    top: 14%;
+    right: 16%;
+    width: 30%;
+    aspect-ratio: 1;
+    border-radius: 0 100% 0 100%;
+    background: #9fd18b;
+    rotate: -12deg;
+  }
+
+  .cover--moss .cover__title {
+    font: italic 400 15cqw / 0.9 var(--font-serif);
+    letter-spacing: -0.035em;
+  }
+
+  .cover--moss .cover__artist {
+    font: 700 max(10px, 3.4cqw) / 1 var(--font-mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  /* Readout under the crate. */
+  .crate-now {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    max-width: 100%;
+    padding: 10px 22px 10px 16px;
+    border-radius: 999px;
+    background: #140c08;
+    color: #ffd9c7;
+  }
+
+  .crate-now p {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .crate-now__label {
+    font: 700 11px/1 var(--font-mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .crate-now__title {
+    overflow: hidden;
+    font-size: 15px;
+    font-weight: 750;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .crate-eq {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    width: 22px;
+    height: 18px;
+    flex: none;
+  }
+
+  .crate-eq span {
+    flex: 1;
+    height: 100%;
+    border-radius: 2px;
+    background: #ff5a1f;
+    transform-origin: bottom;
+    animation: crate-eq 900ms ease-in-out infinite alternate;
+  }
+
+  .crate-eq span:nth-child(2) {
+    animation-delay: -300ms;
+  }
+
+  .crate-eq span:nth-child(3) {
+    animation-delay: -600ms;
+  }
+
+  @keyframes crate-eq {
+    from {
+      transform: scaleY(0.25);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .crate-eq span {
+      animation: none;
+      transform: scaleY(0.6);
+    }
+  }
+
+  .crate-hint {
+    font-size: 14px;
+    font-weight: 650;
+  }
+</style>

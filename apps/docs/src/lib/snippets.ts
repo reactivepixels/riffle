@@ -39,6 +39,12 @@ import vueInfiniteFeedRaw from '../../../../examples/vue-recipes/src/InfiniteFee
 import vueGrowthRaw from '../../../../examples/vue-recipes/src/growth.ts?raw'
 import vueExternalControlStackWiringRaw from '../../../../examples/vue-recipes/src/ExternalControlStack.vue?raw'
 import vueFormCardsStackWiringRaw from '../../../../examples/vue-recipes/src/FormCardsStack.vue?raw'
+import showcaseBoardingRaw from './showcase/boarding.ts?raw'
+import showcaseCrateRaw from './showcase/crate.ts?raw'
+import showcaseHoloRaw from './showcase/holo.ts?raw'
+import showcaseFlashcardsRaw from './showcase/flashcards.ts?raw'
+import showcaseCoffeeRaw from './showcase/coffee.ts?raw'
+import showcaseStoriesRaw from './showcase/stories.ts?raw'
 
 function extractFencedBlock(markdown: string, heading: string, lang: string): string {
   const headingIndex = markdown.indexOf(heading)
@@ -201,3 +207,15 @@ export const vueCardFieldsSource: string = region(vueFormCardsStackWiringRaw, 'c
 export const vanillaFocusRedirectSource: string = region(vanillaFormsInCardsRaw, 'focus-redirect')
 export const reactFocusRedirectSource: string = region(reactFormCardsStackRaw, 'focus-redirect')
 export const vueFocusRedirectSource: string = region(vueFormCardsStackWiringRaw, 'focus-redirect')
+
+/**
+ * The showcase page (src/pages/showcase.astro): each scene's "View the code"
+ * panel shows the `setup` region of the very module that mounts that scene,
+ * so the panel and the live stack beside it are one piece of code.
+ */
+export const boardingSource: string = region(showcaseBoardingRaw, 'setup')
+export const crateSource: string = region(showcaseCrateRaw, 'setup')
+export const holoSource: string = region(showcaseHoloRaw, 'setup')
+export const flashcardsSource: string = region(showcaseFlashcardsRaw, 'setup')
+export const coffeeSource: string = region(showcaseCoffeeRaw, 'setup')
+export const storiesSource: string = region(showcaseStoriesRaw, 'setup')
