@@ -211,7 +211,7 @@ test.describe('tracks: landing page', () => {
     // Every content link except the three track cards, which are the one
     // place a track is chosen by clicking it.
     const hrefs = await page
-      .locator('.sl-markdown-content a[href]:not([data-track-card])')
+      .locator('main a[href]:not([data-track-card])')
       .evaluateAll((links) => links.map((l) => l.getAttribute('href') ?? ''))
     const chooseLinks = hrefs.filter((href) => href.startsWith(`${BASE}/choose/?next=`))
     // Precondition: the landing's Next list and its Why Riffle links are there.
@@ -236,7 +236,7 @@ test.describe('tracks: landing page', () => {
     await page.goto(`${DOCS_ORIGIN}${BASE}/`)
     await page.evaluate(() => localStorage.setItem('riffle:framework', 'vue'))
     await page.goto(`${DOCS_ORIGIN}${BASE}/`)
-    await page.locator('.sl-markdown-content a', { hasText: 'Getting Started' }).first().click()
+    await page.locator('main a', { hasText: 'Getting Started' }).first().click()
     await expect(page).toHaveURL(`${DOCS_ORIGIN}${BASE}/vue/getting-started/`)
   })
 

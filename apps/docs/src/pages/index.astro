@@ -1,0 +1,783 @@
+---
+/**
+ * The landing page. A standalone page on the showcase's own layout
+ * (src/layouts/ShowcaseLayout.astro) rather than a Starlight splash, so it
+ * can be art directed like the showcase it points to. Four bands:
+ *
+ * 1. The hero: six pieces of showcase art in one live stack, the band
+ *    flooding to the front card's colour (src/lib/landing/hero.ts).
+ * 2. One engine, three frameworks: a vanilla snippet next to a real React
+ *    stack and a real Vue stack, hydrated as islands.
+ * 3. What you get: the facts, in four short columns.
+ * 4. Start: the framework cards (TrackCards.astro, which remembers the
+ *    choice) and the next pages, each through /choose/ so no link here
+ *    hard-codes a track.
+ */
+import { Image } from 'astro:assets'
+import { Code } from 'astro:components'
+import ShowcaseLayout from '../layouts/ShowcaseLayout.astro'
+import TrackCards from '../components/TrackCards.astro'
+import ReactStack from '../components/ReactStack'
+import VueStack from '../components/VueStack'
+import { showcaseCodeTheme } from '../lib/showcase/code-theme'
+import bundleSizes from '../generated/bundle-sizes.json'
+import staticCover from '../assets/showcase/covers/static.jpg'
+import fox from '../assets/showcase/creatures/fox.jpg'
+import parallax from '../assets/showcase/covers/parallax.jpg'
+import moth from '../assets/showcase/creatures/moth.jpg'
+import bloom from '../assets/showcase/covers/bloom.jpg'
+import owl from '../assets/showcase/creatures/owl.jpg'
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+const showcase = `${base}/showcase/`
+const kb = (bytes: number) => (bytes / 1000).toFixed(2)
+
+// Every flood and ink pair clears WCAG AA (4.5:1 or better) for body text.
+const cards = [
+  {
+    src: staticCover,
+    label: 'Tangerine Static, a record sleeve',
+    caption: 'Tangerine Static, from the record crate',
+    href: `${showcase}#crate-digging`,
+    flood: '#ff5a1f',
+    ink: '#111111',
+  },
+  {
+    src: fox,
+    label: 'Emberfox, a trading card',
+    caption: 'Emberfox, from the trading cards',
+    href: `${showcase}#holo-cards`,
+    flood: '#1d2b5e',
+    ink: '#ffffff',
+  },
+  {
+    src: parallax,
+    label: 'Parallax, a record sleeve',
+    caption: 'Parallax, from the record crate',
+    href: `${showcase}#crate-digging`,
+    flood: '#ffd60a',
+    ink: '#111111',
+  },
+  {
+    src: moth,
+    label: 'Voltmoth, a trading card',
+    caption: 'Voltmoth, from the trading cards',
+    href: `${showcase}#holo-cards`,
+    flood: '#0f2b3a',
+    ink: '#ffe27a',
+  },
+  {
+    src: bloom,
+    label: 'Concrete Bloom, a record sleeve',
+    caption: 'Concrete Bloom, from the record crate',
+    href: `${showcase}#crate-digging`,
+    flood: '#ff3b30',
+    ink: '#111111',
+  },
+  {
+    src: owl,
+    label: 'Gloomowl, a trading card',
+    caption: 'Gloomowl, from the trading cards',
+    href: `${showcase}#holo-cards`,
+    flood: '#5b3f8c',
+    ink: '#ffffff',
+  },
+]
+const first = cards[0]!
+
+const snippet = `import { createRiffle } from '@rpxl/riffle'
+
+const stack = document.querySelector('.stack')
+const cards = stack.querySelectorAll('.card')
+
+const riffle = createRiffle(stack, {
+  count: cards.length,
+  cardWidth: 280,
+  cardHeight: 380,
+})
+cards.forEach((card, i) => riffle.registerNode(i, card))`
+
+const facts = [
+  {
+    title: 'Real physics',
+    body: 'A spring drives every settle. Drag velocity carries into a fling, and a release short of the threshold eases back instead of snapping.',
+  },
+  {
+    title: 'Nothing is discarded',
+    body: 'Cards cycle in place. Reach the last one and the next drag brings back the first, or clamp it to stop at the ends.',
+  },
+  {
+    title: 'Accessible by default',
+    body: 'Roving tabindex, inert background cards, a debounced live region and keyboard support, out of the box.',
+  },
+  {
+    title: 'Safe to server render',
+    body: 'Every adapter renders its first frame from the snapshot the engine starts from, so a hydrating stack never flashes.',
+  },
+]
+
+const next = [
+  { href: 'getting-started', title: 'Getting Started', body: 'Your first stack, step by step.' },
+  { href: 'guides/concepts', title: 'Concepts', body: 'The position scalar the engine is built on.' },
+  { href: 'guides/gestures', title: 'Gestures', body: 'A live tuning panel for the physics.' },
+  { href: 'guides/accessibility', title: 'Accessibility', body: 'What Riffle does, and what is left to you.' },
+  { href: 'examples', title: 'Examples', body: 'Runnable apps, each with its source.' },
+  { href: 'recipes/infinite-feed', title: 'Recipes', body: 'Infinite feeds, clamped controls, forms in cards.' },
+]
+---
+
+<ShowcaseLayout
+  title="Riffle: a cycling card stack for Vanilla JS, React and Vue"
+  description="A cycling card stack, physics based and framework agnostic. Cards fan out behind the front one and cycle in place, nothing is ever swiped away or discarded. Under 7 kB, zero dependencies."
+>
+  <header class="hero" id="hero" style={`--bg: ${first.flood}; --ink: ${first.ink};`}>
+    <nav class="hero__nav" aria-label="Site">
+      <a class="hero__brand" href={`${base}/`}>
+        <svg viewBox="0 0 128 128" aria-hidden="true">
+          <path
+            fill-rule="evenodd"
+            d="M81 36 64 0 47 36l-1 2-9-10a6 6 0 0 0-9 9l10 10h-2L0 64l36 17h2L28 91a6 6 0 1 0 9 9l9-10 1 2 17 36 17-36v-2l9 10a6 6 0 1 0 9-9l-9-9 2-1 36-17-36-17-2-1 9-9a6 6 0 1 0-9-9l-9 10v-2Zm-17 2-2 5c-4 8-11 15-19 19l-5 2 5 2c8 4 15 11 19 19l2 5 2-5c4-8 11-15 19-19l5-2-5-2c-8-4-15-11-19-19l-2-5Z"
+            clip-rule="evenodd"></path>
+        </svg>
+        Riffle
+      </a>
+      <ul class="hero__links">
+        <li><a href={showcase}>Showcase</a></li>
+        <li><a href="#start">Docs</a></li>
+        <li><a href="https://github.com/reactivepixels/riffle">GitHub</a></li>
+      </ul>
+    </nav>
+
+    <div class="hero__main">
+      <div class="hero__copy">
+        <h1 class="hero__title">Card stacks you want to touch.</h1>
+        <p class="hero__lede">
+          Riffle fans cards out behind the front one and cycles them on a real spring. Drag one
+          away and it comes back around. Vanilla JS, React or Vue, in{' '}
+          {`${kb(bundleSizes.core.sizeBytes)} kB`}.
+        </p>
+        <div class="hero__actions">
+          <a class="btn btn--solid" href="#start">Get started</a>
+          <a class="btn" href={showcase}>See what you could build</a>
+        </div>
+        <div class="install">
+          <code data-install>npm install @rpxl/riffle</code>
+          <button class="install__copy" type="button" data-copy aria-label="Copy install command">
+            <span data-copy-label>Copy</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="hero__demo">
+        <div class="hero-stack" data-stack role="group" aria-label="Showcase art">
+          {
+            cards.map((c, i) => (
+              <div
+                class="hero-card"
+                data-label={c.label}
+                data-caption={c.caption}
+                data-href={c.href}
+                data-flood={c.flood}
+                data-ink={c.ink}
+                style={`z-index: ${cards.length - i};`}
+              >
+                <Image
+                  src={c.src}
+                  alt=""
+                  widths={[360, 720]}
+                  sizes="(min-width: 900px) 360px, 70vw"
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  fetchpriority={i === 0 ? 'high' : 'auto'}
+                  decoding="async"
+                />
+              </div>
+            ))
+          }
+        </div>
+        <div class="sc-controls">
+          <button class="sc-button" type="button" data-prev aria-label="Previous card">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"></path></svg>
+          </button>
+          <a class="hero__caption" data-hero-caption href={first.href}>{first.caption}</a>
+          <button class="sc-button" type="button" data-next aria-label="Next card">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="band band--engine" aria-labelledby="engine-title">
+      <div class="band__inner engine">
+        <div class="engine__copy">
+          <h2 class="band__title" id="engine-title">One engine, three frameworks</h2>
+          <p class="band__lede">
+            The core never imports a framework. The React and Vue adapters are thin entries over
+            the same engine, so the feel never changes. These two stacks are the real adapters,
+            side by side. Drag either one.
+          </p>
+          <div class="engine__code">
+            <Code code={snippet} lang="ts" theme={showcaseCodeTheme} />
+          </div>
+        </div>
+        <div class="demo-row">
+          <ReactStack client:visible />
+          <VueStack client:visible />
+        </div>
+      </div>
+    </section>
+
+    <section class="band band--facts" aria-labelledby="facts-title">
+      <div class="band__inner">
+        <h2 class="band__title" id="facts-title">What you get</h2>
+        <p class="facts__size">
+          <strong>{kb(bundleSizes.core.sizeBytes)} kB</strong> gzipped, zero dependencies. Add{' '}
+          <strong>{kb(bundleSizes.react.sizeBytes)} kB</strong> for React, or{' '}
+          <strong>{kb(bundleSizes.vue.sizeBytes)} kB</strong> for Vue.
+        </p>
+        <ul class="facts">
+          {
+            facts.map((f) => (
+              <li>
+                <h3>{f.title}</h3>
+                <p>{f.body}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="band band--start" id="start" aria-labelledby="start-title">
+      <div class="band__inner">
+        <h2 class="band__title" id="start-title">Choose your framework</h2>
+        <TrackCards />
+        <ul class="next" aria-label="Next">
+          {
+            next.map((n) => (
+              <li>
+                <a href={`${base}/choose/?next=${n.href}`}>
+                  <span class="next__title">{n.title}</span>
+                  <span class="next__body">{n.body}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="band__inner foot__inner">
+      <span>Riffle, by Reactive Pixels</span>
+      <ul>
+        <li><a href={showcase}>Showcase</a></li>
+        <li><a href="https://github.com/reactivepixels/riffle">GitHub</a></li>
+        <li><a href="https://www.npmjs.com/package/@rpxl/riffle">npm</a></li>
+      </ul>
+    </div>
+  </footer>
+</ShowcaseLayout>
+
+<script>
+  import { mountLandingHero } from '../lib/landing/hero'
+
+  const hero = document.getElementById('hero')
+  if (hero) mountLandingHero(hero)
+
+  const copy = document.querySelector<HTMLButtonElement>('[data-copy]')
+  const label = copy?.querySelector('[data-copy-label]')
+  const command = document.querySelector('[data-install]')?.textContent ?? ''
+  copy?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(command)
+      if (label) label.textContent = 'Copied'
+      setTimeout(() => {
+        if (label) label.textContent = 'Copy'
+      }, 1600)
+    } catch {
+      // Clipboard blocked: the command is still there to select by hand.
+    }
+  })
+</script>
+
+<style>
+  /* Band 1: the hero, flooding to the front card's colour. */
+  .hero {
+    --bg: #ff5a1f;
+    --ink: #111111;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: 20px clamp(20px, 5vw, 80px) clamp(40px, 5vw, 64px);
+    background-color: var(--bg);
+    color: var(--ink);
+    overflow-x: clip;
+    transition:
+      background-color 800ms var(--ease-out),
+      color 800ms var(--ease-out);
+  }
+
+  .hero__nav,
+  .hero__main,
+  .band__inner {
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+
+  .hero__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .hero__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    color: inherit;
+    font-size: 18px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .hero__brand svg {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+  }
+
+  .hero__links {
+    display: flex;
+    gap: clamp(16px, 3vw, 28px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .hero__links a,
+  .hero__caption {
+    display: inline-grid;
+    place-items: center;
+    min-height: 44px;
+    color: inherit;
+    font-size: 15px;
+    text-decoration: none;
+  }
+
+  .hero__links a:hover,
+  .hero__caption:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .hero a:focus-visible,
+  .hero button:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  .hero__main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    gap: 56px;
+    padding: clamp(40px, 6vw, 72px) 0 0;
+  }
+
+  @media (min-width: 900px) {
+    .hero__main {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    }
+  }
+
+  .hero__title {
+    max-width: 11ch;
+    font-size: clamp(48px, 7vw, 104px);
+    font-weight: 700;
+    line-height: 0.96;
+    letter-spacing: -0.035em;
+  }
+
+  .hero__lede {
+    max-width: 34ch;
+    margin-top: 28px;
+    font-size: clamp(18px, 1.6vw, 21px);
+    line-height: 1.5;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 36px;
+  }
+
+  .btn {
+    display: inline-grid;
+    place-items: center;
+    min-height: 48px;
+    padding: 0 22px;
+    border: 1.5px solid currentColor;
+    border-radius: 999px;
+    color: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .btn:hover {
+    background: color-mix(in srgb, currentColor 12%, transparent);
+  }
+
+  .btn--solid {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--bg);
+    transition:
+      background-color 800ms var(--ease-out),
+      color 800ms var(--ease-out);
+  }
+
+  .btn--solid:hover {
+    background: var(--ink);
+    opacity: 0.88;
+  }
+
+  .install {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 28px;
+    padding: 4px 4px 4px 16px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--ink) 10%, transparent);
+  }
+
+  .install code {
+    font: 500 15px / 1 var(--font-mono);
+  }
+
+  .install__copy {
+    min-height: 40px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .install__copy:hover {
+    background: color-mix(in srgb, var(--ink) 12%, transparent);
+  }
+
+  .hero__demo {
+    display: grid;
+    justify-items: center;
+  }
+
+  .hero-stack {
+    --w: min(340px, 64vw);
+    position: relative;
+    width: var(--w);
+    aspect-ratio: 3 / 4;
+    /* Centre the whole fan, not just the front card: the fan reaches left. */
+    translate: calc(0.5 * (120px - 0.105 * var(--w))) 0;
+  }
+
+  .hero-card {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 22px;
+    background: #222;
+    box-shadow:
+      0 2px 4px rgb(0 0 0 / 16%),
+      0 30px 60px -20px rgb(0 0 0 / 50%);
+    cursor: grab;
+    will-change: transform;
+  }
+
+  .hero-card:active {
+    cursor: grabbing;
+  }
+
+  .hero-card:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 6px;
+  }
+
+  .hero-card img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .hero__caption {
+    min-width: min(16rem, 48vw);
+    text-align: center;
+  }
+
+  /* Shared band layout. */
+  .band {
+    padding: clamp(80px, 10vw, 136px) clamp(20px, 5vw, 80px);
+  }
+
+  .band__title {
+    max-width: 18ch;
+    font-size: clamp(32px, 4vw, 56px);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+
+  .band__lede {
+    max-width: 44ch;
+    margin-top: 20px;
+    font-size: 18px;
+    line-height: 1.55;
+  }
+
+  /* Band 2: one engine, three frameworks. */
+  .band--engine {
+    background: #f5f2ea;
+    color: #111111;
+  }
+
+  .engine {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    gap: 56px;
+  }
+
+  @media (min-width: 1200px) {
+    .engine {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    }
+  }
+
+  .engine__code {
+    margin-top: 32px;
+    overflow: hidden;
+    border-radius: 14px;
+    font-size: 14px;
+  }
+
+  .engine__code :global(pre) {
+    margin: 0;
+    padding: 20px 22px;
+    overflow-x: auto;
+  }
+
+  .band--engine :global(.demo-row) {
+    --sl-color-gray-2: #333;
+    --sl-color-gray-3: #555;
+    --sl-color-gray-5: #111;
+    --sl-color-bg: transparent;
+    --sl-color-text: #111;
+    --sl-color-accent: #111;
+    flex-wrap: nowrap;
+    gap: 1rem;
+    margin: 0;
+    /* Room for each fan to reach left without the row clipping it. */
+    padding-left: 64px;
+  }
+
+  @media (max-width: 1199px) {
+    .band--engine :global(.demo-row) {
+      flex-wrap: wrap;
+    }
+  }
+
+  .band--engine :global(.demo-stack__title) {
+    min-width: 6rem;
+  }
+
+  /* Band 3: the facts. */
+  .band--facts {
+    background: #0c0c0e;
+    color: #f5f2ea;
+  }
+
+  .facts__size {
+    max-width: 40ch;
+    margin-top: 20px;
+    font-size: 18px;
+    line-height: 1.55;
+    color: #dcd7cc;
+  }
+
+  .facts__size strong {
+    color: #ffd60a;
+    font-weight: 700;
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 40px 32px;
+    margin: 56px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .facts li {
+    padding-top: 20px;
+    border-top: 1px solid rgb(245 242 234 / 25%);
+  }
+
+  .facts h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .facts p {
+    margin-top: 10px;
+    font-size: 16px;
+    line-height: 1.55;
+    color: #c9c4b9;
+  }
+
+  /* Band 4: start. */
+  .band--start {
+    background: #ffd60a;
+    color: #111111;
+  }
+
+  .band--start :global(.track-cards) {
+    margin: 40px 0 0;
+  }
+
+  .band--start :global(.track-card) {
+    border: 1.5px solid #111;
+    border-radius: 16px;
+    background: #fff8d6;
+  }
+
+  .band--start :global(.track-card:hover),
+  .band--start :global(.track-card:focus-visible),
+  .band--start :global(.track-card--remembered) {
+    background: #111;
+    border-color: #111;
+    box-shadow: none;
+  }
+
+  .band--start :global(.track-card__eyebrow) {
+    color: #111;
+    font-size: 20px;
+  }
+
+  .band--start :global(.track-card__install) {
+    background: rgb(17 17 17 / 8%);
+    color: #111;
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+
+  .band--start :global(.track-card__cta) {
+    color: #111;
+    font-size: 15px;
+  }
+
+  .band--start :global(.track-card:is(:hover, :focus-visible, .track-card--remembered) *) {
+    color: #ffd60a;
+  }
+
+  .band--start :global(.track-card:is(:hover, :focus-visible, .track-card--remembered) code) {
+    background: rgb(255 214 10 / 14%);
+  }
+
+  .band--start :global(.track-card:focus-visible) {
+    outline: 2px solid #111;
+    outline-offset: 3px;
+  }
+
+  .next {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 0 32px;
+    margin: 56px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .next a {
+    display: grid;
+    gap: 4px;
+    padding: 18px 0;
+    border-top: 1.5px solid #111;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .next a:hover .next__title {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .next a:focus-visible {
+    outline: 2px solid #111;
+    outline-offset: 3px;
+  }
+
+  .next__title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .next__body {
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  /* Footer. */
+  .foot {
+    padding: 32px clamp(20px, 5vw, 80px);
+    background: #0c0c0e;
+    color: #dcd7cc;
+    font-size: 14px;
+  }
+
+  .foot__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+  }
+
+  .foot ul {
+    display: flex;
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .foot a {
+    display: inline-grid;
+    min-height: 44px;
+    place-items: center;
+    color: inherit;
+  }
+
+  .foot a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+</style>
