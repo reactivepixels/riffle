@@ -1,0 +1,509 @@
+---
+/**
+ * Showcase scene 5: stand-up coffee bags for a made-up roaster, one per
+ * origin, drawn in CSS. Each bag carries the colours the whole scene floods
+ * to (`data-flood`, `data-ink`) when it reaches the front; every flood and
+ * ink pair clears WCAG AA (4.5:1 or better) for body text. Mounted by
+ * src/lib/showcase/coffee.ts.
+ */
+import Scene from './Scene.astro'
+import { coffeeSource } from '../../lib/snippets'
+
+interface Bag {
+  origin: string
+  region: string
+  process: string
+  notes: [string, string, string]
+  roast: number
+  roastName: string
+  altitude: string
+  variety: string
+  bag: string
+  flood: string
+  ink: string
+}
+
+const bags: Bag[] = [
+  {
+    origin: 'Ethiopia',
+    region: 'Yirgacheffe',
+    process: 'Washed',
+    notes: ['Jasmine', 'Bergamot', 'White peach'],
+    roast: 1,
+    roastName: 'Light',
+    altitude: '2,000 m',
+    variety: 'Heirloom',
+    bag: '#e9772f',
+    flood: '#f7b77a',
+    ink: '#3a1d06',
+  },
+  {
+    origin: 'Colombia',
+    region: 'Huila',
+    process: 'Washed',
+    notes: ['Red apple', 'Panela', 'Cocoa'],
+    roast: 3,
+    roastName: 'Medium',
+    altitude: '1,700 m',
+    variety: 'Caturra',
+    bag: '#e0313b',
+    flood: '#b81d27',
+    ink: '#fff1ea',
+  },
+  {
+    origin: 'Kenya',
+    region: 'Nyeri',
+    process: 'Washed',
+    notes: ['Blackcurrant', 'Grapefruit', 'Cane sugar'],
+    roast: 2,
+    roastName: 'Light medium',
+    altitude: '1,800 m',
+    variety: 'SL28',
+    bag: '#6b34a3',
+    flood: '#3d1a63',
+    ink: '#f3e8ff',
+  },
+  {
+    origin: 'Guatemala',
+    region: 'Huehuetenango',
+    process: 'Washed',
+    notes: ['Milk chocolate', 'Almond', 'Orange'],
+    roast: 3,
+    roastName: 'Medium',
+    altitude: '1,750 m',
+    variety: 'Bourbon',
+    bag: '#2f7d4f',
+    flood: '#a8d5b5',
+    ink: '#0d3320',
+  },
+  {
+    origin: 'Sumatra',
+    region: 'Gayo',
+    process: 'Wet hulled',
+    notes: ['Cedar', 'Dark chocolate', 'Clove'],
+    roast: 5,
+    roastName: 'Dark',
+    altitude: '1,400 m',
+    variety: 'Typica',
+    bag: '#2b5168',
+    flood: '#14232e',
+    ink: '#d9f2ff',
+  },
+  {
+    origin: 'Brazil',
+    region: 'Mogiana',
+    process: 'Natural',
+    notes: ['Hazelnut', 'Caramel', 'Raisin'],
+    roast: 4,
+    roastName: 'Medium dark',
+    altitude: '1,100 m',
+    variety: 'Mundo Novo',
+    bag: '#e0a81e',
+    flood: '#ffd84d',
+    ink: '#3b2a00',
+  },
+]
+
+const first = bags[0]!
+const describe = (b: Bag) =>
+  `${b.origin}, ${b.region}, ${b.process.toLowerCase()}. ${b.roastName} roast. Notes of ${b.notes[0].toLowerCase()}, ${b.notes[1].toLowerCase()} and ${b.notes[2].toLowerCase()}`
+---
+
+<Scene
+  id="coffee-origins"
+  index="05"
+  kicker="Roaster"
+  title="Your brand. Your colours."
+  lede="Six origins, six bags. On every change event the whole scene floods to the bag in front, and the type follows it there. Riffle brings the physics. The look is all yours."
+  features={["on('change')", 'style.setProperty', 'fan({ offset, scaleStep })', 'getLabel']}
+  code={coffeeSource}
+  class="coffee-scene"
+  style={`--bg: ${first.flood}; --ink: ${first.ink};`}
+>
+  <div
+    slot="backdrop"
+    class="coffee-backdrop"
+    data-backdrop
+    data-word={first.origin}
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="coffee-stage">
+    <div class="coffee-stack" data-stack role="group" aria-label="Fernwick coffee, single origins">
+      {
+        bags.map((b, i) => (
+          <div
+            class="bag"
+            data-label={describe(b)}
+            data-flood={b.flood}
+            data-ink={b.ink}
+            data-origin={b.origin}
+            style={`--bag: ${b.bag}; z-index: ${bags.length - i};`}
+          >
+            <div class="bag__body">
+              <span class="bag__seal" aria-hidden="true" />
+              <span class="bag__valve" aria-hidden="true" />
+              <div class="bag__label">
+                <p class="bag__brand">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 22V6M12 8c-3-1-5-3-6-6 3 0 5 2 6 4m0 6c-3-1-6-3-7-6 3 0 6 2 7 4m0 6c-3-1-6-3-7-6 3 0 6 2 7 4m0-12c3-1 5-3 6-6-3 0-5 2-6 4m0 6c3-1 6-3 7-6-3 0-6 2-7 4m0 6c3-1 6-3 7-6-3 0-6 2-7 4" />
+                  </svg>
+                  Fernwick
+                </p>
+                <p class="bag__origin">{b.origin}</p>
+                <p class="bag__region">
+                  {b.region}, {b.process.toLowerCase()}
+                </p>
+                <ul class="bag__notes">
+                  {b.notes.map((note) => (
+                    <li>{note}</li>
+                  ))}
+                </ul>
+                <dl class="bag__facts">
+                  <div>
+                    <dt>Altitude</dt>
+                    <dd>{b.altitude}</dd>
+                  </div>
+                  <div>
+                    <dt>Variety</dt>
+                    <dd>{b.variety}</dd>
+                  </div>
+                </dl>
+                <div class="bag__roast">
+                  <span class="bag__roast-name">{b.roastName} roast</span>
+                  <span class="bag__beans" aria-hidden="true">
+                    {Array.from({ length: 5 }, (_, n) => (
+                      <span class:list={[{ 'is-on': n < b.roast }]} />
+                    ))}
+                  </span>
+                </div>
+                <p class="bag__weight">250 g, whole bean</p>
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="coffee-controls">
+      <button class="coffee-button" type="button" data-prev aria-label="Previous bag">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"></path></svg>
+      </button>
+      <p class="coffee-hint">Drag a bag or tap the arrows.</p>
+      <button class="coffee-button" type="button" data-next aria-label="Next bag">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+      </button>
+    </div>
+  </div>
+</Scene>
+
+<script>
+  import { mountWhenNear } from '../../lib/showcase/lazy'
+  import { mountCoffeeOrigins } from '../../lib/showcase/coffee'
+
+  const scene = document.getElementById('coffee-origins')
+  if (scene) mountWhenNear(scene, () => mountCoffeeOrigins(scene))
+</script>
+
+<style>
+  :global(.coffee-scene) {
+    transition:
+      background-color 800ms var(--ease-out),
+      color 800ms var(--ease-out);
+  }
+
+  .coffee-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .coffee-backdrop::before {
+    content: attr(data-word);
+    position: absolute;
+    right: -0.12em;
+    top: 50%;
+    translate: 0 -50%;
+    writing-mode: vertical-rl;
+    font: 900 clamp(120px, 15vw, 260px) / 1 var(--font-display);
+    letter-spacing: -0.07em;
+    white-space: nowrap;
+    color: var(--ink);
+    opacity: 0.08;
+    transition: color 800ms var(--ease-out);
+  }
+
+  @media (max-width: 899px) {
+    .coffee-backdrop {
+      display: none;
+    }
+  }
+
+  .coffee-stage {
+    display: grid;
+    justify-items: center;
+    gap: 30px;
+    width: 100%;
+  }
+
+  .coffee-stack {
+    --w: min(280px, 56vw);
+    position: relative;
+    width: var(--w);
+    aspect-ratio: 262 / 384;
+    translate: calc(0.5 * (108px - 0.09 * var(--w))) 0;
+  }
+
+  .bag {
+    position: absolute;
+    inset: 0;
+    container-type: inline-size;
+    cursor: grab;
+    will-change: transform;
+  }
+
+  .bag:active {
+    cursor: grabbing;
+  }
+
+  .bag:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 6px;
+    border-radius: 18px;
+  }
+
+  .bag__body {
+    position: relative;
+    height: 100%;
+    border-radius: 3cqw 3cqw 7cqw 7cqw;
+    background:
+      /* side gussets and a soft vertical sheen */
+      linear-gradient(
+        90deg,
+        rgb(0 0 0 / 28%) 0%,
+        rgb(0 0 0 / 0%) 7%,
+        rgb(255 255 255 / 16%) 15%,
+        rgb(255 255 255 / 0%) 27%,
+        rgb(255 255 255 / 0%) 72%,
+        rgb(0 0 0 / 8%) 86%,
+        rgb(0 0 0 / 30%) 100%
+      ),
+      /* the base gusset */
+      radial-gradient(70% 9% at 50% 100%, rgb(0 0 0 / 30%), transparent 100%),
+      /* top fold creases */
+      linear-gradient(160deg, transparent 10%, rgb(255 255 255 / 14%) 11%, transparent 13%),
+      linear-gradient(200deg, transparent 10%, rgb(0 0 0 / 10%) 11%, transparent 13%), var(--bag);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 30%),
+      0 2px 4px rgb(0 0 0 / 18%),
+      0 30px 50px -18px rgb(0 0 0 / 45%),
+      0 60px 80px -40px rgb(0 0 0 / 30%);
+  }
+
+  .bag__seal {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 10cqw;
+    border-radius: 3cqw 3cqw 0 0;
+    background:
+      repeating-linear-gradient(90deg, rgb(0 0 0 / 14%) 0 0.6cqw, transparent 0.6cqw 1.6cqw),
+      linear-gradient(180deg, rgb(255 255 255 / 22%), rgb(0 0 0 / 12%));
+    box-shadow: 0 0.6cqw 0 rgb(0 0 0 / 12%);
+  }
+
+  .bag__valve {
+    position: absolute;
+    top: 16cqw;
+    left: 50%;
+    width: 9cqw;
+    height: 9cqw;
+    translate: -50% 0;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, rgb(0 0 0 / 35%) 0 22%, transparent 24%),
+      radial-gradient(circle, transparent 0 50%, rgb(255 255 255 / 25%) 52% 58%, transparent 60%),
+      color-mix(in srgb, var(--bag) 80%, #000);
+    box-shadow: inset 0 0.4cqw 0.6cqw rgb(0 0 0 / 30%);
+  }
+
+  .bag__label {
+    position: absolute;
+    left: 10cqw;
+    right: 10cqw;
+    top: 31cqw;
+    bottom: 13cqw;
+    display: flex;
+    flex-direction: column;
+    padding: 6cqw 6cqw 5cqw;
+    border-radius: 1.6cqw;
+    background:
+      linear-gradient(180deg, rgb(255 255 255 / 60%), transparent 20%),
+      #fbf6ec;
+    color: #221a12;
+    box-shadow:
+      0 0.4cqw 1cqw rgb(0 0 0 / 18%),
+      inset 0 0 0 0.6cqw #fbf6ec,
+      inset 0 0 0 0.9cqw color-mix(in srgb, var(--bag) 70%, #000);
+  }
+
+  .bag__brand {
+    display: flex;
+    align-items: center;
+    gap: 1.6cqw;
+    font: 800 max(10px, 3.6cqw) / 1 var(--font-mono);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+  }
+
+  .bag__brand svg {
+    width: 5cqw;
+    height: 5cqw;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .bag__origin {
+    margin-top: 5cqw;
+    font: italic 600 13cqw / 0.9 var(--font-serif);
+    letter-spacing: -0.035em;
+  }
+
+  .bag__region {
+    margin-top: 2cqw;
+    font-size: max(11px, 4cqw);
+    font-weight: 650;
+  }
+
+  .bag__notes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.4cqw;
+    margin: 4cqw 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .bag__notes li {
+    padding: 1cqw 2.4cqw;
+    border-radius: 99px;
+    background: rgb(34 26 18 / 8%);
+    font-size: max(10px, 3.4cqw);
+    font-weight: 650;
+  }
+
+  .bag__facts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2cqw;
+    margin: 5cqw 0 0;
+  }
+
+  .bag__facts div {
+    display: grid;
+    gap: 1cqw;
+  }
+
+  .bag__facts dt {
+    font: 700 max(9px, 2.6cqw) / 1 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #5c4a3a;
+  }
+
+  .bag__facts dd {
+    margin: 0;
+    font-size: max(11px, 4cqw);
+    font-weight: 750;
+  }
+
+  .bag__roast {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2cqw;
+    margin-top: auto;
+    padding-top: 3cqw;
+    border-top: 0.5cqw solid #221a12;
+  }
+
+  .bag__roast-name {
+    font: 700 max(9px, 2.9cqw) / 1.1 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .bag__beans {
+    display: flex;
+    gap: 1cqw;
+  }
+
+  .bag__beans span {
+    width: 3.2cqw;
+    height: 4.4cqw;
+    border-radius: 50%;
+    border: 0.4cqw solid #221a12;
+    rotate: 28deg;
+  }
+
+  .bag__beans span.is-on {
+    background: #3b2414;
+    border-color: #3b2414;
+  }
+
+  .bag__weight {
+    margin-top: 2.4cqw;
+    font: 600 max(9px, 2.8cqw) / 1 var(--font-mono);
+    letter-spacing: 0.06em;
+  }
+
+  .coffee-controls {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .coffee-button {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    flex: none;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    transition: transform 200ms var(--ease-out);
+  }
+
+  .coffee-button:hover {
+    transform: scale(1.06);
+  }
+
+  .coffee-button:focus-visible {
+    outline: 3px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  .coffee-button svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .coffee-hint {
+    font-size: 14px;
+    font-weight: 650;
+    text-align: center;
+  }
+</style>

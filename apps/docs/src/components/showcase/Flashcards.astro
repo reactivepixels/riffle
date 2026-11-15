@@ -1,0 +1,436 @@
+---
+/**
+ * Showcase scene 4: Japanese to English flashcards on paper index cards,
+ * clamped, with a 3D flip on tap, Enter or Space. Server rendered here;
+ * src/lib/showcase/flashcards.ts mounts the engine and handles the flip.
+ * The flip itself turns an inner element, since the engine owns each
+ * card's own transform.
+ */
+import Scene from './Scene.astro'
+import { flashcardsSource } from '../../lib/snippets'
+
+interface Word {
+  word: string
+  kana: string
+  romaji: string
+  kind: string
+  meaning: string
+  note: string
+  example: string
+  translation: string
+}
+
+const words: Word[] = [
+  {
+    word: '花火',
+    kana: 'はなび',
+    romaji: 'hanabi',
+    kind: 'Noun',
+    meaning: 'fireworks',
+    note: 'Literally, fire flowers.',
+    example: '花火がきれいですね。',
+    translation: 'The fireworks are beautiful, aren’t they?',
+  },
+  {
+    word: '駅',
+    kana: 'えき',
+    romaji: 'eki',
+    kind: 'Noun',
+    meaning: 'station',
+    note: 'Trains, mostly. Sometimes a bus.',
+    example: '駅はどこですか。',
+    translation: 'Where is the station?',
+  },
+  {
+    word: '猫',
+    kana: 'ねこ',
+    romaji: 'neko',
+    kind: 'Noun',
+    meaning: 'cat',
+    note: 'Also the name of half the cafes in Kyoto.',
+    example: '猫が好きです。',
+    translation: 'I like cats.',
+  },
+  {
+    word: '雨',
+    kana: 'あめ',
+    romaji: 'ame',
+    kind: 'Noun',
+    meaning: 'rain',
+    note: 'Same sound as candy. Context saves you.',
+    example: '明日は雨です。',
+    translation: 'It will rain tomorrow.',
+  },
+  {
+    word: '朝ご飯',
+    kana: 'あさごはん',
+    romaji: 'asagohan',
+    kind: 'Noun',
+    meaning: 'breakfast',
+    note: 'Literally, morning rice.',
+    example: '朝ご飯を食べましたか。',
+    translation: 'Did you have breakfast?',
+  },
+  {
+    word: '友達',
+    kana: 'ともだち',
+    romaji: 'tomodachi',
+    kind: 'Noun',
+    meaning: 'friend',
+    note: 'The best word to learn first.',
+    example: '友達と行きます。',
+    translation: 'I am going with a friend.',
+  },
+]
+---
+
+<Scene
+  id="flashcards"
+  index="04"
+  kicker="Language deck"
+  title="Flip it. Learn it."
+  lede="A study deck that never needs a mouse. Arrow keys move between cards, Enter or Space turns one over, and the deck stops at both ends."
+  features={["bounds: 'clamp'", 'arrow keys, Home, End', "on('change')", 'getLabel']}
+  code={flashcardsSource}
+  flip
+  class="flash-scene"
+  style="--bg: #efe4cf; --ink: #2b1d12;"
+>
+  <div class="flash-stage">
+    <p class="flash-deck" aria-hidden="true">
+      <span class="flash-deck__seal">覚</span>
+      Weekend Japanese, deck 3
+    </p>
+
+    <div class="flash-stack" data-stack role="group" aria-label="Japanese flashcards">
+      {
+        words.map((w, i) => (
+          <div
+            class="flashcard"
+            data-label={`${w.word}, ${w.romaji}`}
+            data-answer={`${w.meaning}. ${w.note}`}
+            aria-describedby="flash-flip-hint"
+            style={`z-index: ${words.length - i};`}
+          >
+            <div class="flashcard__turn">
+              <div class="flashcard__face front">
+                <p class="flashcard__meta">
+                  <span>No. 0{i + 1}</span>
+                  <span>{w.kind}</span>
+                </p>
+                <p class="flashcard__word" lang="ja">
+                  {w.word}
+                </p>
+                <p class="flashcard__reading">
+                  <span lang="ja">{w.kana}</span>
+                  <span class="flashcard__romaji">{w.romaji}</span>
+                </p>
+                <p class="flashcard__cue" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3M18 3v4h-4M6 21v-4h4" />
+                  </svg>
+                  Tap to flip
+                </p>
+              </div>
+              <div class="flashcard__face back" aria-hidden="true">
+                <p class="flashcard__meta">
+                  <span lang="ja">{w.word}</span>
+                  <span>English</span>
+                </p>
+                <p class="flashcard__meaning">{w.meaning}</p>
+                <p class="flashcard__note">{w.note}</p>
+                <p class="flashcard__example">
+                  <span lang="ja">{w.example}</span>
+                  <span>{w.translation}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <p id="flash-flip-hint" class="visually-hidden">Press Enter or Space to flip this card.</p>
+    <p class="visually-hidden" aria-live="polite" data-live></p>
+
+    <div class="flash-dots" aria-hidden="true">
+      {words.map((_, i) => <span data-dot class:list={[{ 'is-active': i === 0 }]} />)}
+    </div>
+
+    <p class="flash-keys">
+      <span class="flash-keys__group"
+        ><kbd>&larr;</kbd><kbd>&rarr;</kbd> move</span
+      >
+      <span class="flash-keys__group"><kbd>Enter</kbd> or <kbd>Space</kbd> flips</span>
+      <span class="flash-keys__group"><kbd>Home</kbd><kbd>End</kbd> jump</span>
+    </p>
+  </div>
+</Scene>
+
+<script>
+  import { mountWhenNear } from '../../lib/showcase/lazy'
+  import { mountFlashcards } from '../../lib/showcase/flashcards'
+
+  const scene = document.getElementById('flashcards')
+  if (scene) mountWhenNear(scene, () => mountFlashcards(scene))
+</script>
+
+<style>
+  :global(.flash-scene) {
+    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .38 0 0 0 0 .27 0 0 0 0 .12 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-image:
+      var(--grain),
+      radial-gradient(70% 60% at 30% 50%, rgb(255 250 238 / 70%), transparent 70%);
+  }
+
+  .flash-stage {
+    display: grid;
+    justify-items: center;
+    gap: 26px;
+    width: 100%;
+  }
+
+  .flash-deck {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font: 700 12px/1 var(--font-mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .flash-deck__seal {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: #b8321a;
+    color: #fff4e8;
+    font:
+      600 20px/1 'Hiragino Mincho ProN',
+      'Yu Mincho',
+      'Noto Serif JP',
+      var(--font-serif);
+    letter-spacing: 0;
+    rotate: -6deg;
+    box-shadow: inset 0 0 0 2px rgb(255 244 232 / 35%);
+  }
+
+  .flash-stack {
+    --w: min(460px, 76vw);
+    position: relative;
+    width: var(--w);
+    aspect-ratio: 10 / 6.4;
+    translate: calc(0.5 * (64px - 0.08 * var(--w))) 0;
+  }
+
+  .flashcard {
+    position: absolute;
+    inset: 0;
+    container-type: inline-size;
+    perspective: 1400px;
+    cursor: pointer;
+    border-radius: 10px;
+    will-change: transform;
+  }
+
+  .flashcard:focus-visible {
+    outline: 3px solid #2b1d12;
+    outline-offset: 6px;
+  }
+
+  .flashcard__turn {
+    position: relative;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 700ms cubic-bezier(0.3, 1.3, 0.5, 1);
+  }
+
+  .flashcard.is-flipped .flashcard__turn {
+    transform: rotateY(180deg);
+  }
+
+  .flashcard__face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 5cqw 6cqw 4.6cqw;
+    border-radius: 2.4cqw;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    color: #2b1d12;
+    background-color: #fffcf3;
+    background-image:
+      var(--grain),
+      linear-gradient(transparent 0 calc(16cqw - 1px), #e2a1a1 calc(16cqw - 1px) 16cqw, transparent 16cqw),
+      repeating-linear-gradient(
+        transparent 0 calc(7.4cqw - 1px),
+        rgb(96 140 200 / 30%) calc(7.4cqw - 1px) 7.4cqw
+      );
+    background-position:
+      0 0,
+      0 0,
+      0 16cqw;
+    background-size:
+      180px 180px,
+      100% 100%,
+      100% 100%;
+    background-repeat: repeat, no-repeat, no-repeat;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 90%),
+      0 1px 2px rgb(60 40 20 / 18%),
+      0 14px 28px -12px rgb(60 40 20 / 45%),
+      0 28px 50px -24px rgb(60 40 20 / 35%);
+  }
+
+  .flashcard__face.back {
+    transform: rotateY(180deg);
+    background-color: #fff8ea;
+  }
+
+  .flashcard__meta {
+    display: flex;
+    justify-content: space-between;
+    height: 8cqw;
+    font: 700 max(10px, 2.9cqw) / 1 var(--font-mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #6a4b33;
+  }
+
+  .flashcard__word {
+    margin: auto 0 0;
+    font:
+      600 24cqw/1 'Hiragino Mincho ProN',
+      'Yu Mincho',
+      'Noto Serif JP',
+      var(--font-serif);
+    letter-spacing: 0.02em;
+    text-align: center;
+  }
+
+  .flashcard__reading {
+    display: flex;
+    justify-content: center;
+    gap: 3cqw;
+    margin: 2cqw 0 auto;
+    font-size: max(12px, 4.4cqw);
+    font-weight: 600;
+  }
+
+  .flashcard__romaji {
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: #6a4b33;
+  }
+
+  .flashcard__cue {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1.4cqw;
+    font: 700 max(10px, 2.8cqw) / 1 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #8a3a1c;
+  }
+
+  .flashcard__cue svg {
+    width: 3.8cqw;
+    height: 3.8cqw;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .flashcard__meaning {
+    margin-top: 5cqw;
+    font: italic 500 14cqw/0.95 var(--font-serif);
+    letter-spacing: -0.035em;
+    color: #8a2a12;
+  }
+
+  .flashcard__note {
+    margin-top: 2.6cqw;
+    font-size: max(12px, 4cqw);
+    font-weight: 600;
+  }
+
+  .flashcard__example {
+    display: grid;
+    gap: 1cqw;
+    margin-top: auto;
+    padding-top: 3cqw;
+    border-top: 1.5px dashed rgb(106 75 51 / 40%);
+    font-size: max(11px, 3.5cqw);
+    line-height: 1.35;
+  }
+
+  .flashcard__example span:first-child {
+    font-size: max(13px, 4.4cqw);
+    font-weight: 600;
+  }
+
+  .flash-dots {
+    display: flex;
+    gap: 10px;
+  }
+
+  .flash-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgb(43 29 18 / 22%);
+    transition:
+      transform 300ms var(--ease-out),
+      background-color 300ms ease;
+  }
+
+  .flash-dots span.is-active {
+    background: #b8321a;
+    transform: scale(1.4);
+  }
+
+  .flash-keys {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 22px;
+    max-width: 100%;
+    font-size: 14px;
+    font-weight: 650;
+  }
+
+  .flash-keys__group {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .flash-keys kbd {
+    display: inline-grid;
+    place-items: center;
+    min-width: 30px;
+    height: 30px;
+    padding: 0 8px;
+    border-radius: 7px;
+    background: #fffcf3;
+    color: #2b1d12;
+    font: 700 13px/1 var(--font-mono);
+    box-shadow:
+      inset 0 -2px 0 rgb(43 29 18 / 18%),
+      0 0 0 1px rgb(43 29 18 / 22%),
+      0 2px 3px rgb(43 29 18 / 12%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .flashcard__turn {
+      transition: none;
+    }
+  }
+</style>

@@ -175,7 +175,11 @@ export default defineConfig({
         // though it exists. It is excluded here by its exact path (a query
         // string is stripped before matching); scripts/check-built-links.mjs,
         // which crawls the built site, still checks every link to it.
-        starlightLinksValidator({ errorOnRelativeLinks: false, exclude: ['/riffle/choose/'] }),
+        // /showcase/ (src/pages/showcase.astro) is a custom page for the same reason.
+        starlightLinksValidator({
+          errorOnRelativeLinks: false,
+          exclude: ['/riffle/choose/', '/riffle/showcase/'],
+        }),
         // One sidebar per framework track (the pages scripts/generate-tracks.mjs
         // writes from src/tracks/), each opened by its own topic. The plugin's
         // topic list is replaced by src/components/tracks/TrackSwitcher.astro

@@ -1,0 +1,614 @@
+---
+/**
+ * Showcase scene 1: a phone wallet of boarding passes for a made-up
+ * airline, stacked on the vertical axis and clamped at both ends. Every
+ * pass is server rendered here; src/lib/showcase/boarding.ts mounts the
+ * engine onto them once the scene is near the screen.
+ */
+import Scene from './Scene.astro'
+import { barcodeBars } from '../../lib/showcase/barcode'
+import { boardingSource } from '../../lib/snippets'
+
+interface Pass {
+  from: { code: string; city: string }
+  to: { code: string; city: string }
+  flight: string
+  date: string
+  day: string
+  gate: string
+  seat: string
+  boards: string
+  closes: string
+  departs: string
+  group: string
+  cabin: string
+  band: string
+  tint: string
+}
+
+const passes: Pass[] = [
+  {
+    from: { code: 'LDN', city: 'London' },
+    to: { code: 'LSB', city: 'Lisbon' },
+    flight: 'OR 214',
+    date: '14 Jun',
+    day: '14 June',
+    gate: 'B12',
+    seat: '14A',
+    boards: '09:40',
+    closes: '10:00',
+    departs: '10:15',
+    group: '2',
+    cabin: 'Economy',
+    band: '#2459e0',
+    tint: '#123a9e',
+  },
+  {
+    from: { code: 'LSB', city: 'Lisbon' },
+    to: { code: 'MRK', city: 'Marrakesh' },
+    flight: 'OR 351',
+    date: '18 Jun',
+    day: '18 June',
+    gate: 'A04',
+    seat: '07F',
+    boards: '13:05',
+    closes: '13:25',
+    departs: '13:40',
+    group: '1',
+    cabin: 'Economy',
+    band: '#c2531f',
+    tint: '#8c3312',
+  },
+  {
+    from: { code: 'MRK', city: 'Marrakesh' },
+    to: { code: 'RKV', city: 'Reykjavik' },
+    flight: 'OR 1180',
+    date: '22 Jun',
+    day: '22 June',
+    gate: 'C21',
+    seat: '22C',
+    boards: '06:50',
+    closes: '07:10',
+    departs: '07:30',
+    group: '3',
+    cabin: 'Economy',
+    band: '#12806f',
+    tint: '#0b5a52',
+  },
+  {
+    from: { code: 'RKV', city: 'Reykjavik' },
+    to: { code: 'KYO', city: 'Kyoto' },
+    flight: 'OR 88',
+    date: '27 Jun',
+    day: '27 June',
+    gate: 'D02',
+    seat: '31K',
+    boards: '23:10',
+    closes: '23:35',
+    departs: '23:55',
+    group: '4',
+    cabin: 'Premium',
+    band: '#c42a4a',
+    tint: '#8a1832',
+  },
+  {
+    from: { code: 'KYO', city: 'Kyoto' },
+    to: { code: 'SEL', city: 'Seoul' },
+    flight: 'OR 730',
+    date: '02 Jul',
+    day: '2 July',
+    gate: 'E15',
+    seat: '03A',
+    boards: '11:25',
+    closes: '11:45',
+    departs: '12:00',
+    group: '1',
+    cabin: 'Business',
+    band: '#7a3ae0',
+    tint: '#5021a8',
+  },
+]
+
+const first = passes[0]!
+const ref = (p: Pass, i: number) =>
+  `${p.flight.replace(' ', '')} ${p.from.code}${p.to.code} ${p.seat} 00${i + 4}2`
+const label = (p: Pass) =>
+  `${p.from.city} to ${p.to.city}, flight ${p.flight}, ${p.day}, gate ${p.gate}, seat ${p.seat}, boards ${p.boards}`
+---
+
+<Scene
+  id="boarding-passes"
+  index="01"
+  kicker="Travel wallet"
+  title="Five flights. One thumb."
+  lede="A wallet of boarding passes you flick through top to bottom. It stops at the last leg, and the whole scene turns the colour of wherever you are flying next."
+  features={["axis: 'y'", "bounds: 'clamp'", "on('change')", 'fan({ offset })', 'getLabel']}
+  code={boardingSource}
+  class="bp-scene"
+  style={`--bg: ${first.tint}; --ink: #ffffff;`}
+>
+  <div slot="backdrop" class="bp-backdrop" data-backdrop data-code={first.to.code} aria-hidden="true">
+  </div>
+
+  <div class="bp-stage">
+    <div class="bp-stack" data-stack role="group" aria-label="Boarding passes, Orrery Air">
+      {
+        passes.map((pass, i) => (
+          <div
+            class="pass"
+            data-label={label(pass)}
+            data-tint={pass.tint}
+            data-code={pass.to.code}
+            style={`--band: ${pass.band}; z-index: ${passes.length - i};`}
+          >
+            <div class="pass__ticket">
+              <div class="pass__band">
+                <div class="pass__top">
+                  <p class="pass__brand">
+                    <svg class="pass__logo" viewBox="0 0 32 32" aria-hidden="true">
+                      <circle cx="16" cy="16" r="5.5" fill="currentColor" />
+                      <ellipse
+                        cx="16"
+                        cy="16"
+                        rx="14"
+                        ry="6.5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        transform="rotate(-28 16 16)"
+                      />
+                      <circle cx="27.4" cy="9.6" r="2.6" fill="currentColor" />
+                    </svg>
+                    Orrery Air
+                  </p>
+                  <p class="pass__head-field">
+                    <span class="pass__label">Boards</span>
+                    <span class="pass__head-value">{pass.boards}</span>
+                  </p>
+                </div>
+                <div class="pass__route">
+                  <p class="pass__city">
+                    <span class="pass__code">{pass.from.code}</span>
+                    <span class="pass__name">{pass.from.city}</span>
+                  </p>
+                  <span class="pass__path" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <path
+                        d="M21 12.6c0-.7-.6-1.2-1.3-1.2H15l-4.6-7.2H8.3l2.3 7.2H6.3L4.6 9.3H3l1 3.3-1 3.3h1.6l1.7-2.1h4.3l-2.3 7.2h2.1l4.6-7.2h4.7c.7 0 1.3-.5 1.3-1.2Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  </span>
+                  <p class="pass__city pass__city--to">
+                    <span class="pass__code">{pass.to.code}</span>
+                    <span class="pass__name">{pass.to.city}</span>
+                  </p>
+                </div>
+              </div>
+
+              <dl class="pass__fields">
+                <div class="pass__field pass__field--wide">
+                  <dt class="pass__label">Passenger</dt>
+                  <dd>Ines Moreau</dd>
+                </div>
+                <div class="pass__field">
+                  <dt class="pass__label">Cabin</dt>
+                  <dd>{pass.cabin}</dd>
+                </div>
+                <div class="pass__field">
+                  <dt class="pass__label">Flight</dt>
+                  <dd>{pass.flight}</dd>
+                </div>
+                <div class="pass__field">
+                  <dt class="pass__label">Date</dt>
+                  <dd>{pass.date}</dd>
+                </div>
+                <div class="pass__field">
+                  <dt class="pass__label">Departs</dt>
+                  <dd>{pass.departs}</dd>
+                </div>
+                <div class="pass__field pass__field--big">
+                  <dt class="pass__label">Gate</dt>
+                  <dd>{pass.gate}</dd>
+                </div>
+                <div class="pass__field pass__field--big">
+                  <dt class="pass__label">Seat</dt>
+                  <dd>{pass.seat}</dd>
+                </div>
+                <div class="pass__field pass__field--big">
+                  <dt class="pass__label">Group</dt>
+                  <dd>{pass.group}</dd>
+                </div>
+              </dl>
+
+              <p class="pass__notice">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v5l3 2" />
+                </svg>
+                Gate closes at {pass.closes}
+              </p>
+
+              <div class="pass__stub" aria-hidden="true">
+                <svg class="pass__barcode" viewBox="0 0 120 22" preserveAspectRatio="none">
+                  {
+                    barcodeBars(`${pass.flight}${pass.seat}${pass.to.code}`).map((bar) => (
+                      <rect x={bar.x} y="0" width={bar.width} height="22" />
+                    ))
+                  }
+                </svg>
+                <p class="pass__ref">{ref(pass, i)}</p>
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="bp-controls">
+      <button class="bp-button" type="button" data-prev aria-label="Previous pass">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6"></path></svg>
+      </button>
+      <p class="bp-counter" data-counter aria-hidden="true">1 / {passes.length}</p>
+      <button class="bp-button" type="button" data-next aria-label="Next pass">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+      </button>
+    </div>
+    <p class="bp-hint">Drag the front pass down, or use the arrow keys.</p>
+  </div>
+</Scene>
+
+<script>
+  import { mountWhenNear } from '../../lib/showcase/lazy'
+  import { mountBoardingPasses } from '../../lib/showcase/boarding'
+
+  const scene = document.getElementById('boarding-passes')
+  if (scene) mountWhenNear(scene, () => mountBoardingPasses(scene))
+</script>
+
+<style>
+  :global(.bp-scene) {
+    transition: background-color 700ms var(--ease-out);
+  }
+
+  .bp-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .bp-backdrop::before {
+    content: attr(data-code);
+    position: absolute;
+    right: -0.04em;
+    bottom: -0.12em;
+    font: 900 clamp(180px, 31vw, 520px) / 1 var(--font-display);
+    letter-spacing: -0.07em;
+    color: rgb(255 255 255 / 7%);
+  }
+
+  .bp-stage {
+    display: grid;
+    justify-items: center;
+    gap: 22px;
+    padding-top: 136px;
+  }
+
+  .bp-stack {
+    position: relative;
+    width: min(318px, 76vw);
+    aspect-ratio: 318 / 472;
+  }
+
+  .pass {
+    position: absolute;
+    inset: 0;
+    container-type: inline-size;
+    cursor: grab;
+    border-radius: 22px;
+    filter: drop-shadow(0 1px 1px rgb(0 0 0 / 16%)) drop-shadow(0 18px 26px rgb(0 0 0 / 28%));
+    will-change: transform;
+  }
+
+  .pass:active {
+    cursor: grabbing;
+  }
+
+  .pass:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 5px;
+  }
+
+  .pass__ticket {
+    --notch: 3.3cqw;
+    --tear: calc(100% - 27cqw);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-radius: 7cqw;
+    overflow: hidden;
+    background:
+      radial-gradient(120% 60% at 50% 100%, rgb(0 0 0 / 3%), transparent 70%),
+      linear-gradient(180deg, #fffefb, #f6f3ec);
+    color: #15171c;
+    -webkit-mask:
+      radial-gradient(
+          circle var(--notch) at 0 var(--tear),
+          transparent calc(var(--notch) - 0.5px),
+          #000 var(--notch)
+        )
+        left / 51% 100% no-repeat,
+      radial-gradient(
+          circle var(--notch) at 100% var(--tear),
+          transparent calc(var(--notch) - 0.5px),
+          #000 var(--notch)
+        )
+        right / 51% 100% no-repeat;
+    mask:
+      radial-gradient(
+          circle var(--notch) at 0 var(--tear),
+          transparent calc(var(--notch) - 0.5px),
+          #000 var(--notch)
+        )
+        left / 51% 100% no-repeat,
+      radial-gradient(
+          circle var(--notch) at 100% var(--tear),
+          transparent calc(var(--notch) - 0.5px),
+          #000 var(--notch)
+        )
+        right / 51% 100% no-repeat;
+  }
+
+  .pass__band {
+    position: relative;
+    padding: 5.6cqw 6.4cqw 6.4cqw;
+    background-color: var(--band);
+    background-image:
+      radial-gradient(circle at 112% -18%, rgb(255 255 255 / 22%) 0 22%, transparent 22.4%),
+      radial-gradient(circle at 112% -18%, transparent 0 31%, rgb(255 255 255 / 12%) 31.3% 31.9%, transparent 32.2%),
+      radial-gradient(circle at 112% -18%, transparent 0 41%, rgb(255 255 255 / 9%) 41.3% 41.8%, transparent 42.1%),
+      linear-gradient(180deg, rgb(255 255 255 / 14%), transparent 60%);
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 30%);
+  }
+
+  .pass__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 4cqw;
+  }
+
+  .pass__brand {
+    display: flex;
+    align-items: center;
+    gap: 2.2cqw;
+    font-size: max(11px, 4.1cqw);
+    font-weight: 850;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .pass__logo {
+    width: 8.4cqw;
+    height: 8.4cqw;
+    flex: none;
+  }
+
+  .pass__head-field {
+    display: grid;
+    justify-items: end;
+    gap: 0.6cqw;
+  }
+
+  .pass__head-field .pass__label {
+    color: #fff;
+  }
+
+  .pass__head-value {
+    font: 800 max(14px, 5.6cqw) / 1 var(--font-mono);
+    letter-spacing: -0.02em;
+  }
+
+  .pass__route {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 3cqw;
+    margin-top: 7cqw;
+  }
+
+  .pass__city {
+    display: grid;
+    gap: 1.6cqw;
+  }
+
+  .pass__city--to {
+    justify-items: end;
+    text-align: right;
+  }
+
+  .pass__code {
+    font-size: 16.5cqw;
+    font-weight: 900;
+    line-height: 0.82;
+    letter-spacing: -0.045em;
+  }
+
+  .pass__name {
+    font-size: max(11px, 3.7cqw);
+    font-weight: 650;
+    letter-spacing: 0.01em;
+  }
+
+  .pass__path {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 9cqw;
+    margin-top: -5cqw;
+  }
+
+  .pass__path::before {
+    content: '';
+    position: absolute;
+    inset: 50% 0 auto;
+    border-top: 0.6cqw dotted rgb(255 255 255 / 70%);
+  }
+
+  .pass__path svg {
+    position: relative;
+    width: 8cqw;
+    height: 8cqw;
+    padding: 0.6cqw;
+    background: var(--band);
+    color: #fff;
+  }
+
+  .pass__label {
+    font: 700 max(9.5px, 2.85cqw) / 1 var(--font-mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #5b6170;
+  }
+
+  .pass__fields {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr 1fr;
+    gap: 4.4cqw 3cqw;
+    margin: 0;
+    padding: 6cqw 6.4cqw 0;
+  }
+
+  .pass__field {
+    display: grid;
+    gap: 1.4cqw;
+    min-width: 0;
+  }
+
+  .pass__field--wide {
+    grid-column: span 2;
+  }
+
+  .pass__field dd {
+    margin: 0;
+    font-size: max(12px, 4.6cqw);
+    font-weight: 750;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .pass__field--big dd {
+    font: 800 max(18px, 8.4cqw) / 0.95 var(--font-mono);
+    letter-spacing: -0.04em;
+  }
+
+  .pass__notice {
+    display: flex;
+    align-items: center;
+    gap: 2.4cqw;
+    margin: 6cqw 6.4cqw 0;
+    padding: 2.8cqw 3.6cqw;
+    border-radius: 3cqw;
+    background: color-mix(in srgb, var(--band) 11%, #fffefb);
+    font-size: max(12px, 3.8cqw);
+    font-weight: 650;
+  }
+
+  .pass__notice svg {
+    width: 5cqw;
+    height: 5cqw;
+    flex: none;
+    fill: none;
+    stroke: var(--band);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+  }
+
+  .pass__stub {
+    display: grid;
+    align-content: center;
+    gap: 2cqw;
+    height: 27cqw;
+    margin-top: auto;
+    padding: 0 8cqw;
+    border-top: 0.55cqw dashed #cfcabd;
+  }
+
+  .pass__barcode {
+    width: 100%;
+    height: 12.5cqw;
+    fill: #15171c;
+  }
+
+  .pass__ref {
+    font: 600 max(9px, 2.6cqw) / 1 var(--font-mono);
+    letter-spacing: 0.32em;
+    text-align: center;
+    color: #5b6170;
+  }
+
+  .bp-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .bp-button {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border: 2px solid rgb(255 255 255 / 85%);
+    border-radius: 50%;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    transition:
+      background-color 200ms ease,
+      opacity 200ms ease;
+  }
+
+  .bp-button svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .bp-button:hover {
+    background: rgb(255 255 255 / 14%);
+  }
+
+  .bp-button:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 3px;
+  }
+
+  .bp-button[aria-disabled='true'] {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .bp-button[aria-disabled='true']:hover {
+    background: transparent;
+  }
+
+  .bp-counter {
+    min-width: 64px;
+    font: 700 15px/1 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-align: center;
+  }
+
+  .bp-hint {
+    font-size: 14px;
+    font-weight: 600;
+  }
+</style>
