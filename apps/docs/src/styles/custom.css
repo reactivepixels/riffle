@@ -1,4 +1,109 @@
 /*
+ * The docs theme: the landing page's palette and type on Starlight's own
+ * variables. Dark is the landing's near black and cream with its yellow as
+ * the accent; light is the cream band with black ink. Every text pair here
+ * clears WCAG AA. Component notes follow below.
+ */
+:root {
+  --sl-color-accent-low: #3a3000;
+  --sl-color-accent: #ffd60a;
+  --sl-color-accent-high: #ffe55c;
+  --sl-color-white: #f5f2ea;
+  --sl-color-gray-1: #ebe7dd;
+  --sl-color-gray-2: #cfcabf;
+  --sl-color-gray-3: #a29d92;
+  --sl-color-gray-4: #7f7a71;
+  --sl-color-gray-5: #3a3732;
+  --sl-color-gray-6: #1d1c1a;
+  --sl-color-black: #0c0c0e;
+  --sl-color-bg-nav: var(--sl-color-black);
+  --sl-color-bg-sidebar: var(--sl-color-black);
+  --sl-color-hairline-light: #26241f;
+  --sl-color-hairline: #26241f;
+  --sl-color-hairline-shade: #26241f;
+  /* Note asides: a warm panel with a yellow edge, not Starlight blue. */
+  --sl-color-blue-low: #1d1c1a;
+  --sl-color-blue: #ffd60a;
+  --sl-color-blue-high: #ffe55c;
+}
+
+:root[data-theme='light'] {
+  /* Starlight's light theme sets text in the mid accent, so it is ink here. */
+  --sl-color-accent-low: #fff3b0;
+  --sl-color-accent: #111111;
+  --sl-color-accent-high: #111111;
+  --sl-color-white: #111111;
+  --sl-color-gray-1: #1f1d1a;
+  --sl-color-gray-2: #34312d;
+  --sl-color-gray-3: #4f4b45;
+  --sl-color-gray-4: #6b675f;
+  --sl-color-gray-5: #d9d4c8;
+  --sl-color-gray-6: #ebe7dc;
+  --sl-color-gray-7: #f0ece2;
+  --sl-color-black: #f5f2ea;
+  --sl-color-bg-nav: var(--sl-color-black);
+  --sl-color-bg-sidebar: var(--sl-color-black);
+  --sl-color-hairline-light: #e2ddd1;
+  --sl-color-hairline: #e2ddd1;
+  --sl-color-hairline-shade: #d9d4c8;
+  --sl-color-blue-low: #fff3b0;
+  --sl-color-blue: #111111;
+  --sl-color-blue-high: #111111;
+}
+
+/* Headings in the landing page's heavy, tight display cut. */
+.content-panel h1,
+.sl-markdown-content :is(h2, h3) {
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.content-panel h1 {
+  font-size: clamp(2.4rem, 4.5vw, 3.6rem);
+  line-height: 1.02;
+}
+
+.sl-markdown-content h2 {
+  line-height: 1.08;
+}
+
+.site-title {
+  gap: 0.6rem;
+  color: var(--sl-color-white);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.site-title img {
+  width: 1.35rem;
+  height: auto;
+}
+
+/* The current page: a yellow pill with black ink, in both themes. */
+.sidebar-content a[aria-current='page'],
+.sidebar-content a[aria-current='page']:hover,
+.sidebar-content a[aria-current='page']:focus {
+  background: #ffd60a;
+  color: #111111;
+  font-weight: 600;
+  border-radius: 999px;
+}
+
+/* Header icons in plain ink rather than the accent. */
+.social-icons a {
+  color: var(--sl-color-white);
+}
+
+.social-icons a:hover {
+  color: var(--sl-color-gray-2);
+}
+
+.sl-markdown-content a:not(:where(.not-content *)) {
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+
+/*
  * Every custom component root on this site (the landing hero's live demo,
  * the recipes pages' `.demo-row`, `/gestures`'
  * tuning panel, `/layouts`' custom-layout demo, and this gallery) carries
@@ -261,4 +366,16 @@
   .recipe-demo-stage--fan {
     padding-left: 6.5rem;
   }
+}
+
+/*
+ * Starlight's page wrapper, guarded. The Vue examples' own App.vue styles a
+ * `.page` class of its own; the production build keeps that rule scoped to
+ * the example, but the dev server can serve it unscoped, where it would
+ * centre and pad Starlight's `.page` and squeeze the content column.
+ */
+.page.sl-flex {
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
 }
