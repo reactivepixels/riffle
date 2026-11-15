@@ -6,6 +6,9 @@
  * at small scale, and each links to that scene. The fan opens on hover or
  * focus, and stays still under prefers-reduced-motion.
  */
+import { Image } from 'astro:assets'
+import fox from '../../assets/showcase/creatures/fox.jpg'
+
 const base = 'Go to'
 ---
 
@@ -48,15 +51,7 @@ const base = 'Go to'
       <span class="holo-m__body">
         <span class="holo-m__head"><span>Emberfox</span><span>120</span></span>
         <span class="holo-m__window">
-          <svg viewBox="0 0 100 70" preserveAspectRatio="xMidYMid slice">
-            <path d="M26 30 30 8 44 22Z" fill="#c2410c"></path>
-            <path d="M74 30 70 8 56 22Z" fill="#c2410c"></path>
-            <path d="M50 64 24 30 34 20 50 24 66 20 76 30Z" fill="#ff7a2f"></path>
-            <path d="M50 64 30 38 50 44 70 38Z" fill="#fff3e6"></path>
-            <ellipse cx="40" cy="35" rx="2.6" ry="3.4" fill="#1c1917"></ellipse>
-            <ellipse cx="60" cy="35" rx="2.6" ry="3.4" fill="#1c1917"></ellipse>
-            <path d="M47 56h6l-3 4Z" fill="#1c1917"></path>
-          </svg>
+          <Image src={fox} alt="" width={240} loading="eager" />
           <span class="holo-m__foil"></span>
         </span>
         <span class="holo-m__move"></span>
@@ -372,10 +367,11 @@ const base = 'Go to'
     background: linear-gradient(160deg, #ffb347, #e8432e);
   }
 
-  .holo-m__window svg {
+  .holo-m__window img {
     display: block;
     width: 100%;
     height: 100%;
+    object-fit: cover;
   }
 
   .holo-m__foil {
