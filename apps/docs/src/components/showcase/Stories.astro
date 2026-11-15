@@ -10,12 +10,13 @@ import Scene from './Scene.astro'
 import breakfast from '../../assets/showcase/stories/breakfast.jpg'
 import jacaranda from '../../assets/showcase/stories/jacaranda.jpg'
 import market from '../../assets/showcase/stories/market.jpg'
+import rooftop from '../../assets/showcase/stories/rooftop.jpg'
 import lake from '../../assets/showcase/stories/lake.jpg'
 import tacos from '../../assets/showcase/stories/tacos.jpg'
 import { storiesSource } from '../../lib/snippets'
 
 interface Story {
-  art: 'breakfast' | 'jacaranda' | 'market' | 'lake' | 'tacos'
+  art: 'breakfast' | 'jacaranda' | 'market' | 'rooftop' | 'lake' | 'tacos'
   day: string
   time: string
   tag: string
@@ -45,6 +46,13 @@ const stories: Story[] = [
     text: 'A market counter, a plastic stool, and whatever the cook says is good today.',
   },
   {
+    art: 'rooftop',
+    day: 'Saturday',
+    time: '19:30',
+    tag: 'Rooftop',
+    text: 'Golden hour over the old town. Bring a jacket, it cools fast.',
+  },
+  {
     art: 'lake',
     day: 'Sunday',
     time: '10:00',
@@ -60,7 +68,7 @@ const stories: Story[] = [
   },
 ]
 
-const photos = { breakfast, jacaranda, market, lake, tacos }
+const photos = { breakfast, jacaranda, market, rooftop, lake, tacos }
 
 const flags = ['#ff4f8b', '#ffd23f', '#3ad1c4', '#ff7a1a', '#8b5cf6', '#ffffff']
 ---
