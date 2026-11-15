@@ -9,6 +9,7 @@
 import { Image } from 'astro:assets'
 import fox from '../../assets/showcase/creatures/fox.jpg'
 import bloom from '../../assets/showcase/covers/bloom.jpg'
+import breakfastPhoto from '../../assets/showcase/stories/breakfast.jpg'
 
 const base = 'Go to'
 ---
@@ -82,20 +83,7 @@ const base = 'Go to'
 
   <a class="mini mini--story" href="#stories" aria-label={`${base} City stories`} style="--i: 5">
     <span class="mini__art story-m" aria-hidden="true">
-      <svg class="story-m__sky" viewBox="0 0 90 160" preserveAspectRatio="xMidYMid slice">
-        <defs>
-          <linearGradient id="mini-story-sky" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#ffd27a"></stop>
-            <stop offset="0.55" stop-color="#ff7b54"></stop>
-            <stop offset="1" stop-color="#c2185b"></stop>
-          </linearGradient>
-        </defs>
-        <rect width="90" height="160" fill="url(#mini-story-sky)"></rect>
-        <circle cx="45" cy="70" r="26" fill="#fff1b8"></circle>
-        <path d="M0 86q22-14 45-4t45-6v84H0Z" fill="#e8505b"></path>
-        <path d="M0 100q30-16 60-4t30 0v64H0Z" fill="#a4134d"></path>
-        <path d="M0 116q24-8 50 0t40-4v48H0Z" fill="#6d0f3c"></path>
-      </svg>
+      <Image class="story-m__sky" src={breakfastPhoto} alt="" width={240} loading="eager" />
       <span class="story-m__text">Breakfast before the queue.</span>
     </span>
   </a>
@@ -496,6 +484,7 @@ const base = 'Go to'
     inset: 0;
     width: 100%;
     height: 100%;
+    object-fit: cover;
   }
 
   .story-m::after {
@@ -512,10 +501,10 @@ const base = 'Go to'
     left: 7cqw;
     right: 7cqw;
     bottom: 8cqw;
-    font-family: var(--font-rounded);
-    font-size: 11cqw;
-    font-weight: 800;
-    line-height: 1.04;
-    letter-spacing: -0.03em;
+    font-family: var(--font-display);
+    font-size: 10cqw;
+    font-weight: 600;
+    line-height: 1.12;
+    letter-spacing: -0.01em;
   }
 </style>
