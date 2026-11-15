@@ -1,14 +1,13 @@
 ---
 /**
- * One showcase scene: a full viewport section on its own colour field, with
- * the scenario headline, one line of copy, the Riffle features that make it
- * work, a "View the code" disclosure, and the live stack (the default slot)
- * as the hero object. A scene sets its colours through `--bg` and `--ink`
- * on its own root, so a script can flood them at runtime.
- *
- * Grid areas put the headline, then the stage, then the copy on a phone, and
- * the headline and copy beside the stage from 900px up (`flip` swaps the
- * sides, so neighbouring scenes alternate).
+ * One showcase scene, laid out the same way every time: a flat colour band
+ * with the live stack centred as the hero (the default slot, controls
+ * included), then a caption row on a fixed grid, like a museum label. The
+ * left side carries the scene number, title and one sentence; the right
+ * side the configuration that makes it work, as plain monospace text, and a
+ * "Show code" toggle whose panel opens full width beneath. A scene sets its
+ * colours through `--bg` and `--ink` on its own root, so a script can flood
+ * them at runtime.
  */
 import { Code } from 'astro:components'
 import { showcaseCodeTheme } from '../../lib/showcase/code-theme'
@@ -16,82 +15,48 @@ import { showcaseCodeTheme } from '../../lib/showcase/code-theme'
 interface Props {
   id: string
   index: string
-  kicker: string
   title: string
   lede: string
-  features: string[]
+  config: string[]
   code: string
-  flip?: boolean
   class?: string
   /** Inline custom properties for the scene root, `--bg` and `--ink` first. */
   style?: string
 }
 
-const {
-  id,
-  index,
-  kicker,
-  title,
-  lede,
-  features,
-  code,
-  flip = false,
-  class: className,
-  style,
-} = Astro.props
+const { id, index, title, lede, config, code, class: className, style } = Astro.props
 ---
 
-<section
-  id={id}
-  class:list={['scene', className, { 'scene--flip': flip }]}
-  aria-labelledby={`${id}-title`}
-  style={style}
->
-  <slot name="backdrop" />
-  <div class="scene__grid">
-    <header class="scene__head">
-      <p class="scene__index"><span class="scene__number">{index}</span>{kicker}</p>
+<section id={id} class:list={['scene', className]} aria-labelledby={`${id}-title`} style={style}>
+  <div class="scene__stage">
+    <slot />
+  </div>
+
+  <div class="scene__caption">
+    <div class="scene__label">
+      <p class="scene__number">{index}</p>
       <h2 class="scene__title" id={`${id}-title`}>{title}</h2>
-    </header>
-
-    <div class="scene__stage">
-      <slot />
-    </div>
-
-    <div class="scene__body">
       <p class="scene__lede">{lede}</p>
-      <div class="scene__features">
-        <h3 class="scene__features-label">What makes it work</h3>
-        <ul class="scene__chips">
-          {
-            features.map((feature) => (
-              <li>
-                <code>{feature}</code>
-              </li>
-            ))
-          }
-        </ul>
-      </div>
-      <details class="scene__code">
-        <summary>
-          <span class="scene__code-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="18" height="18"
-              ><path
-                d="M8.5 7 3.5 12l5 5M15.5 7l5 5-5 5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"></path></svg
-            >
-          </span>
-          View the code
-        </summary>
-        <div class="scene__code-panel">
-          <Code code={code} lang="ts" theme={showcaseCodeTheme} />
-        </div>
-      </details>
     </div>
+    <p class="scene__config">
+      {
+        config.map((item, i) => (
+          <>
+            {i > 0 && <span aria-hidden="true"> · </span>}
+            <code>{item}</code>
+          </>
+        ))
+      }
+    </p>
+    <details class="scene__code">
+      <summary
+        ><span class="scene__show">Show code</span><span class="scene__hide">Hide code</span
+        ></summary
+      >
+      <div class="scene__code-panel">
+        <Code code={code} lang="ts" theme={showcaseCodeTheme} />
+      </div>
+    </details>
   </div>
 </section>
 
@@ -101,201 +66,144 @@ const {
     --ink: #fff;
     position: relative;
     isolation: isolate;
+    display: grid;
+    align-content: center;
+    gap: clamp(40px, 6vw, 72px);
     min-height: 100vh;
     min-height: 100svh;
-    display: grid;
-    align-items: center;
-    padding: clamp(72px, 9vw, 120px) clamp(20px, 5vw, 80px);
+    padding: clamp(64px, 8vw, 104px) clamp(20px, 5vw, 80px) clamp(40px, 5vw, 64px);
     background-color: var(--bg);
     color: var(--ink);
     overflow-x: clip;
-    scroll-margin-top: 0;
-  }
-
-  .scene__grid {
-    position: relative;
-    width: 100%;
-    max-width: 1320px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: 'head' 'stage' 'body';
-    row-gap: clamp(28px, 6vw, 48px);
-  }
-
-  .scene__head {
-    grid-area: head;
   }
 
   .scene__stage {
-    grid-area: stage;
     position: relative;
     display: grid;
-    place-items: center;
+    justify-items: center;
     min-width: 0;
   }
 
-  .scene__body {
-    grid-area: body;
+  .scene__caption {
     display: grid;
-    gap: 28px;
-    align-content: start;
-    min-width: 0;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 48px;
+    row-gap: 16px;
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding-top: 20px;
+    border-top: 1px solid color-mix(in srgb, currentColor 30%, transparent);
   }
 
   @media (min-width: 900px) {
-    .scene__grid {
-      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-      grid-template-rows: auto 1fr;
-      grid-template-areas: 'head stage' 'body stage';
-      column-gap: clamp(40px, 6vw, 96px);
-      row-gap: 32px;
+    .scene__caption {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     }
 
-    .scene--flip .scene__grid {
-      grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
-      grid-template-areas: 'stage head' 'stage body';
+    .scene__config,
+    .scene__code summary {
+      text-align: right;
     }
 
-    .scene__head {
-      align-self: end;
+    .scene__code {
+      grid-column: 1 / -1;
+      margin-top: -8px;
     }
-  }
-
-  .scene__index {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: clamp(16px, 2vw, 28px);
-    font: 700 13px/1 var(--font-mono);
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
   }
 
   .scene__number {
-    display: inline-grid;
-    place-items: center;
-    min-width: 40px;
-    height: 28px;
-    padding: 0 10px;
-    border: 1.5px solid currentColor;
-    border-radius: 999px;
-    letter-spacing: 0.04em;
+    font-size: 14px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
   }
 
   .scene__title {
-    font-family: var(--font-display);
-    font-size: clamp(52px, 7.4vw, 116px);
-    font-weight: 900;
-    line-height: 0.88;
-    letter-spacing: -0.055em;
-    text-wrap: balance;
-    transition: color 700ms var(--ease-out);
+    margin-top: 4px;
+    font-size: clamp(28px, 3.2vw, 44px);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
   }
 
   .scene__lede {
-    max-width: 34ch;
-    font-size: clamp(18px, 1.45vw, 22px);
-    font-weight: 500;
-    line-height: 1.45;
-    letter-spacing: -0.01em;
-    text-wrap: pretty;
+    max-width: 42ch;
+    margin-top: 8px;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.5;
   }
 
-  .scene__features-label {
-    margin: 0 0 10px;
-    font: 700 12px/1 var(--font-mono);
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
+  .scene__config {
+    align-self: end;
+    font-size: 14px;
+    line-height: 1.7;
   }
 
-  .scene__chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .scene__chips code {
-    display: inline-block;
-    padding: 7px 12px;
-    border-radius: 999px;
-    border: 1.5px solid color-mix(in srgb, currentColor 40%, transparent);
-    font: 600 13px/1.2 var(--font-mono);
-    letter-spacing: -0.01em;
-  }
-
-  .scene__code {
-    min-width: 0;
+  .scene__config code {
+    font-family: var(--font-mono);
+    font-size: 13px;
   }
 
   .scene__code summary {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 48px;
-    padding: 0 22px 0 18px;
-    border-radius: 999px;
-    background: var(--ink);
-    color: var(--bg);
-    font-size: 16px;
-    font-weight: 750;
-    letter-spacing: -0.01em;
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
     cursor: pointer;
     list-style: none;
-    user-select: none;
-    transition:
-      transform 200ms var(--ease-out),
-      background-color 700ms var(--ease-out),
-      color 700ms var(--ease-out);
   }
 
   .scene__code summary::-webkit-details-marker {
     display: none;
   }
 
-  .scene__code summary:hover {
-    transform: translateY(-1px);
+  .scene__code summary span {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+  }
+
+  .scene__code summary:hover span {
+    text-decoration-thickness: 2px;
   }
 
   .scene__code summary:focus-visible {
-    outline: 3px solid var(--ink);
+    outline: none;
+  }
+
+  .scene__code summary:focus-visible span {
+    outline: 2px solid currentColor;
     outline-offset: 4px;
   }
 
-  .scene__code-icon {
-    display: inline-grid;
-    transition: transform 300ms var(--ease-out);
+  .scene__hide,
+  .scene__code[open] .scene__show {
+    display: none;
   }
 
-  .scene__code[open] .scene__code-icon {
-    transform: rotate(90deg);
+  .scene__code[open] .scene__hide {
+    display: inline;
   }
 
   .scene__code-panel {
-    margin-top: 16px;
-    border-radius: 20px;
+    margin-top: 20px;
+    border-radius: 12px;
     background: #111116;
-    box-shadow:
-      0 1px 0 rgb(255 255 255 / 6%) inset,
-      0 30px 60px -20px rgb(0 0 0 / 45%),
-      0 12px 24px -12px rgb(0 0 0 / 35%);
     overflow: hidden;
+    text-align: left;
   }
 
   .scene__code-panel :global(pre) {
     margin: 0;
     padding: 22px 24px;
-    font: 500 13px/1.65 var(--font-mono);
+    font: 400 13px/1.65 var(--font-mono);
     tab-size: 2;
     overflow-x: auto;
     background-color: #111116 !important;
   }
 
   .scene__code-panel :global(pre:focus-visible) {
-    outline: 3px solid #8fd3ff;
-    outline-offset: -3px;
+    outline: 2px solid #8fd3ff;
+    outline-offset: -2px;
   }
 </style>

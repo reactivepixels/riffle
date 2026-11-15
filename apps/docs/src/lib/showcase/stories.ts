@@ -35,23 +35,18 @@ export function mountStories(scene: HTMLElement): void {
   stories.forEach((story, i) => riffle.registerNode(i, story))
   prevButton.addEventListener('click', () => riffle.prev())
   nextButton.addEventListener('click', () => riffle.next())
-
-  // Done segments are full, the active one fills over five seconds.
   riffle.on('change', ({ index }) => {
     segments.forEach((segment, i) => {
       segment.classList.toggle('is-done', i < index)
       segment.classList.toggle('is-active', i === index)
     })
   })
-
   if (prefersReducedMotion()) return // No auto-advance, ever.
   bar.addEventListener('animationend', () => riffle.next())
-
   // Any one reason to wait holds the bar, and with it the timer.
   const holds = new Set<string>()
   const hold = (reason: string, on: boolean) => {
-    if (on) holds.add(reason)
-    else holds.delete(reason)
+    holds[on ? 'add' : 'delete'](reason)
     bar.classList.toggle('is-paused', holds.size > 0)
   }
   riffle.on('dragstart', () => hold('drag', true))

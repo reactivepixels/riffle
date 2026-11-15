@@ -112,23 +112,13 @@ const describe = (b: Bag) =>
 <Scene
   id="coffee-origins"
   index="05"
-  kicker="Roaster"
-  title="Your brand. Your colours."
-  lede="Six origins, six bags. On every change event the whole scene floods to the bag in front, and the type follows it there. Riffle brings the physics. The look is all yours."
-  features={["on('change')", 'style.setProperty', 'fan({ offset, scaleStep })', 'getLabel']}
+  title="Coffee origins"
+  lede="The page takes the colour of whichever bag is in front."
+  config={["on('change')", "style.setProperty('--bg')", "style.setProperty('--ink')"]}
   code={coffeeSource}
   class="coffee-scene"
   style={`--bg: ${first.flood}; --ink: ${first.ink};`}
 >
-  <div
-    slot="backdrop"
-    class="coffee-backdrop"
-    data-backdrop
-    data-word={first.origin}
-    aria-hidden="true"
-  >
-  </div>
-
   <div class="coffee-stage">
     <div class="coffee-stack" data-stack role="group" aria-label="Fernwick coffee, single origins">
       {
@@ -138,7 +128,6 @@ const describe = (b: Bag) =>
             data-label={describe(b)}
             data-flood={b.flood}
             data-ink={b.ink}
-            data-origin={b.origin}
             style={`--bag: ${b.bag}; z-index: ${bags.length - i};`}
           >
             <div class="bag__body">
@@ -186,12 +175,12 @@ const describe = (b: Bag) =>
       }
     </div>
 
-    <div class="coffee-controls">
-      <button class="coffee-button" type="button" data-prev aria-label="Previous bag">
+    <div class="sc-controls">
+      <button class="sc-button" type="button" data-prev aria-label="Previous bag">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"></path></svg>
       </button>
-      <p class="coffee-hint">Drag a bag or tap the arrows.</p>
-      <button class="coffee-button" type="button" data-next aria-label="Next bag">
+      <p class="sc-note">Drag a bag or tap the arrows.</p>
+      <button class="sc-button" type="button" data-next aria-label="Next bag">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
       </button>
     </div>
@@ -213,44 +202,17 @@ const describe = (b: Bag) =>
       color 800ms var(--ease-out);
   }
 
-  .coffee-backdrop {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    overflow: hidden;
-    pointer-events: none;
-  }
 
-  .coffee-backdrop::before {
-    content: attr(data-word);
-    position: absolute;
-    right: -0.12em;
-    top: 50%;
-    translate: 0 -50%;
-    writing-mode: vertical-rl;
-    font: 900 clamp(120px, 15vw, 260px) / 1 var(--font-display);
-    letter-spacing: -0.07em;
-    white-space: nowrap;
-    color: var(--ink);
-    opacity: 0.08;
-    transition: color 800ms var(--ease-out);
-  }
 
-  @media (max-width: 899px) {
-    .coffee-backdrop {
-      display: none;
-    }
-  }
 
   .coffee-stage {
     display: grid;
     justify-items: center;
-    gap: 30px;
     width: 100%;
   }
 
   .coffee-stack {
-    --w: min(280px, 56vw);
+    --w: min(310px, 58vw);
     position: relative;
     width: var(--w);
     aspect-ratio: 262 / 384;
@@ -462,48 +424,9 @@ const describe = (b: Bag) =>
     letter-spacing: 0.06em;
   }
 
-  .coffee-controls {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-  }
 
-  .coffee-button {
-    display: grid;
-    place-items: center;
-    width: 52px;
-    height: 52px;
-    flex: none;
-    border: 2px solid currentColor;
-    border-radius: 50%;
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-    transition: transform 200ms var(--ease-out);
-  }
 
-  .coffee-button:hover {
-    transform: scale(1.06);
-  }
 
-  .coffee-button:focus-visible {
-    outline: 3px solid currentColor;
-    outline-offset: 3px;
-  }
 
-  .coffee-button svg {
-    width: 24px;
-    height: 24px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2.4;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
 
-  .coffee-hint {
-    font-size: 14px;
-    font-weight: 650;
-    text-align: center;
-  }
 </style>

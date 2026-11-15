@@ -1,0 +1,580 @@
+---
+/**
+ * The intro's fan of six cards, and the page's scene index: each card is a
+ * miniature of its own scene (a boarding pass, a record sleeve, a holo card,
+ * a flashcard, a coffee bag, a story) drawn with the same art and colours
+ * at small scale, and each links to that scene. The fan opens on hover or
+ * focus, and stays still under prefers-reduced-motion.
+ */
+const base = 'Go to'
+---
+
+<nav class="deck" aria-label="Scenes">
+  <a class="mini mini--pass" href="#boarding-passes" aria-label={`${base} Boarding passes`} style="--i: 0">
+    <span class="mini__art pass-m" aria-hidden="true">
+      <span class="pass-m__band">
+        <span class="pass-m__brand">Orrery Air</span>
+        <span class="pass-m__route">
+          <span>LDN</span>
+          <svg viewBox="0 0 24 24"
+            ><path
+              d="M21 12.6c0-.7-.6-1.2-1.3-1.2H15l-4.6-7.2H8.3l2.3 7.2H6.3L4.6 9.3H3l1 3.3-1 3.3h1.6l1.7-2.1h4.3l-2.3 7.2h2.1l4.6-7.2h4.7c.7 0 1.3-.5 1.3-1.2Z"
+            ></path></svg
+          >
+          <span>LSB</span>
+        </span>
+      </span>
+      <span class="pass-m__fields">
+        <span><small>Gate</small>B12</span>
+        <span><small>Seat</small>14A</span>
+      </span>
+      <span class="pass-m__stub"><span class="pass-m__bars"></span></span>
+    </span>
+  </a>
+
+  <a class="mini mini--sleeve" href="#crate-digging" aria-label={`${base} Record crate`} style="--i: 1">
+    <span class="mini__art sleeve-m" aria-hidden="true">
+      <span class="sleeve-m__disc"></span>
+      <span class="sleeve-m__cover">
+        <span class="sleeve-m__sun"></span>
+        <span class="sleeve-m__bar"></span>
+        <span class="sleeve-m__title">Concrete<br />Bloom</span>
+      </span>
+    </span>
+  </a>
+
+  <a class="mini mini--holo" href="#holo-cards" aria-label={`${base} Trading cards`} style="--i: 2">
+    <span class="mini__art holo-m" aria-hidden="true">
+      <span class="holo-m__body">
+        <span class="holo-m__head"><span>Emberfox</span><span>120</span></span>
+        <span class="holo-m__window">
+          <svg viewBox="0 0 100 70" preserveAspectRatio="xMidYMid slice">
+            <path d="M26 30 30 8 44 22Z" fill="#c2410c"></path>
+            <path d="M74 30 70 8 56 22Z" fill="#c2410c"></path>
+            <path d="M50 64 24 30 34 20 50 24 66 20 76 30Z" fill="#ff7a2f"></path>
+            <path d="M50 64 30 38 50 44 70 38Z" fill="#fff3e6"></path>
+            <ellipse cx="40" cy="35" rx="2.6" ry="3.4" fill="#1c1917"></ellipse>
+            <ellipse cx="60" cy="35" rx="2.6" ry="3.4" fill="#1c1917"></ellipse>
+            <path d="M47 56h6l-3 4Z" fill="#1c1917"></path>
+          </svg>
+          <span class="holo-m__foil"></span>
+        </span>
+        <span class="holo-m__move"></span>
+        <span class="holo-m__move"></span>
+      </span>
+    </span>
+  </a>
+
+  <a class="mini mini--flash" href="#flashcards" aria-label={`${base} Flashcards`} style="--i: 3">
+    <span class="mini__art flash-m" aria-hidden="true">
+      <span class="flash-m__word" lang="ja">花火</span>
+      <span class="flash-m__reading">hanabi</span>
+    </span>
+  </a>
+
+  <a class="mini mini--bag" href="#coffee-origins" aria-label={`${base} Coffee origins`} style="--i: 4">
+    <span class="mini__art bag-m" aria-hidden="true">
+      <span class="bag-m__bag">
+        <span class="bag-m__seal"></span>
+        <span class="bag-m__valve"></span>
+        <span class="bag-m__label">
+          <span class="bag-m__brand">Fernwick</span>
+          <span class="bag-m__origin">Ethiopia</span>
+          <span class="bag-m__beans"><span></span><span></span><span></span></span>
+        </span>
+      </span>
+    </span>
+  </a>
+
+  <a class="mini mini--story" href="#stories" aria-label={`${base} City stories`} style="--i: 5">
+    <span class="mini__art story-m" aria-hidden="true">
+      <svg class="story-m__sky" viewBox="0 0 90 160" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="mini-story-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffd27a"></stop>
+            <stop offset="0.55" stop-color="#ff7b54"></stop>
+            <stop offset="1" stop-color="#c2185b"></stop>
+          </linearGradient>
+        </defs>
+        <rect width="90" height="160" fill="url(#mini-story-sky)"></rect>
+        <circle cx="45" cy="70" r="26" fill="#fff1b8"></circle>
+        <path d="M0 86q22-14 45-4t45-6v84H0Z" fill="#e8505b"></path>
+        <path d="M0 100q30-16 60-4t30 0v64H0Z" fill="#a4134d"></path>
+        <path d="M0 116q24-8 50 0t40-4v48H0Z" fill="#6d0f3c"></path>
+      </svg>
+      <span class="story-m__bar"><span></span><span></span><span></span><span></span></span>
+      <span class="story-m__text">Breakfast before the queue.</span>
+    </span>
+  </a>
+</nav>
+
+<style>
+  .deck {
+    --w: clamp(132px, 17vw, 230px);
+    position: relative;
+    justify-self: center;
+    width: var(--w);
+    aspect-ratio: 5 / 7;
+    margin: 8px 0 32px;
+  }
+
+  .mini {
+    position: absolute;
+    inset: 0;
+    display: block;
+    border-radius: 14px;
+    color: inherit;
+    text-decoration: none;
+    box-shadow:
+      0 24px 40px -18px rgb(0 0 0 / 70%),
+      0 6px 12px -6px rgb(0 0 0 / 45%);
+    transform-origin: 50% 135%;
+    transform: rotate(calc((var(--i) - 2.5) * 8deg));
+    transition:
+      transform 500ms var(--ease-out),
+      translate 300ms var(--ease-out);
+  }
+
+  @media (min-width: 900px) {
+    .mini {
+      transform: rotate(calc((var(--i) - 2.5) * 12deg));
+    }
+
+    .deck:hover .mini,
+    .deck:focus-within .mini {
+      transform: rotate(calc((var(--i) - 2.5) * 16deg));
+    }
+  }
+
+  .mini:hover,
+  .mini:focus-visible {
+    translate: 0 -12px;
+  }
+
+  .mini:focus-visible {
+    outline: 2px solid #f5f2ea;
+    outline-offset: 4px;
+  }
+
+  @media (min-width: 900px) and (prefers-reduced-motion: reduce) {
+    .deck:hover .mini,
+    .deck:focus-within .mini {
+      transform: rotate(calc((var(--i) - 2.5) * 12deg));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mini:hover,
+    .mini:focus-visible {
+      translate: none;
+    }
+  }
+
+  .mini__art {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
+    container-type: inline-size;
+  }
+
+  /* 1. Boarding pass. */
+  .pass-m {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, #fffefb, #f6f3ec);
+    color: #15171c;
+    --tear: calc(100% - 24cqw);
+    -webkit-mask:
+      radial-gradient(circle 4cqw at 0 var(--tear), transparent 3.9cqw, #000 4cqw) left / 51% 100%
+        no-repeat,
+      radial-gradient(circle 4cqw at 100% var(--tear), transparent 3.9cqw, #000 4cqw) right / 51%
+        100% no-repeat;
+    mask:
+      radial-gradient(circle 4cqw at 0 var(--tear), transparent 3.9cqw, #000 4cqw) left / 51% 100%
+        no-repeat,
+      radial-gradient(circle 4cqw at 100% var(--tear), transparent 3.9cqw, #000 4cqw) right / 51%
+        100% no-repeat;
+  }
+
+  .pass-m__band {
+    display: grid;
+    gap: 9cqw;
+    padding: 7cqw 7cqw 9cqw;
+    background: #2459e0;
+    color: #fff;
+  }
+
+  .pass-m__brand {
+    font-size: 5.6cqw;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .pass-m__route {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 17cqw;
+    font-weight: 900;
+    line-height: 0.8;
+    letter-spacing: -0.04em;
+  }
+
+  .pass-m__route svg {
+    width: 10cqw;
+    height: 10cqw;
+    fill: #fff;
+  }
+
+  .pass-m__fields {
+    display: flex;
+    gap: 10cqw;
+    padding: 8cqw 7cqw 0;
+    font: 700 11cqw/1 var(--font-mono);
+  }
+
+  .pass-m__fields span {
+    display: grid;
+    gap: 2cqw;
+  }
+
+  .pass-m__fields small {
+    font-size: 4.4cqw;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #5b6170;
+  }
+
+  .pass-m__stub {
+    display: grid;
+    align-items: center;
+    height: 24cqw;
+    margin-top: auto;
+    padding: 0 9cqw;
+    border-top: 0.8cqw dashed #cfcabd;
+  }
+
+  .pass-m__bars {
+    height: 11cqw;
+    background: repeating-linear-gradient(
+      90deg,
+      #15171c 0 1.2cqw,
+      transparent 1.2cqw 2cqw,
+      #15171c 2cqw 2.6cqw,
+      transparent 2.6cqw 4cqw,
+      #15171c 4cqw 6cqw,
+      transparent 6cqw 6.8cqw
+    );
+  }
+
+  /* 2. Record sleeve, the record peeking out of the top. */
+  .sleeve-m {
+    background: #ff5a1f;
+  }
+
+  .sleeve-m__disc {
+    position: absolute;
+    left: 14%;
+    top: 12%;
+    width: 72%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, #e63b2e 0 15%, transparent 15.5%),
+      repeating-radial-gradient(circle, #121212 0 0.5cqw, #222 0.7cqw 1.2cqw);
+    box-shadow: 0 2cqw 4cqw rgb(0 0 0 / 35%);
+  }
+
+  .sleeve-m__cover {
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    bottom: 8%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 1.5cqw;
+    background: #efe8da;
+    color: #141414;
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 40%) inset,
+      0 4cqw 8cqw -2cqw rgb(20 12 8 / 60%);
+  }
+
+  .sleeve-m__cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(118deg, rgb(255 255 255 / 28%), transparent 40%);
+  }
+
+  .sleeve-m__sun {
+    position: absolute;
+    top: -16%;
+    right: -14%;
+    width: 72%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #e63b2e;
+  }
+
+  .sleeve-m__bar {
+    position: absolute;
+    left: 9%;
+    top: 0;
+    bottom: 42%;
+    width: 9%;
+    background: #141414;
+  }
+
+  .sleeve-m__title {
+    position: absolute;
+    left: 9%;
+    bottom: 9%;
+    font-size: 12cqw;
+    font-weight: 900;
+    line-height: 0.86;
+    letter-spacing: -0.06em;
+  }
+
+  /* 3. Holo card. */
+  .holo-m {
+    padding: 4cqw;
+    background: linear-gradient(
+      125deg,
+      #fff6d2 0%,
+      #d6a945 18%,
+      #fff2c0 34%,
+      #b8862c 52%,
+      #f7dd8f 70%,
+      #a87420 86%,
+      #f3d27e 100%
+    );
+  }
+
+  .holo-m__body {
+    display: flex;
+    flex-direction: column;
+    gap: 4cqw;
+    height: 100%;
+    padding: 5cqw;
+    border-radius: 4cqw;
+    background: #fff1e4;
+    color: #17131f;
+  }
+
+  .holo-m__head {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9cqw;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+  }
+
+  .holo-m__head span:last-child {
+    color: #9f1239;
+  }
+
+  .holo-m__window {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 100 / 70;
+    border-radius: 2cqw;
+    background: linear-gradient(160deg, #ffb347, #e8432e);
+  }
+
+  .holo-m__window svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .holo-m__foil {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 22%,
+      rgb(255 0 128 / 60%) 34%,
+      rgb(255 214 0 / 60%) 42%,
+      rgb(0 255 170 / 60%) 50%,
+      rgb(0 180 255 / 60%) 58%,
+      transparent 70%
+    );
+    mix-blend-mode: color-dodge;
+    opacity: 0.7;
+  }
+
+  .holo-m__move {
+    height: 5cqw;
+    border-bottom: 1px solid rgb(0 0 0 / 12%);
+    background: linear-gradient(90deg, #c2410c 0 5cqw, transparent 5cqw 9cqw, #3a3346 9cqw 55%, transparent 55%)
+      0 0 / 100% 2.4cqw no-repeat;
+  }
+
+  /* 4. Flashcard. */
+  .flash-m {
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 4cqw;
+    background-color: #fffcf3;
+    background-image:
+      linear-gradient(transparent 0 calc(20cqw - 1px), #e2a1a1 calc(20cqw - 1px) 20cqw, transparent 20cqw),
+      repeating-linear-gradient(transparent 0 calc(10cqw - 1px), rgb(96 140 200 / 30%) calc(10cqw - 1px) 10cqw);
+    color: #2b1d12;
+  }
+
+  .flash-m__word {
+    margin-top: 10cqw;
+    font:
+      600 34cqw/1 'Hiragino Mincho ProN',
+      'Yu Mincho',
+      'Noto Serif JP',
+      var(--font-serif);
+  }
+
+  .flash-m__reading {
+    font: italic 400 9cqw/1 var(--font-serif);
+    color: #6a4b33;
+  }
+
+  /* 5. Coffee bag. */
+  .bag-m {
+    display: grid;
+    place-items: center;
+    background: #f7b77a;
+  }
+
+  .bag-m__bag {
+    position: relative;
+    width: 72%;
+    height: 82%;
+    border-radius: 3cqw 3cqw 7cqw 7cqw;
+    background:
+      linear-gradient(
+        90deg,
+        rgb(0 0 0 / 28%) 0%,
+        transparent 8%,
+        rgb(255 255 255 / 16%) 16%,
+        transparent 28% 72%,
+        rgb(0 0 0 / 28%) 100%
+      ),
+      #e9772f;
+    box-shadow: 0 4cqw 8cqw -2cqw rgb(0 0 0 / 40%);
+  }
+
+  .bag-m__seal {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 9cqw;
+    border-radius: 3cqw 3cqw 0 0;
+    background: repeating-linear-gradient(90deg, rgb(0 0 0 / 16%) 0 0.6cqw, transparent 0.6cqw 1.6cqw);
+  }
+
+  .bag-m__valve {
+    position: absolute;
+    top: 14cqw;
+    left: 50%;
+    width: 7cqw;
+    height: 7cqw;
+    translate: -50% 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgb(0 0 0 / 40%) 0 25%, #c4601f 28%);
+  }
+
+  .bag-m__label {
+    position: absolute;
+    left: 8cqw;
+    right: 8cqw;
+    top: 28cqw;
+    bottom: 12cqw;
+    display: flex;
+    flex-direction: column;
+    gap: 3cqw;
+    padding: 5cqw;
+    border-radius: 1.5cqw;
+    background: #fbf6ec;
+    color: #221a12;
+  }
+
+  .bag-m__brand {
+    font: 700 4.6cqw/1 var(--font-mono);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .bag-m__origin {
+    font: italic 600 11cqw/1 var(--font-serif);
+    letter-spacing: -0.03em;
+  }
+
+  .bag-m__beans {
+    display: flex;
+    gap: 1.6cqw;
+    margin-top: auto;
+  }
+
+  .bag-m__beans span {
+    width: 3.6cqw;
+    height: 5cqw;
+    border-radius: 50%;
+    background: #3b2414;
+    rotate: 28deg;
+  }
+
+  /* 6. Story. */
+  .story-m {
+    background: #1b0612;
+    color: #fff;
+  }
+
+  .story-m__sky {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .story-m::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgb(12 4 16 / 88%) 0%, transparent 45%);
+  }
+
+  .story-m__bar {
+    position: absolute;
+    z-index: 1;
+    top: 5cqw;
+    left: 5cqw;
+    right: 5cqw;
+    display: flex;
+    gap: 1.6cqw;
+  }
+
+  .story-m__bar span {
+    flex: 1;
+    height: 1.4cqw;
+    border-radius: 1cqw;
+    background: rgb(255 255 255 / 45%);
+  }
+
+  .story-m__bar span:first-child {
+    background: #fff;
+  }
+
+  .story-m__text {
+    position: absolute;
+    z-index: 1;
+    left: 7cqw;
+    right: 7cqw;
+    bottom: 8cqw;
+    font-family: var(--font-rounded);
+    font-size: 11cqw;
+    font-weight: 800;
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+  }
+</style>
