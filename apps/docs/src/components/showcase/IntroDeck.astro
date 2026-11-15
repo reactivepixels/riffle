@@ -9,6 +9,7 @@
 import { Image } from 'astro:assets'
 import fox from '../../assets/showcase/creatures/fox.jpg'
 import bloom from '../../assets/showcase/covers/bloom.jpg'
+import ethiopiaBag from '../../assets/showcase/bags/ethiopia.webp'
 import breakfastPhoto from '../../assets/showcase/stories/breakfast.jpg'
 
 const base = 'Go to'
@@ -69,15 +70,7 @@ const base = 'Go to'
 
   <a class="mini mini--bag" href="#coffee-origins" aria-label={`${base} Coffee origins`} style="--i: 4">
     <span class="mini__art bag-m" aria-hidden="true">
-      <span class="bag-m__bag">
-        <span class="bag-m__seal"></span>
-        <span class="bag-m__valve"></span>
-        <span class="bag-m__label">
-          <span class="bag-m__brand">Fernwick</span>
-          <span class="bag-m__origin">Ethiopia</span>
-          <span class="bag-m__beans"><span></span><span></span><span></span></span>
-        </span>
-      </span>
+      <Image class="bag-m__img" src={ethiopiaBag} alt="" width={240} loading="eager" />
     </span>
   </a>
 
@@ -396,81 +389,10 @@ const base = 'Go to'
     background: #f7b77a;
   }
 
-  .bag-m__bag {
-    position: relative;
-    width: 72%;
-    height: 82%;
-    border-radius: 3cqw 3cqw 7cqw 7cqw;
-    background:
-      linear-gradient(
-        90deg,
-        rgb(0 0 0 / 28%) 0%,
-        transparent 8%,
-        rgb(255 255 255 / 16%) 16%,
-        transparent 28% 72%,
-        rgb(0 0 0 / 28%) 100%
-      ),
-      #e9772f;
-    box-shadow: 0 4cqw 8cqw -2cqw rgb(0 0 0 / 40%);
-  }
-
-  .bag-m__seal {
-    position: absolute;
-    inset: 0 0 auto;
-    height: 9cqw;
-    border-radius: 3cqw 3cqw 0 0;
-    background: repeating-linear-gradient(90deg, rgb(0 0 0 / 16%) 0 0.6cqw, transparent 0.6cqw 1.6cqw);
-  }
-
-  .bag-m__valve {
-    position: absolute;
-    top: 14cqw;
-    left: 50%;
-    width: 7cqw;
-    height: 7cqw;
-    translate: -50% 0;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgb(0 0 0 / 40%) 0 25%, #c4601f 28%);
-  }
-
-  .bag-m__label {
-    position: absolute;
-    left: 8cqw;
-    right: 8cqw;
-    top: 28cqw;
-    bottom: 12cqw;
-    display: flex;
-    flex-direction: column;
-    gap: 3cqw;
-    padding: 5cqw;
-    border-radius: 1.5cqw;
-    background: #fbf6ec;
-    color: #221a12;
-  }
-
-  .bag-m__brand {
-    font: 700 4.6cqw/1 var(--font-mono);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-  }
-
-  .bag-m__origin {
-    font: italic 600 11cqw/1 var(--font-serif);
-    letter-spacing: -0.03em;
-  }
-
-  .bag-m__beans {
-    display: flex;
-    gap: 1.6cqw;
-    margin-top: auto;
-  }
-
-  .bag-m__beans span {
-    width: 3.6cqw;
-    height: 5cqw;
-    border-radius: 50%;
-    background: #3b2414;
-    rotate: 28deg;
+  .bag-m__img {
+    width: auto;
+    height: 84%;
+    filter: drop-shadow(0 3cqw 3cqw rgb(0 0 0 / 30%));
   }
 
   /* 6. Story. */

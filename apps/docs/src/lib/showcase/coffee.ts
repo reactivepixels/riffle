@@ -37,6 +37,14 @@ export function mountCoffeeOrigins(scene: HTMLElement): void {
     scene.style.setProperty('--ink', ink!)
   })
 
+  // #endregion setup
+  // The roast and tasting notes for the bag in front, under the stack.
+  const detailText = scene.querySelector<HTMLElement>('[data-detail-text]')
+  riffle.on('change', ({ index }) => {
+    if (detailText) detailText.textContent = bags[index]!.dataset.detail!
+  })
+  // #region setup
+
   prevButton.addEventListener('click', () => riffle.prev())
   nextButton.addEventListener('click', () => riffle.next())
   // #endregion setup
