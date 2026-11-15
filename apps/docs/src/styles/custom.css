@@ -366,3 +366,15 @@
     padding-left: 6.5rem;
   }
 }
+
+/*
+ * Starlight's page wrapper, guarded. The Vue examples' own App.vue styles a
+ * `.page` class of its own; the production build keeps that rule scoped to
+ * the example, but the dev server can serve it unscoped, where it would
+ * centre and pad Starlight's `.page` and squeeze the content column.
+ */
+.page.sl-flex {
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+}
