@@ -102,7 +102,6 @@ const base = 'Go to'
         <path d="M0 100q30-16 60-4t30 0v64H0Z" fill="#a4134d"></path>
         <path d="M0 116q24-8 50 0t40-4v48H0Z" fill="#6d0f3c"></path>
       </svg>
-      <span class="story-m__bar"><span></span><span></span><span></span><span></span></span>
       <span class="story-m__text">Breakfast before the queue.</span>
     </span>
   </a>
@@ -184,17 +183,6 @@ const base = 'Go to'
     flex-direction: column;
     background: linear-gradient(180deg, #fffefb, #f6f3ec);
     color: #15171c;
-    --tear: calc(100% - 24cqw);
-    -webkit-mask:
-      radial-gradient(circle 4cqw at 0 var(--tear), transparent 3.9cqw, #000 4cqw) left / 51% 100%
-        no-repeat,
-      radial-gradient(circle 4cqw at 100% var(--tear), transparent 3.9cqw, #000 4cqw) right / 51%
-        100% no-repeat;
-    mask:
-      radial-gradient(circle 4cqw at 0 var(--tear), transparent 3.9cqw, #000 4cqw) left / 51% 100%
-        no-repeat,
-      radial-gradient(circle 4cqw at 100% var(--tear), transparent 3.9cqw, #000 4cqw) right / 51%
-        100% no-repeat;
   }
 
   .pass-m__band {
@@ -544,26 +532,6 @@ const base = 'Go to'
     background: linear-gradient(0deg, rgb(12 4 16 / 88%) 0%, transparent 45%);
   }
 
-  .story-m__bar {
-    position: absolute;
-    z-index: 1;
-    top: 5cqw;
-    left: 5cqw;
-    right: 5cqw;
-    display: flex;
-    gap: 1.6cqw;
-  }
-
-  .story-m__bar span {
-    flex: 1;
-    height: 1.4cqw;
-    border-radius: 1cqw;
-    background: rgb(255 255 255 / 45%);
-  }
-
-  .story-m__bar span:first-child {
-    background: #fff;
-  }
 
   .story-m__text {
     position: absolute;
