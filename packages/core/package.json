@@ -75,7 +75,6 @@
     "vue",
     "composables"
   ],
-  "dependencies": {},
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",
     "vue": "^3.4.20"
@@ -112,7 +111,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vue/test-utils": "^2.6.0",
-    "fast-check": "^4.10.2",
+    "fast-check": "^4.11.0",
     "happy-dom": "^21.0.4",
     "publint": "^0.3.25",
     "react": "^19.3.1",
@@ -120,8 +119,8 @@
     "size-limit": "^14.3.0",
     "tsup": "^9.0.0",
     "typescript": "^6.0.3",
-    "vitest": "^5.1.0",
-    "vue": "^3.5.45",
+    "vitest": "^5.1.1",
+    "vue": "^3.5.46",
     "vue-tsc": "^3.3.14"
   },
   "size-limit": [
